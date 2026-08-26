@@ -24,10 +24,17 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // de borde de la Web API, no de Application/Domain.
 builder.Services.AddValidatorsFromAssembly(typeof(Plataforma.Contracts.Common.DatosCalculoObraDtoValidator).Assembly);
 
+// Orígenes permitidos configurables (Cors:AllowedOrigins) — en local viene del
+// default en appsettings.json (Vite en :5173); en Azure se agrega el dominio
+// real de la Static Web App vía App Settings, sin hardcodear una URL de
+// despliegue específica en el código fuente.
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:5173"];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(FrontendCorsPolicy, policy =>
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
