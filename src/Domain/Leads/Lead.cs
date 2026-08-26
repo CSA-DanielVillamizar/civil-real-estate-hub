@@ -1,0 +1,111 @@
+using Plataforma.Domain.Common;
+using Plataforma.Domain.Leads.Events;
+using Plataforma.Domain.Leads.ValueObjects;
+using Plataforma.Domain.Propiedades;
+
+namespace Plataforma.Domain.Leads;
+
+public sealed class Lead : AggregateRoot<LeadId>
+{
+    public string Nombre { get; private set; }
+    public Email Email { get; private set; }
+    public Telefono Telefono { get; private set; }
+    public OrigenLead Origen { get; private set; }
+    public EstadoLead Estado { get; private set; }
+    public PropiedadId? PropiedadDeInteresId { get; private set; }
+    public EstimacionCosto? ResultadoCalculadora { get; private set; }
+
+    // Reservado para materialización de EF Core (Fase 4).
+    private Lead() { }
+
+    private Lead(
+        LeadId id,
+        string nombre,
+        Email email,
+        Telefono telefono,
+        OrigenLead origen,
+        PropiedadId? propiedadDeInteresId,
+        EstimacionCosto? resultadoCalculadora) : base(id)
+    {
+        Nombre = nombre;
+        Email = email;
+        Telefono = telefono;
+        Origen = origen;
+        PropiedadDeInteresId = propiedadDeInteresId;
+        ResultadoCalculadora = resultadoCalculadora;
+        Estado = EstadoLead.Nuevo;
+    }
+
+    public static Lead Registrar(
+        string nombre,
+        Email email,
+        Telefono telefono,
+        OrigenLead origen,
+        PropiedadId? propiedadDeInteresId = null,
+        EstimacionCosto? resultadoCalculadora = null)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new ArgumentException("El nombre es obligatorio.", nameof(nombre));
+
+        ArgumentNullException.ThrowIfNull(email);
+        ArgumentNullException.ThrowIfNull(telefono);
+
+        if (origen == OrigenLead.CalculadoraObra && resultadoCalculadora is null)
+            throw new ArgumentException(
+                "ResultadoCalculadora es obligatorio cuando el origen es CalculadoraObra.",
+                nameof(resultadoCalculadora));
+
+        var lead = new Lead(LeadId.Nueva(), nombre.Trim(), email, telefono, origen, propiedadDeInteresId, resultadoCalculadora);
+        lead.AddDomainEvent(new LeadCaptadoEvent(lead.Id, origen));
+        return lead;
+    }
+
+    public void MarcarContactado()
+    {
+        if (Estado != EstadoLead.Nuevo)
+            throw new InvalidOperationException($"No se puede contactar un lead en estado {Estado}.");
+
+        Estado = EstadoLead.Contactado;
+    }
+
+    public void Calificar()
+    {
+        if (Estado != EstadoLead.Contactado)
+            throw new InvalidOperationException($"No se puede calificar un lead en estado {Estado}.");
+
+        Estado = EstadoLead.Calificado;
+        AddDomainEvent(new LeadCalificadoEvent(Id));
+    }
+
+    public void Convertir()
+    {
+        if (Estado != EstadoLead.Calificado)
+            throw new InvalidOperationException($"No se puede convertir un lead en estado {Estado}.");
+
+        Estado = EstadoLead.Convertido;
+        AddDomainEvent(new LeadConvertidoEvent(Id));
+    }
+
+    public void Descartar(string motivo)
+    {
+        if (string.IsNullOrWhiteSpace(motivo))
+            throw new ArgumentException("El motivo de descarte es obligatorio.", nameof(motivo));
+
+        if (Estado is EstadoLead.Convertido)
+            throw new InvalidOperationException("No se puede descartar un lead ya convertido.");
+
+        Estado = EstadoLead.Descartado;
+        AddDomainEvent(new LeadDescartadoEvent(Id, motivo.Trim()));
+    }
+
+    // Reacciona a PropiedadVendidaEvent (ver docs/01-domain-model.md v1.1, §5):
+    // un prospecto interesado sigue siendo valioso, no se descarta.
+    public void RequerirNuevaOferta(PropiedadId propiedadVendidaId, string municipio)
+    {
+        if (Estado is EstadoLead.Convertido or EstadoLead.Descartado)
+            return;
+
+        Estado = EstadoLead.ContactoPendientePorReasignacion;
+        AddDomainEvent(new LeadRequiereNuevaOfertaEvent(Id, propiedadVendidaId, municipio));
+    }
+}

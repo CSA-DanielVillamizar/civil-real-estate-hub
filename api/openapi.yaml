@@ -1,0 +1,350 @@
+openapi: 3.0.3
+info:
+  title: Plataforma Web Integral de Ingeniería Civil e Inmobiliaria — API
+  description: >
+    Contratos de la Fase 2 (SDD) para los endpoints críticos de los bounded
+    contexts Inmobiliaria y CRM/Leads. Corresponde al modelo de dominio
+    aprobado en docs/01-domain-model.md (v1.1).
+  version: 0.2.0
+servers:
+  - url: https://api.plataforma-civil-inmobiliaria.local/v1
+    description: Entorno de referencia (a reemplazar por Azure App Service en Fase 4+)
+
+tags:
+  - name: Leads
+    description: Captación de leads (CRM)
+  - name: Properties
+    description: Consulta de inmuebles (Inmobiliaria)
+  - name: Budgets
+    description: Calculadora de obra (Domain Service sin persistencia)
+
+paths:
+  /api/leads:
+    post:
+      tags: [Leads]
+      operationId: createLead
+      summary: Registra un nuevo lead, opcionalmente originado en la calculadora de obra
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLeadRequest'
+      responses:
+        '201':
+          description: Lead creado
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateLeadResponse'
+        '400':
+          description: Error de validación
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetails'
+
+  /api/properties:
+    get:
+      tags: [Properties]
+      operationId: getProperties
+      summary: Lista propiedades con filtros y paginación
+      parameters:
+        - name: tipoInmueble
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/TipoInmueble'
+        - name: municipio
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+        - name: precioMin
+          in: query
+          required: false
+          schema:
+            type: number
+            format: decimal
+            minimum: 0
+        - name: precioMax
+          in: query
+          required: false
+          schema:
+            type: number
+            format: decimal
+            minimum: 0
+        - name: areaMin
+          in: query
+          required: false
+          schema:
+            type: number
+            format: decimal
+            minimum: 0
+        - name: areaMax
+          in: query
+          required: false
+          schema:
+            type: number
+            format: decimal
+            minimum: 0
+        - name: soloViablesConstructivamente
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Página de propiedades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedPropertyResponse'
+        '400':
+          description: Error de validación de filtros
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetails'
+
+  /api/budgets/calculate:
+    post:
+      tags: [Budgets]
+      operationId: calculateBudget
+      summary: Calcula una estimación de costo de obra (sin persistencia)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatosCalculoObra'
+      responses:
+        '200':
+          description: Estimación calculada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimacionCosto'
+        '400':
+          description: Error de validación
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetails'
+
+components:
+  schemas:
+    OrigenLead:
+      type: string
+      enum: [CalculadoraObra, FormularioContacto, LandingPage, Referido]
+
+    TipoAcabado:
+      type: string
+      enum: [Basico, Medio, Alto]
+
+    TipoProyecto:
+      type: string
+      enum: [Vivienda, Comercial, Industrial]
+
+    TipoInmueble:
+      type: string
+      enum: [Lote, Casa, Apartamento, Local, Bodega, Finca]
+
+    EstadoPropiedad:
+      type: string
+      enum: [Borrador, Publicada, Reservada, Vendida, Arrendada, Retirada]
+
+    DatosCalculoObra:
+      type: object
+      required: [areaConstruccionM2, tipoAcabado, municipio, tipoProyecto]
+      properties:
+        areaConstruccionM2:
+          type: number
+          format: decimal
+          exclusiveMinimum: true
+          minimum: 0
+          maximum: 100000
+        tipoAcabado:
+          $ref: '#/components/schemas/TipoAcabado'
+        municipio:
+          type: string
+          maxLength: 100
+        tipoProyecto:
+          $ref: '#/components/schemas/TipoProyecto'
+
+    DesgloseItem:
+      type: object
+      required: [categoria, monto]
+      properties:
+        categoria:
+          type: string
+        monto:
+          type: number
+          format: decimal
+
+    EstimacionCosto:
+      type: object
+      required: [montoMinimo, montoMaximo, moneda, desglose]
+      properties:
+        montoMinimo:
+          type: number
+          format: decimal
+        montoMaximo:
+          type: number
+          format: decimal
+        moneda:
+          type: string
+          example: COP
+        desglose:
+          type: array
+          items:
+            $ref: '#/components/schemas/DesgloseItem'
+
+    CreateLeadRequest:
+      type: object
+      required: [nombre, email, telefono, origen]
+      properties:
+        nombre:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        telefono:
+          type: string
+          pattern: '^[0-9]{7,15}$'
+        indicativo:
+          type: string
+          pattern: '^\+[0-9]{1,4}$'
+          default: '+57'
+        origen:
+          $ref: '#/components/schemas/OrigenLead'
+        propiedadDeInteresId:
+          type: string
+          format: uuid
+          nullable: true
+        datosCalculoObra:
+          allOf:
+            - $ref: '#/components/schemas/DatosCalculoObra'
+          nullable: true
+          description: Obligatorio cuando origen = CalculadoraObra
+
+    CreateLeadResponse:
+      type: object
+      required: [id, estado]
+      properties:
+        id:
+          type: string
+          format: uuid
+        estado:
+          type: string
+          example: Nuevo
+        estimacionCosto:
+          allOf:
+            - $ref: '#/components/schemas/EstimacionCosto'
+          nullable: true
+
+    PropertyResponse:
+      type: object
+      required:
+        - id
+        - titulo
+        - tipoInmueble
+        - precio
+        - moneda
+        - municipio
+        - departamento
+        - areaTerrenoM2
+        - estado
+        - esViableConstructivamente
+      properties:
+        id:
+          type: string
+          format: uuid
+        titulo:
+          type: string
+        tipoInmueble:
+          $ref: '#/components/schemas/TipoInmueble'
+        precio:
+          type: number
+          format: decimal
+        moneda:
+          type: string
+          example: COP
+        municipio:
+          type: string
+        departamento:
+          type: string
+        areaTerrenoM2:
+          type: number
+          format: decimal
+        areaConstruidaM2:
+          type: number
+          format: decimal
+          nullable: true
+        estado:
+          $ref: '#/components/schemas/EstadoPropiedad'
+        fotoPrincipalUrl:
+          type: string
+          format: uri
+          nullable: true
+        esViableConstructivamente:
+          type: boolean
+          description: >
+            Resultado de Propiedad.CalcularViabilidadConstructiva() (Domain) —
+            indica si el lote cumple las reglas de referencia de pendiente y
+            retiros ambientales (ver docs/01-domain-model.md, Fase 1 §1.4).
+
+    PagedPropertyResponse:
+      type: object
+      required: [items, page, pageSize, totalCount]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyResponse'
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalCount:
+          type: integer
+
+    ValidationProblemDetails:
+      type: object
+      description: Formato estándar de ASP.NET Core (ProblemDetails + errors)
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string

@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Segoe UI', system-ui, Roboto, sans-serif;
+}
+
+body {
+  margin: 0;
+  @apply bg-slate-50 text-slate-900 antialiased;
+}

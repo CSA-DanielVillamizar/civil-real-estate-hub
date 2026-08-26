@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Application/">
+    <Project Path="src/Application/Plataforma.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Contracts/">
+    <Project Path="src/Contracts/Plataforma.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Domain/">
+    <Project Path="src/Domain/Plataforma.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="src/Infrastructure/Plataforma.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/WebApi/">
+    <Project Path="src/WebApi/Plataforma.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Application.Tests/">
+    <Project Path="tests/Application.Tests/Plataforma.Application.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Domain.Tests/">
+    <Project Path="tests/Domain.Tests/Plataforma.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
