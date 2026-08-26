@@ -24,7 +24,7 @@
 param namePrefix string = 'plataformacivil'
 
 @description('Región de despliegue. Free tier de Static Web Apps solo está disponible en un subconjunto de regiones — verificar disponibilidad vigente antes de desplegar.')
-param location string = 'eastus2'
+param location string = 'centralus'
 
 @description('Login administrador del servidor SQL.')
 param sqlAdministratorLogin string = 'plataformaadmin'
@@ -41,7 +41,10 @@ var staticWebAppName = '${namePrefix}-web-${uniqueSuffix}'
 var appServicePlanName = '${namePrefix}-plan-${uniqueSuffix}'
 var appServiceName = '${namePrefix}-api-${uniqueSuffix}'
 var sqlServerName = '${namePrefix}-sql-${uniqueSuffix}'
-var keyVaultName = '${namePrefix}-kv-${uniqueSuffix}'
+// Key Vault exige nombres de máximo 24 caracteres (el más estricto de todos
+// los recursos de este template) — se prescinde de namePrefix aquí para que
+// nunca dependa de qué tan largo sea el prefijo elegido.
+var keyVaultName = 'kv-${uniqueSuffix}'
 var sqlConnectionStringSecretName = 'SqlConnectionString'
 
 // Rol built-in "Key Vault Secrets User" — GUID estable de Azure RBAC.
