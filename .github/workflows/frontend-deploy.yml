@@ -43,12 +43,15 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ vars.BACKEND_API_BASE_URL }}
 
+      # Con skip_app_build: true la acción sube el contenido de app_location
+      # tal cual, IGNORANDO output_location (ese combo solo aplica cuando ella
+      # misma hace el build con Oryx) — por eso app_location debe apuntar
+      # directo a la carpeta ya compilada.
       - name: Desplegar en Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: 'upload'
-          app_location: 'frontend'
-          output_location: 'dist'
+          app_location: 'frontend/dist'
           skip_app_build: true
