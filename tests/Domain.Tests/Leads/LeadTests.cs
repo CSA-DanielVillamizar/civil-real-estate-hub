@@ -63,4 +63,38 @@ public sealed class LeadTests
 
         act.Should().Throw<EstadoLeadInvalidoException>();
     }
+
+    [Fact]
+    public void MarcarNotificacionComercialEnviada_ConLeadSinNotificar_RegistraLaMarcaDeTiempo()
+    {
+        var lead = CrearLeadNuevo();
+
+        lead.MarcarNotificacionComercialEnviada();
+
+        lead.NotificacionComercialEnviadaEn.Should().NotBeNull();
+        lead.NotificacionComercialEnviadaEn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public void MarcarNotificacionComercialEnviada_LlamadoDosVeces_EsIdempotenteYConservaLaPrimeraMarca()
+    {
+        var lead = CrearLeadNuevo();
+        lead.MarcarNotificacionComercialEnviada();
+        var primeraMarca = lead.NotificacionComercialEnviadaEn;
+
+        lead.MarcarNotificacionComercialEnviada();
+
+        lead.NotificacionComercialEnviadaEn.Should().Be(primeraMarca);
+    }
+
+    [Fact]
+    public void MarcarNotificacionComercialEnviada_NoDisparaEventosDeDominio()
+    {
+        var lead = CrearLeadNuevo();
+        lead.ClearDomainEvents();
+
+        lead.MarcarNotificacionComercialEnviada();
+
+        lead.DomainEvents.Should().BeEmpty();
+    }
 }

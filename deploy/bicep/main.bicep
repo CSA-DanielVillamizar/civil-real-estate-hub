@@ -12,6 +12,10 @@
 //                                              servicios de Azure
 //   4. Key Vault (Standard, RBAC)           — "Key Vault Secrets User" para
 //                                              la Managed Identity del App Service
+//   5. Storage Account (colas)              — Fase 2: LeadCaptadoEvent async,
+//                                              sin claves de cuenta (RBAC)
+//   6. Communication Services + Email       — Fase 2: correo de bienvenida,
+//      (dominio administrado por Azure)       dominio administrado por Azure
 //
 // Despliegue:
 //   az deployment group create \
@@ -36,6 +40,9 @@ param sqlAdministratorLoginPassword string
 @description('Nombre de la base de datos.')
 param sqlDatabaseName string = 'plataforma_civil_inmobiliaria'
 
+@description('URL de un webhook entrante (Slack/Teams/endpoint propio) para alertar al equipo comercial. Se puede dejar vacío y configurarlo después como App Setting.')
+param notificacionesWebhookUrl string = ''
+
 var uniqueSuffix = uniqueString(resourceGroup().id)
 var staticWebAppName = '${namePrefix}-web-${uniqueSuffix}'
 var appServicePlanName = '${namePrefix}-plan-${uniqueSuffix}'
@@ -46,9 +53,20 @@ var sqlServerName = '${namePrefix}-sql-${uniqueSuffix}'
 // nunca dependa de qué tan largo sea el prefijo elegido.
 var keyVaultName = 'kv-${uniqueSuffix}'
 var sqlConnectionStringSecretName = 'SqlConnectionString'
+// Storage Account: 3-24 caracteres, solo minúsculas/números, sin guiones.
+var storageAccountName = toLower('st${uniqueSuffix}')
+var queueName = 'lead-notifications'
+var communicationServiceName = '${namePrefix}-acs-${uniqueSuffix}'
+var emailServiceName = '${namePrefix}-email-${uniqueSuffix}'
 
-// Rol built-in "Key Vault Secrets User" — GUID estable de Azure RBAC.
+// Roles built-in de Azure RBAC — GUIDs estables, verificados contra la
+// documentación oficial (Key Vault Secrets User, Storage Queue Data
+// Contributor) y directamente vía `az role definition list` (Communication
+// and Email Service Owner, que no aparece expuesto como GUID en la
+// documentación pública — solo por nombre).
 var keyVaultSecretsUserRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
+var storageQueueDataContributorRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '974c5e8b-45b9-4653-ba55-5f855dd0fb88')
+var communicationEmailServiceOwnerRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '09976791-48a7-449e-bb21-39d1a415f350')
 
 // -----------------------------------------------------------------------
 // 1) Azure Static Web App (Free) — frontend React
@@ -110,6 +128,26 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'ConnectionStrings__PlataformaDb'
           value: '@Microsoft.KeyVault(SecretUri=${sqlConnectionStringSecret.properties.secretUri})'
+        }
+        {
+          name: 'Messaging__StorageQueueUri'
+          value: storageAccount.properties.primaryEndpoints.queue
+        }
+        {
+          name: 'Messaging__QueueName'
+          value: queueName
+        }
+        {
+          name: 'Notifications__CommunicationServicesEndpoint'
+          value: 'https://${communicationService.properties.hostName}'
+        }
+        {
+          name: 'Notifications__EmailFromAddress'
+          value: 'DoNotReply@${emailDomain.properties.mailFromSenderDomain}'
+        }
+        {
+          name: 'Notifications__WebhookUrl'
+          value: notificacionesWebhookUrl
         }
       ]
     }
@@ -210,9 +248,99 @@ resource appServiceKeyVaultAccess 'Microsoft.Authorization/roleAssignments@2022-
 }
 
 // -----------------------------------------------------------------------
+// 5) Storage Account (colas) — Fase 2: LeadCaptadoEvent asíncrono
+//    Sin claves de cuenta: allowSharedKeyAccess=false fuerza autenticación
+//    vía Microsoft Entra ID (Managed Identity), coherente con Zero Trust.
+// -----------------------------------------------------------------------
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: storageAccountName
+  location: location
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  properties: {
+    minimumTlsVersion: 'TLS1_2'
+    allowSharedKeyAccess: false
+    allowBlobPublicAccess: false
+  }
+}
+
+resource queueService 'Microsoft.Storage/storageAccounts/queueServices@2023-01-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource leadNotificationsQueue 'Microsoft.Storage/storageAccounts/queueServices/queues@2023-01-01' = {
+  parent: queueService
+  name: queueName
+}
+
+// Otorga a la Managed Identity del App Service el rol "Storage Queue Data
+// Contributor" — puede enviar/leer/eliminar mensajes, no administrar la
+// cuenta (mínimo privilegio).
+resource appServiceStorageQueueAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storageAccount.id, appService.id, storageQueueDataContributorRoleId)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: storageQueueDataContributorRoleId
+    principalId: appService.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// -----------------------------------------------------------------------
+// 6) Communication Services + Email (dominio administrado por Azure) —
+//    Fase 2: correo de bienvenida al lead.
+//    Recursos globales (no aceptan `location` regional); el dominio
+//    "AzureManaged" evita el proceso de verificación DNS de un dominio
+//    propio, a costa de enviar desde una dirección @<guid>.azurecomm.net.
+// -----------------------------------------------------------------------
+resource emailService 'Microsoft.Communication/emailServices@2023-04-01' = {
+  name: emailServiceName
+  location: 'global'
+}
+
+resource emailDomain 'Microsoft.Communication/emailServices/domains@2023-04-01' = {
+  parent: emailService
+  name: 'AzureManagedDomain'
+  location: 'global'
+  properties: {
+    domainManagement: 'AzureManaged'
+  }
+}
+
+resource communicationService 'Microsoft.Communication/communicationServices@2023-04-01' = {
+  name: communicationServiceName
+  location: 'global'
+  properties: {
+    dataLocation: 'United States'
+    linkedDomains: [
+      emailDomain.id
+    ]
+  }
+}
+
+// Otorga a la Managed Identity del App Service el rol "Communication and
+// Email Service Owner" — necesario para enviar correos vía EmailClient con
+// DefaultAzureCredential (Zero Trust, sin connection string).
+resource appServiceCommunicationAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(communicationService.id, appService.id, communicationEmailServiceOwnerRoleId)
+  scope: communicationService
+  properties: {
+    roleDefinitionId: communicationEmailServiceOwnerRoleId
+    principalId: appService.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// -----------------------------------------------------------------------
 // Outputs
 // -----------------------------------------------------------------------
 output staticWebAppDefaultHostname string = staticWebApp.properties.defaultHostname
 output appServiceDefaultHostname string = appService.properties.defaultHostName
 output sqlServerFullyQualifiedDomainName string = sqlServer.properties.fullyQualifiedDomainName
 output keyVaultName string = keyVault.name
+output storageQueueEndpoint string = storageAccount.properties.primaryEndpoints.queue
+output communicationServicesEndpoint string = 'https://${communicationService.properties.hostName}'
+output emailFromAddress string = 'DoNotReply@${emailDomain.properties.mailFromSenderDomain}'

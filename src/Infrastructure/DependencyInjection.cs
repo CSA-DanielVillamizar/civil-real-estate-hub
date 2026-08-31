@@ -1,7 +1,13 @@
+using Azure.Communication.Email;
+using Azure.Identity;
+using Azure.Storage.Queues;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Plataforma.Application.Common.Interfaces;
+using Plataforma.Infrastructure.Messaging;
+using Plataforma.Infrastructure.Notifications;
 using Plataforma.Infrastructure.Persistence;
 using Plataforma.Infrastructure.Persistence.Repositories;
 using Plataforma.Infrastructure.Reporting;
@@ -38,6 +44,8 @@ public static class DependencyInjection
         RegistrarFuenteEmbebida();
         services.AddSingleton<IPresupuestoPdfGenerator, QuestPdfPresupuestoPdfGenerator>();
 
+        services.AddMensajeriaYNotificaciones(configuration);
+
         return services;
     }
 
@@ -55,5 +63,49 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException($"No se encontró el recurso embebido '{resourceName}'.");
 
         QuestPDF.Drawing.FontManager.RegisterFontWithCustomName(QuestPdfPresupuestoPdfGenerator.FontFamily, fontStream);
+    }
+
+    // Fase 2 (SDD — Desacoplamiento Asíncrono + Zero Trust): LeadCaptadoEvent
+    // → Azure Storage Queue → BackgroundService en el mismo App Service →
+    // webhook comercial + correo (Azure Communication Services). Todas las
+    // conexiones usan DefaultAzureCredential (Managed Identity en Azure) —
+    // ninguna cadena de conexión con clave/secreto en configuración.
+    private static void AddMensajeriaYNotificaciones(this IServiceCollection services, IConfiguration configuration)
+    {
+        // El binder de configuración de .NET ya exige los miembros "required"
+        // de estas clases al enlazar — ValidateOnStart() hace que ese chequeo
+        // ocurra al arrancar la app, no en el primer request que los use.
+        services.AddOptions<MessagingOptions>()
+            .Bind(configuration.GetSection(MessagingOptions.SectionName))
+            .ValidateOnStart();
+
+        services.AddOptions<NotificationsOptions>()
+            .Bind(configuration.GetSection(NotificationsOptions.SectionName))
+            .ValidateOnStart();
+
+        services.AddSingleton(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<MessagingOptions>>().Value;
+            var queueServiceClient = new QueueServiceClient(new Uri(options.StorageQueueUri), new DefaultAzureCredential());
+            return queueServiceClient.GetQueueClient(options.QueueName);
+        });
+
+        services.AddSingleton(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<NotificationsOptions>>().Value;
+            return new EmailClient(new Uri(options.CommunicationServicesEndpoint), new DefaultAzureCredential());
+        });
+
+        services.AddScoped<ILeadNotificationQueue, AzureStorageQueueLeadNotificationQueue>();
+        services.AddScoped<IEmailBienvenidaService, AzureCommunicationEmailBienvenidaService>();
+        services.AddScoped<INotificacionComercialService, WebhookNotificacionComercialService>();
+
+        // Reintentos (SDD — Resiliencia): el webhook es un HTTP genérico sin
+        // políticas propias, a diferencia de EmailClient (que ya trae las
+        // suyas del Azure SDK) — aquí sí se agrega Polly explícitamente.
+        services.AddHttpClient(WebhookNotificacionComercialService.HttpClientName)
+            .AddStandardResilienceHandler();
+
+        services.AddHostedService<LeadNotificationQueueProcessor>();
     }
 }

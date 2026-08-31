@@ -16,6 +16,12 @@ public sealed class Lead : AggregateRoot<LeadId>
     public PropiedadId? PropiedadDeInteresId { get; private set; }
     public EstimacionCosto? ResultadoCalculadora { get; private set; }
 
+    // Marca de idempotencia (Fase 2 — SDD): el consumidor en background de la
+    // cola de notificaciones (alerta al equipo comercial + correo de
+    // bienvenida) la revisa antes de procesar, para no reenviar si el mensaje
+    // se entrega más de una vez (semántica "at-least-once" de Storage Queues).
+    public DateTimeOffset? NotificacionComercialEnviadaEn { get; private set; }
+
     // Reservado para materialización de EF Core (Fase 4).
     private Lead() { }
 
@@ -94,6 +100,14 @@ public sealed class Lead : AggregateRoot<LeadId>
 
         Estado = EstadoLead.Calificado;
         AddDomainEvent(new LeadCalificadoEvent(Id));
+    }
+
+    // Llamado por el consumidor de la cola (Infrastructure), no dispara un
+    // nuevo evento de dominio — es puramente un registro de idempotencia, no
+    // un cambio de estado del negocio.
+    public void MarcarNotificacionComercialEnviada()
+    {
+        NotificacionComercialEnviadaEn ??= DateTimeOffset.UtcNow;
     }
 
     public void Convertir()

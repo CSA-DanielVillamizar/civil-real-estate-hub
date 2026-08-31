@@ -23,4 +23,13 @@ public sealed class LeadRepository : ILeadRepository
         await _dbContext.Leads.AddAsync(lead, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task UpdateAsync(Lead lead, CancellationToken cancellationToken)
+    {
+        // Update() es un no-op seguro si la entidad ya está rastreada (el
+        // caso normal: viene de un GetByIdAsync en el mismo scope) — protege
+        // igual si en el futuro se llama con una entidad "desconectada".
+        _dbContext.Leads.Update(lead);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

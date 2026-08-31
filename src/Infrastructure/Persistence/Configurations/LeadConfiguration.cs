@@ -34,6 +34,11 @@ public sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
             .HasMaxLength(40)
             .IsRequired();
 
+        // Fase 2 (SDD) — marca de idempotencia del consumidor de la cola de
+        // notificaciones (ver Lead.MarcarNotificacionComercialEnviada).
+        builder.Property(l => l.NotificacionComercialEnviadaEn)
+            .HasColumnName("notificacion_comercial_enviada_en");
+
         // PropiedadId es un value object externo (referencia débil entre bounded
         // contexts — ver docs/01-domain-model.md §5): se guarda como Guid plano,
         // nunca como FK real hacia la tabla propiedades.
