@@ -30,16 +30,15 @@ public sealed class GenerarPresupuestoPdfCommandValidator : AbstractValidator<Ge
         RuleFor(x => x.DatosCalculoObra)
             .NotNull();
 
-        // Guardas .When (aunque el tipo del record no sea nullable): evita un
-        // NullReferenceException al evaluar estas reglas si en algún momento
-        // llega null, en vez de que FluentValidation reporte solo el error
-        // de "NotNull" de forma limpia.
-        RuleFor(x => x.DatosCalculoObra.AreaConstruccionM2)
+        // El operador ! es seguro aquí: .When() evita que FluentValidation
+        // evalúe estas reglas cuando DatosCalculoObra es null (ya cubierto
+        // por el NotNull() de arriba, que reporta ese caso limpiamente).
+        RuleFor(x => x.DatosCalculoObra!.AreaConstruccionM2)
             .GreaterThan(0)
             .LessThanOrEqualTo(100_000)
             .When(x => x.DatosCalculoObra is not null);
 
-        RuleFor(x => x.DatosCalculoObra.Municipio)
+        RuleFor(x => x.DatosCalculoObra!.Municipio)
             .NotEmpty()
             .MaximumLength(100)
             .When(x => x.DatosCalculoObra is not null);

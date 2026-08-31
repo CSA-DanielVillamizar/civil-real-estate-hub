@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useBudgetCalculator } from '../../hooks/useBudgetCalculator';
 import { useCreateLead } from '../../hooks/useCreateLead';
+import { useGenerarPresupuestoPdf } from '../../hooks/useGenerarPresupuestoPdf';
 import { OrigenLead, type DatosCalculoObra } from '../../types/common';
 import { CalculatorForm } from './CalculatorForm';
 import { EstimateSummary } from './EstimateSummary';
@@ -8,13 +9,16 @@ import { LeadCaptureForm } from './LeadCaptureForm';
 import type { LeadFormValues } from './validation';
 
 type Step = 'form' | 'estimate' | 'success';
+type ViaExito = 'formulario' | 'pdf' | null;
 
 export function BudgetCalculator() {
   const [step, setStep] = useState<Step>('form');
   const [datosCalculoObra, setDatosCalculoObra] = useState<DatosCalculoObra | null>(null);
+  const [viaExito, setViaExito] = useState<ViaExito>(null);
 
   const budgetCalculator = useBudgetCalculator();
   const createLead = useCreateLead();
+  const generarPdf = useGenerarPresupuestoPdf();
 
   async function handleCalcular(datos: DatosCalculoObra) {
     setDatosCalculoObra(datos);
@@ -33,15 +37,42 @@ export function BudgetCalculator() {
       datosCalculoObra,
     });
 
-    if (resultado) setStep('success');
+    if (resultado) {
+      setViaExito('formulario');
+      setStep('success');
+    }
+  }
+
+  // Descargar el PDF también registra el lead (ya calificado, ver
+  // GenerarPresupuestoPdfCommandHandler) — es una acción de conversión
+  // alternativa a "dejar mis datos", no un paso adicional después.
+  async function handleDescargarPdf(valores: LeadFormValues) {
+    if (!datosCalculoObra) return;
+
+    const exito = await generarPdf.generar({
+      nombre: valores.nombre,
+      email: valores.email,
+      telefono: valores.telefono,
+      origen: OrigenLead.CalculadoraObra,
+      datosCalculoObra,
+    });
+
+    if (exito) {
+      setViaExito('pdf');
+      setStep('success');
+    }
   }
 
   function handleReiniciar() {
     setStep('form');
     setDatosCalculoObra(null);
+    setViaExito(null);
     budgetCalculator.reset();
     createLead.reset();
+    generarPdf.reset();
   }
+
+  const errorDelPasoEstimado = createLead.error ?? generarPdf.error;
 
   return (
     <section className="mx-auto w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
@@ -59,9 +90,9 @@ export function BudgetCalculator() {
         </div>
       )}
 
-      {createLead.error && step === 'estimate' && (
+      {errorDelPasoEstimado && step === 'estimate' && (
         <div role="alert" className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {createLead.error}
+          {errorDelPasoEstimado}
         </div>
       )}
 
@@ -74,8 +105,10 @@ export function BudgetCalculator() {
           <EstimateSummary estimacion={budgetCalculator.estimacion} />
           <LeadCaptureForm
             isSubmitting={createLead.isSubmitting}
-            serverFieldErrors={createLead.fieldErrors}
+            isGenerandoPdf={generarPdf.isGenerando}
+            serverFieldErrors={{ ...generarPdf.fieldErrors, ...createLead.fieldErrors }}
             onSubmit={handleEnviarLead}
+            onDescargarPdf={handleDescargarPdf}
           />
           <button
             type="button"
@@ -92,9 +125,13 @@ export function BudgetCalculator() {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl text-emerald-600">
             ✓
           </div>
-          <h3 className="text-xl font-bold text-slate-900">¡Listo! Ya recibimos tu solicitud</h3>
+          <h3 className="text-xl font-bold text-slate-900">
+            {viaExito === 'pdf' ? '¡Listo! Tu PDF se está descargando' : '¡Listo! Ya recibimos tu solicitud'}
+          </h3>
           <p className="max-w-sm text-sm text-slate-500">
-            Un asesor de nuestro equipo te contactará pronto con una cotización detallada para tu proyecto.
+            {viaExito === 'pdf'
+              ? 'Revisa tu carpeta de descargas. Un asesor de nuestro equipo también te contactará pronto con una cotización detallada.'
+              : 'Un asesor de nuestro equipo te contactará pronto con una cotización detallada para tu proyecto.'}
           </p>
           <button
             type="button"

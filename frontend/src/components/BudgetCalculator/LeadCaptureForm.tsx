@@ -4,11 +4,19 @@ import { initialLeadValues, validateLeadForm, type LeadFormValues } from './vali
 
 interface LeadCaptureFormProps {
   isSubmitting: boolean;
+  isGenerandoPdf: boolean;
   serverFieldErrors: Record<string, string[]>;
   onSubmit: (valores: LeadFormValues) => void;
+  onDescargarPdf: (valores: LeadFormValues) => void;
 }
 
-export function LeadCaptureForm({ isSubmitting, serverFieldErrors, onSubmit }: LeadCaptureFormProps) {
+export function LeadCaptureForm({
+  isSubmitting,
+  isGenerandoPdf,
+  serverFieldErrors,
+  onSubmit,
+  onDescargarPdf,
+}: LeadCaptureFormProps) {
   const [values, setValues] = useState<LeadFormValues>(initialLeadValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -22,22 +30,34 @@ export function LeadCaptureForm({ isSubmitting, serverFieldErrors, onSubmit }: L
     setErrors(validateLeadForm({ ...values }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  // Ambas acciones (dejar los datos vs. descargar el PDF) parten de los
+  // mismos campos y la misma validación — solo difieren en qué caso de uso
+  // disparan al final.
+  function validarYEjecutar(accion: (valores: LeadFormValues) => void) {
     const validationErrors = validateLeadForm(values);
     setErrors(validationErrors);
     setTouched({ nombre: true, email: true, telefono: true });
 
     if (Object.keys(validationErrors).length > 0) return;
 
-    onSubmit(values);
+    accion(values);
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    validarYEjecutar(onSubmit);
+  }
+
+  function handleDescargarPdf() {
+    validarYEjecutar(onDescargarPdf);
   }
 
   const showError = (field: keyof LeadFormValues) => {
     if (serverFieldErrors[field]?.length) return serverFieldErrors[field][0];
     return touched[field] ? errors[field] : undefined;
   };
+
+  const deshabilitado = isSubmitting || isGenerandoPdf;
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
@@ -81,13 +101,24 @@ export function LeadCaptureForm({ isSubmitting, serverFieldErrors, onSubmit }: L
         />
       </FormField>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="mt-2 inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-      >
-        {isSubmitting ? 'Enviando…' : 'Quiero mi cotización detallada'}
-      </button>
+      <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+        <button
+          type="button"
+          onClick={handleDescargarPdf}
+          disabled={deshabilitado}
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-emerald-600 px-5 py-3 font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-emerald-300 disabled:text-emerald-300"
+        >
+          {isGenerandoPdf ? 'Generando PDF…' : 'Descargar presupuesto en PDF'}
+        </button>
+
+        <button
+          type="submit"
+          disabled={deshabilitado}
+          className="inline-flex flex-1 items-center justify-center rounded-lg bg-slate-900 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+        >
+          {isSubmitting ? 'Enviando…' : 'Quiero mi cotización detallada'}
+        </button>
+      </div>
     </form>
   );
 }
