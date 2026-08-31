@@ -1,5 +1,6 @@
 using Plataforma.Domain.Common;
 using Plataforma.Domain.Leads.Events;
+using Plataforma.Domain.Leads.Exceptions;
 using Plataforma.Domain.Leads.ValueObjects;
 using Plataforma.Domain.Propiedades;
 
@@ -72,6 +73,24 @@ public sealed class Lead : AggregateRoot<LeadId>
     {
         if (Estado != EstadoLead.Contactado)
             throw new InvalidOperationException($"No se puede calificar un lead en estado {Estado}.");
+
+        Estado = EstadoLead.Calificado;
+        AddDomainEvent(new LeadCalificadoEvent(Id));
+    }
+
+    // Señal de calificación automática: descargar el PDF del presupuesto es
+    // evidencia de intención de compra más fuerte que solo usar la
+    // calculadora, así que el lead se califica sin pasar por el ciclo manual
+    // Contactado → Calificar() (ese sigue existiendo para la calificación
+    // hecha por un asesor). Idempotente: si ya estaba Calificado, no repite
+    // el evento.
+    public void CalificarPorDescargaDePdf()
+    {
+        if (Estado is EstadoLead.Convertido or EstadoLead.Descartado)
+            throw new EstadoLeadInvalidoException($"No se puede calificar un lead en estado {Estado}.");
+
+        if (Estado == EstadoLead.Calificado)
+            return;
 
         Estado = EstadoLead.Calificado;
         AddDomainEvent(new LeadCalificadoEvent(Id));
