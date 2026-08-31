@@ -10,6 +10,10 @@ namespace Plataforma.Infrastructure.Reporting;
 // el caso de uso no conoce QuestPDF ni ningún detalle de renderizado.
 public sealed class QuestPdfPresupuestoPdfGenerator : IPresupuestoPdfGenerator
 {
+    // Nombre con el que DependencyInjection.RegistrarFuenteEmbebida() registra
+    // Open Sans — un solo lugar de verdad para el nombre de la fuente.
+    public const string FontFamily = "Open Sans";
+
     public byte[] Generar(Lead lead)
     {
         var estimacion = lead.ResultadoCalculadora
@@ -21,7 +25,7 @@ public sealed class QuestPdfPresupuestoPdfGenerator : IPresupuestoPdfGenerator
             {
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
-                page.DefaultTextStyle(style => style.FontSize(11));
+                page.DefaultTextStyle(style => style.FontFamily(FontFamily).FontSize(11));
 
                 page.Header().Column(column =>
                 {

@@ -35,8 +35,25 @@ public static class DependencyInjection
         // MVP. Si el negocio supera ese umbral más adelante, hay que
         // verificar si se necesita licencia comercial.
         QuestPDF.Settings.License = LicenseType.Community;
+        RegistrarFuenteEmbebida();
         services.AddSingleton<IPresupuestoPdfGenerator, QuestPdfPresupuestoPdfGenerator>();
 
         return services;
+    }
+
+    // Los contenedores Linux mínimos de App Service (F1) no traen ninguna
+    // fuente del sistema — sin esto, QuestPDF falla (o cuelga) al renderizar
+    // texto en producción, aunque en local funcione perfecto. Se registra
+    // Open Sans embebida (SIL OFL 1.1, ver Reporting/Fonts/OFL.txt) con
+    // nombre explícito para no depender de metadatos internos del archivo.
+    private static void RegistrarFuenteEmbebida()
+    {
+        var assembly = typeof(DependencyInjection).Assembly;
+        const string resourceName = "Plataforma.Infrastructure.Reporting.Fonts.OpenSans.ttf";
+
+        using var fontStream = assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"No se encontró el recurso embebido '{resourceName}'.");
+
+        QuestPDF.Drawing.FontManager.RegisterFontWithCustomName(QuestPdfPresupuestoPdfGenerator.FontFamily, fontStream);
     }
 }

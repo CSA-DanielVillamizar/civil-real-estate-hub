@@ -5,6 +5,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Open Sans (SIL OFL 1.1 — ver Reporting/Fonts/OFL.txt), embebida para
+         que QuestPDF no dependa de fuentes del sistema operativo: los
+         contenedores Linux mínimos de App Service no traen ninguna, lo que
+         hace fallar (o colgar) el renderizado del PDF en producción. -->
+    <EmbeddedResource Include="Reporting\Fonts\OpenSans.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
