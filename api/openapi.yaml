@@ -223,6 +223,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidationProblemDetails'
 
+    get:
+      tags: [ViabilidadAmbiental]
+      operationId: getSolicitudesViabilidadAmbiental
+      summary: >
+        Lista las solicitudes de viabilidad ambiental, con los datos de
+        contacto del solicitante — por eso requiere el mismo API key
+        administrativo que confirmar-pago, no es un endpoint público.
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/EstadoSolicitudViabilidad'
+      responses:
+        '200':
+          description: Listado de solicitudes (más reciente primero)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudViabilidadAmbientalListItem'
+        '401':
+          description: X-Admin-Api-Key ausente o incorrecto
+
   /api/viabilidad-ambiental/solicitudes/{id}/confirmar-pago:
     post:
       tags: [ViabilidadAmbiental]
@@ -460,6 +487,48 @@ components:
             type: array
             items:
               type: string
+
+    EstadoSolicitudViabilidad:
+      type: string
+      enum: [Solicitada, Pagada, Rechazada]
+
+    SolicitudViabilidadAmbientalListItem:
+      type: object
+      required: [id, nombre, email, telefono, monto, moneda, estado, solicitadaEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        email:
+          type: string
+        telefono:
+          type: string
+        propiedadId:
+          type: string
+          format: uuid
+          nullable: true
+        municipio:
+          type: string
+          nullable: true
+        departamento:
+          type: string
+          nullable: true
+        monto:
+          type: number
+          format: decimal
+        moneda:
+          type: string
+        estado:
+          $ref: '#/components/schemas/EstadoSolicitudViabilidad'
+        solicitadaEn:
+          type: string
+          format: date-time
+        pagoConfirmadoEn:
+          type: string
+          format: date-time
+          nullable: true
 
     SolicitarViabilidadAmbientalRequest:
       type: object

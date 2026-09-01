@@ -1,6 +1,14 @@
 import { BudgetCalculator } from './components/BudgetCalculator/BudgetCalculator';
+import { ViabilidadAmbientalAdminPage } from './components/Admin/ViabilidadAmbientalAdminPage';
 
 function App() {
+  // Ruteo mínimo por path — no se agrega react-router para una sola ruta
+  // administrativa, coherente con la filosofía de dependencias mínimas del
+  // proyecto (ver docs/02-business-case.md §6, FinOps).
+  if (window.location.pathname === '/admin/viabilidad-ambiental') {
+    return <ViabilidadAmbientalAdminPage />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white">
       <header className="border-b border-slate-200 bg-white">

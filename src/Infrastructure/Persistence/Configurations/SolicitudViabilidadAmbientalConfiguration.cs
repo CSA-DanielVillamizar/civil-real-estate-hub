@@ -23,6 +23,10 @@ public sealed class SolicitudViabilidadAmbientalConfiguration : IEntityTypeConfi
             .HasMaxLength(20)
             .IsRequired();
 
+        builder.Property(s => s.SolicitadaEn)
+            .HasColumnName("solicitada_en")
+            .IsRequired();
+
         builder.Property(s => s.PagoConfirmadoEn)
             .HasColumnName("pago_confirmado_en");
 

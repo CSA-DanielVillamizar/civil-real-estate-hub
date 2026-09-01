@@ -41,3 +41,10 @@ public enum EstadoPropiedadDto
     Arrendada,
     Retirada
 }
+
+public enum EstadoSolicitudViabilidadDto
+{
+    Solicitada,
+    Pagada,
+    Rechazada
+}

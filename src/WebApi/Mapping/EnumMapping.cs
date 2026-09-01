@@ -1,6 +1,7 @@
 using ContractsEnums = Plataforma.Contracts.Common;
 using DomainLeads = Plataforma.Domain.Leads;
 using DomainPropiedades = Plataforma.Domain.Propiedades;
+using DomainViabilidadAmbiental = Plataforma.Domain.ViabilidadAmbiental;
 
 namespace Plataforma.WebApi.Mapping;
 
@@ -26,4 +27,7 @@ public static class EnumMapping
 
     public static ContractsEnums.EstadoPropiedadDto ToContract(this DomainPropiedades.EstadoPropiedad estado) =>
         Enum.Parse<ContractsEnums.EstadoPropiedadDto>(estado.ToString());
+
+    public static DomainViabilidadAmbiental.EstadoSolicitudViabilidad ToDomain(this ContractsEnums.EstadoSolicitudViabilidadDto estado) =>
+        Enum.Parse<DomainViabilidadAmbiental.EstadoSolicitudViabilidad>(estado.ToString());
 }

@@ -13,12 +13,27 @@ public static class ViabilidadAmbientalEndpoints
             .WithName("solicitarViabilidadAmbiental")
             .WithTags("ViabilidadAmbiental");
 
-        // Único endpoint administrativo del sistema por ahora — ver
-        // AdminApiKeyEndpointFilter para el porqué de este mecanismo.
+        // Endpoints administrativos — ver AdminApiKeyEndpointFilter para el
+        // porqué de este mecanismo. GetAsync expone datos de contacto de los
+        // solicitantes, por eso también queda protegido (no solo la escritura).
+        app.MapGet("/api/viabilidad-ambiental/solicitudes", GetAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("getSolicitudesViabilidadAmbiental")
+            .WithTags("ViabilidadAmbiental");
+
         app.MapPost("/api/viabilidad-ambiental/solicitudes/{id:guid}/confirmar-pago", ConfirmarPagoAsync)
             .AddEndpointFilter<AdminApiKeyEndpointFilter>()
             .WithName("confirmarPagoViabilidadAmbiental")
             .WithTags("ViabilidadAmbiental");
+    }
+
+    private static async Task<IResult> GetAsync(
+        [AsParameters] GetSolicitudesViabilidadAmbientalQuery query,
+        ISender mediator,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(query.ToApplicationQuery(), cancellationToken);
+        return Results.Ok(result.Select(item => item.ToContract()));
     }
 
     private static async Task<IResult> SolicitarAsync(

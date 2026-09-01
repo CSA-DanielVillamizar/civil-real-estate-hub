@@ -27,4 +27,15 @@ public sealed class SolicitudViabilidadAmbientalRepository : ISolicitudViabilida
         _dbContext.SolicitudesViabilidadAmbiental.Update(solicitud);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<SolicitudViabilidadAmbiental>> ListAsync(
+        EstadoSolicitudViabilidad? estado, CancellationToken cancellationToken)
+    {
+        var query = _dbContext.SolicitudesViabilidadAmbiental.AsNoTracking().AsQueryable();
+
+        if (estado is not null)
+            query = query.Where(s => s.Estado == estado);
+
+        return await query.OrderByDescending(s => s.SolicitadaEn).ToListAsync(cancellationToken);
+    }
 }

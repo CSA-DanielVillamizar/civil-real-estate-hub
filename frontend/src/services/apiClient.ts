@@ -8,6 +8,7 @@ interface RequestOptions {
   method?: 'GET' | 'POST';
   body?: unknown;
   signal?: AbortSignal;
+  headers?: Record<string, string>;
 }
 
 // Primitiva compartida: hace el fetch, traduce errores de red/HTTP a ApiError
@@ -19,11 +20,19 @@ async function fetchOk(path: string, options: RequestOptions): Promise<Response>
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       method: options.method ?? 'GET',
-      headers: options.body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: {
+        ...(options.body ? { 'Content-Type': 'application/json' } : undefined),
+        ...options.headers,
+      },
       body: options.body ? JSON.stringify(options.body) : undefined,
       signal: options.signal,
     });
-  } catch {
+  } catch (err) {
+    // Un abort intencional (ej. limpieza de useEffect en StrictMode, o el
+    // usuario navega antes de que responda) no es un error de red real — se
+    // deja propagar tal cual para que el llamador lo distinga (ver
+    // useSolicitudesViabilidadAmbiental) en vez de mostrarlo como falla.
+    if (err instanceof DOMException && err.name === 'AbortError') throw err;
     throw new ApiError(0, { title: 'No se pudo conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.' });
   }
 

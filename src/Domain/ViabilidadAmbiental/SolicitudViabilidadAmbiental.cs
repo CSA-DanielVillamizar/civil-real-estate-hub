@@ -14,6 +14,7 @@ public sealed class SolicitudViabilidadAmbiental : AggregateRoot<SolicitudViabil
     public UbicacionLote? UbicacionLote { get; private set; }
     public Dinero Monto { get; private set; }
     public EstadoSolicitudViabilidad Estado { get; private set; }
+    public DateTimeOffset SolicitadaEn { get; private set; }
     public DateTimeOffset? PagoConfirmadoEn { get; private set; }
 
     // Reservado para materialización de EF Core.
@@ -31,6 +32,7 @@ public sealed class SolicitudViabilidadAmbiental : AggregateRoot<SolicitudViabil
         UbicacionLote = ubicacionLote;
         Monto = monto;
         Estado = EstadoSolicitudViabilidad.Solicitada;
+        SolicitadaEn = DateTimeOffset.UtcNow;
     }
 
     public static SolicitudViabilidadAmbiental Solicitar(
