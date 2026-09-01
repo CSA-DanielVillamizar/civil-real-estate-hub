@@ -48,3 +48,42 @@ public enum EstadoSolicitudViabilidadDto
     Pagada,
     Rechazada
 }
+
+public enum TipoSueloDto
+{
+    Arcilloso,
+    Arenoso,
+    Rocoso,
+    Franco,
+    Limoso
+}
+
+public enum TopografiaDto
+{
+    Plana,
+    Inclinada,
+    Irregular
+}
+
+public enum TipoFuenteRetiroDto
+{
+    Rio,
+    Quebrada,
+    Bosque,
+    ViaPrincipal,
+    LineaAltaTension
+}
+
+public enum TipoMultimediaDto
+{
+    Foto,
+    Plano,
+    Render,
+    Video
+}
+
+public enum UnidadMedidaAreaDto
+{
+    M2,
+    Hectarea
+}

@@ -1,5 +1,6 @@
 using Azure.Communication.Email;
 using Azure.Identity;
+using Azure.Storage.Blobs;
 using Azure.Storage.Queues;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +11,7 @@ using Plataforma.Infrastructure.Messaging;
 using Plataforma.Infrastructure.Notifications;
 using Plataforma.Infrastructure.Persistence;
 using Plataforma.Infrastructure.Persistence.Repositories;
+using Plataforma.Infrastructure.Properties;
 using Plataforma.Infrastructure.Reporting;
 using Plataforma.Infrastructure.ViabilidadAmbiental;
 using QuestPDF.Infrastructure;
@@ -48,6 +50,7 @@ public static class DependencyInjection
 
         services.AddMensajeriaYNotificaciones(configuration);
         services.AddViabilidadAmbiental(configuration);
+        services.AddPropertiesImageStorage(configuration);
 
         return services;
     }
@@ -122,5 +125,25 @@ public static class DependencyInjection
 
         services.AddScoped<IDatosBancariosProvider, ConfiguracionDatosBancariosProvider>();
         services.AddScoped<IEmailSolicitudViabilidadAmbientalService, AzureCommunicationEmailSolicitudViabilidadAmbientalService>();
+    }
+
+    // Reutiliza la Storage Account de Fase 2 (Managed Identity, sin claves) —
+    // solo agrega un contenedor Blob nuevo, ver deploy/bicep. El contenedor
+    // se crea vía Bicep, no aquí en DI (mismo criterio que EmailClient: sin
+    // llamadas de red bloqueantes al arrancar la app).
+    private static void AddPropertiesImageStorage(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<PropertiesOptions>()
+            .Bind(configuration.GetSection(PropertiesOptions.SectionName))
+            .ValidateOnStart();
+
+        services.AddSingleton(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<PropertiesOptions>>().Value;
+            var blobServiceClient = new BlobServiceClient(new Uri(options.BlobServiceUri), new DefaultAzureCredential());
+            return blobServiceClient.GetBlobContainerClient(options.ContainerName);
+        });
+
+        services.AddScoped<IPropertyImageStorage, AzureBlobPropertyImageStorage>();
     }
 }

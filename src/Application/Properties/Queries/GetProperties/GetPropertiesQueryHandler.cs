@@ -15,6 +15,11 @@ public sealed class GetPropertiesQueryHandler : IRequestHandler<GetPropertiesQue
 
     public async Task<PagedResult<PropertyDto>> Handle(GetPropertiesQuery request, CancellationToken cancellationToken)
     {
+        // GET /api/properties es público (sin AdminApiKeyEndpointFilter) — el
+        // estado NUNCA es un parámetro que el llamador controle, siempre se
+        // fuerza a Publicada. Sin esto, un Borrador (o cualquier otro estado
+        // interno) quedaría expuesto en el catálogo público apenas se crea,
+        // antes de que el administrador decida publicarlo.
         var filter = new PropertyFilter(
             request.TipoInmueble,
             request.Municipio,
@@ -22,7 +27,8 @@ public sealed class GetPropertiesQueryHandler : IRequestHandler<GetPropertiesQue
             request.PrecioMax,
             request.AreaMin,
             request.AreaMax,
-            request.SoloViablesConstructivamente);
+            request.SoloViablesConstructivamente,
+            Estado: Domain.Propiedades.EstadoPropiedad.Publicada);
 
         var (items, totalCount) = await _propertyRepository.SearchAsync(
             filter,

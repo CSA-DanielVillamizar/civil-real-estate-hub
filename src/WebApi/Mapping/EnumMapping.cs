@@ -28,6 +28,36 @@ public static class EnumMapping
     public static ContractsEnums.EstadoPropiedadDto ToContract(this DomainPropiedades.EstadoPropiedad estado) =>
         Enum.Parse<ContractsEnums.EstadoPropiedadDto>(estado.ToString());
 
+    public static DomainPropiedades.EstadoPropiedad ToDomain(this ContractsEnums.EstadoPropiedadDto estado) =>
+        Enum.Parse<DomainPropiedades.EstadoPropiedad>(estado.ToString());
+
     public static DomainViabilidadAmbiental.EstadoSolicitudViabilidad ToDomain(this ContractsEnums.EstadoSolicitudViabilidadDto estado) =>
         Enum.Parse<DomainViabilidadAmbiental.EstadoSolicitudViabilidad>(estado.ToString());
+
+    public static DomainPropiedades.TipoSuelo ToDomain(this ContractsEnums.TipoSueloDto tipoSuelo) =>
+        Enum.Parse<DomainPropiedades.TipoSuelo>(tipoSuelo.ToString());
+
+    public static ContractsEnums.TipoSueloDto ToContract(this DomainPropiedades.TipoSuelo tipoSuelo) =>
+        Enum.Parse<ContractsEnums.TipoSueloDto>(tipoSuelo.ToString());
+
+    public static DomainPropiedades.Topografia ToDomain(this ContractsEnums.TopografiaDto topografia) =>
+        Enum.Parse<DomainPropiedades.Topografia>(topografia.ToString());
+
+    public static ContractsEnums.TopografiaDto ToContract(this DomainPropiedades.Topografia topografia) =>
+        Enum.Parse<ContractsEnums.TopografiaDto>(topografia.ToString());
+
+    public static DomainPropiedades.TipoFuenteRetiro ToDomain(this ContractsEnums.TipoFuenteRetiroDto tipoFuente) =>
+        Enum.Parse<DomainPropiedades.TipoFuenteRetiro>(tipoFuente.ToString());
+
+    public static ContractsEnums.TipoFuenteRetiroDto ToContract(this DomainPropiedades.TipoFuenteRetiro tipoFuente) =>
+        Enum.Parse<ContractsEnums.TipoFuenteRetiroDto>(tipoFuente.ToString());
+
+    public static DomainPropiedades.TipoMultimedia ToDomain(this ContractsEnums.TipoMultimediaDto tipo) =>
+        Enum.Parse<DomainPropiedades.TipoMultimedia>(tipo.ToString());
+
+    public static ContractsEnums.TipoMultimediaDto ToContract(this DomainPropiedades.TipoMultimedia tipo) =>
+        Enum.Parse<ContractsEnums.TipoMultimediaDto>(tipo.ToString());
+
+    public static DomainPropiedades.UnidadMedidaArea ToDomain(this ContractsEnums.UnidadMedidaAreaDto unidad) =>
+        Enum.Parse<DomainPropiedades.UnidadMedidaArea>(unidad.ToString());
 }

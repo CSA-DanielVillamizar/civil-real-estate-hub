@@ -19,4 +19,6 @@ public interface IPropertyRepository
     Task<Propiedad?> GetByIdAsync(PropiedadId id, CancellationToken cancellationToken);
 
     Task AddAsync(Propiedad propiedad, CancellationToken cancellationToken);
+
+    Task UpdateAsync(Propiedad propiedad, CancellationToken cancellationToken);
 }

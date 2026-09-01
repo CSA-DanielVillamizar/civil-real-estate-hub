@@ -22,6 +22,9 @@ public sealed class PropertyRepository : IPropertyRepository
     {
         var query = _dbContext.Propiedades.AsNoTracking().AsQueryable();
 
+        if (filter.Estado is not null)
+            query = query.Where(p => p.Estado == filter.Estado);
+
         if (filter.TipoInmueble is not null)
             query = query.Where(p => p.TipoInmueble == filter.TipoInmueble);
 
@@ -76,6 +79,12 @@ public sealed class PropertyRepository : IPropertyRepository
     public async Task AddAsync(Propiedad propiedad, CancellationToken cancellationToken)
     {
         await _dbContext.Propiedades.AddAsync(propiedad, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpdateAsync(Propiedad propiedad, CancellationToken cancellationToken)
+    {
+        _dbContext.Propiedades.Update(propiedad);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

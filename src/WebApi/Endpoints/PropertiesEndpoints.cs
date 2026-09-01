@@ -1,6 +1,9 @@
 using MediatR;
+using Plataforma.Contracts.Common;
 using Plataforma.Contracts.Properties;
 using Plataforma.WebApi.Mapping;
+using Plataforma.WebApi.Security;
+using ApplicationAgregarMultimediaCommand = Plataforma.Application.Properties.Commands.AgregarMultimediaAPropiedad.AgregarMultimediaAPropiedadCommand;
 
 namespace Plataforma.WebApi.Endpoints;
 
@@ -10,6 +13,38 @@ public static class PropertiesEndpoints
     {
         app.MapGet("/api/properties", GetAsync)
             .WithName("getProperties")
+            .WithTags("Properties");
+
+        app.MapGet("/api/properties/{id:guid}", GetByIdAsync)
+            .WithName("getPropertyById")
+            .WithTags("Properties");
+
+        // Listado administrativo: a diferencia de GET /api/properties
+        // (público, siempre filtra Estado=Publicada), este ve cualquier
+        // estado — así el panel admin encuentra los borradores pendientes
+        // de multimedia/publicación.
+        app.MapGet("/api/properties/admin", GetAdminAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("getPropertiesAdmin")
+            .WithTags("Properties");
+
+        // Endpoints administrativos — mismo AdminApiKeyEndpointFilter que
+        // ViabilidadAmbiental (un solo mecanismo de protección en todo el
+        // sistema, ver el análisis de esa fase).
+        app.MapPost("/api/properties", CreateAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("createProperty")
+            .WithTags("Properties");
+
+        app.MapPost("/api/properties/{id:guid}/multimedia", AgregarMultimediaAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .DisableAntiforgery()
+            .WithName("agregarMultimediaAPropiedad")
+            .WithTags("Properties");
+
+        app.MapPost("/api/properties/{id:guid}/publicar", PublicarAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("publicarPropiedad")
             .WithTags("Properties");
     }
 
@@ -23,5 +58,54 @@ public static class PropertiesEndpoints
     {
         var result = await mediator.Send(query.ToApplicationQuery(), cancellationToken);
         return Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> GetAdminAsync(
+        [AsParameters] GetPropertiesAdminQuery query,
+        ISender mediator,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(query.ToApplicationQuery(), cancellationToken);
+        return Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> GetByIdAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToGetByIdQuery(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> CreateAsync(
+        CrearPropiedadRequest request,
+        ISender mediator,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(request.ToCommand(), cancellationToken);
+        var response = result.ToContract();
+
+        return Results.Created($"/api/properties/{response.Id}", response);
+    }
+
+    // multipart/form-data — el archivo viaja como IFormFile, el tipo
+    // (Foto/Plano/Render/Video) como campo de formulario aparte.
+    private static async Task<IResult> AgregarMultimediaAsync(
+        Guid id,
+        IFormFile archivo,
+        TipoMultimediaDto tipo,
+        ISender mediator,
+        CancellationToken cancellationToken)
+    {
+        await using var stream = archivo.OpenReadStream();
+
+        var command = new ApplicationAgregarMultimediaCommand(id, stream, archivo.FileName, archivo.ContentType, tipo.ToDomain());
+        var result = await mediator.Send(command, cancellationToken);
+
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> PublicarAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToPublicarCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
     }
 }

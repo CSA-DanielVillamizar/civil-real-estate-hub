@@ -16,6 +16,9 @@
 //                                              sin claves de cuenta (RBAC)
 //   6. Communication Services + Email       — Fase 2: correo de bienvenida,
 //      (dominio administrado por Azure)       dominio administrado por Azure
+//   7. Storage Blob container (multimedia)  — Catálogo de propiedades:
+//                                              fotos/planos, acceso público
+//                                              de lectura, misma cuenta de 5.
 //
 // Despliegue:
 //   az deployment group create \
@@ -56,6 +59,7 @@ var sqlConnectionStringSecretName = 'SqlConnectionString'
 // Storage Account: 3-24 caracteres, solo minúsculas/números, sin guiones.
 var storageAccountName = toLower('st${uniqueSuffix}')
 var queueName = 'lead-notifications'
+var propiedadesContainerName = 'propiedades-multimedia'
 var communicationServiceName = '${namePrefix}-acs-${uniqueSuffix}'
 var emailServiceName = '${namePrefix}-email-${uniqueSuffix}'
 
@@ -67,6 +71,7 @@ var emailServiceName = '${namePrefix}-email-${uniqueSuffix}'
 var keyVaultSecretsUserRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
 var storageQueueDataContributorRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '974c5e8b-45b9-4653-ba55-5f855dd0fb88')
 var communicationEmailServiceOwnerRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '09976791-48a7-449e-bb21-39d1a415f350')
+var storageBlobDataContributorRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
 
 // -----------------------------------------------------------------------
 // 1) Azure Static Web App (Free) — frontend React
@@ -148,6 +153,14 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'Notifications__WebhookUrl'
           value: notificacionesWebhookUrl
+        }
+        {
+          name: 'Properties__BlobServiceUri'
+          value: storageAccount.properties.primaryEndpoints.blob
+        }
+        {
+          name: 'Properties__ContainerName'
+          value: propiedadesContainerName
         }
       ]
     }
@@ -338,6 +351,38 @@ resource appServiceCommunicationAccess 'Microsoft.Authorization/roleAssignments@
 }
 
 // -----------------------------------------------------------------------
+// 7) Storage Blob container — catálogo de propiedades (multimedia)
+//    Misma Storage Account de la sección 5, un contenedor Blob nuevo con
+//    acceso público de lectura a nivel de blob: son fotos de un catálogo
+//    inmobiliario público, se sirven directo en <img> sin SAS token.
+// -----------------------------------------------------------------------
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource propiedadesContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+  parent: blobService
+  name: propiedadesContainerName
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
+// Otorga a la Managed Identity del App Service el rol "Storage Blob Data
+// Contributor" — puede leer/escribir/eliminar blobs, no administrar la
+// cuenta (mínimo privilegio).
+resource appServiceBlobAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storageAccount.id, appService.id, storageBlobDataContributorRoleId)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: storageBlobDataContributorRoleId
+    principalId: appService.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// -----------------------------------------------------------------------
 // Outputs
 // -----------------------------------------------------------------------
 output staticWebAppDefaultHostname string = staticWebApp.properties.defaultHostname
@@ -347,3 +392,5 @@ output keyVaultName string = keyVault.name
 output storageQueueEndpoint string = storageAccount.properties.primaryEndpoints.queue
 output communicationServicesEndpoint string = 'https://${communicationService.properties.hostName}'
 output emailFromAddress string = 'DoNotReply@${emailDomain.properties.mailFromSenderDomain}'
+output propiedadesBlobServiceUri string = storageAccount.properties.primaryEndpoints.blob
+output propiedadesContainerName string = propiedadesContainerName

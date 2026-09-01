@@ -9,5 +9,6 @@ public sealed record PropertyFilter(
     decimal? PrecioMax,
     decimal? AreaMin,
     decimal? AreaMax,
-    bool? SoloViablesConstructivamente
+    bool? SoloViablesConstructivamente,
+    EstadoPropiedad? Estado
 );
