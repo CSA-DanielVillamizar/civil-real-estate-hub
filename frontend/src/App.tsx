@@ -1,5 +1,6 @@
 import { BudgetCalculator } from './components/BudgetCalculator/BudgetCalculator';
 import { ViabilidadAmbientalAdminPage } from './components/Admin/ViabilidadAmbientalAdminPage';
+import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/ViabilidadAmbientalSection';
 
 function App() {
   // Ruteo mínimo por path — no se agrega react-router para una sola ruta
@@ -20,6 +21,9 @@ function App() {
             <a href="#calculadora" className="hover:text-slate-900">
               Calculadora
             </a>
+            <a href="#viabilidad-ambiental" className="hover:text-slate-900">
+              Viabilidad ambiental
+            </a>
             <a href="#propiedades" className="hover:text-slate-900">
               Propiedades
             </a>
@@ -39,6 +43,10 @@ function App() {
 
         <div id="calculadora">
           <BudgetCalculator />
+        </div>
+
+        <div id="viabilidad-ambiental" className="mt-12">
+          <ViabilidadAmbientalSection />
         </div>
       </main>
     </div>
