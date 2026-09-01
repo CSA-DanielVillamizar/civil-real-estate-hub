@@ -271,3 +271,28 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260901142320_AgregarSolicitadaEnAViabilidadAmbiental'
+)
+BEGIN
+    ALTER TABLE [solicitudes_viabilidad_ambiental] ADD [solicitada_en] datetimeoffset NOT NULL DEFAULT '0001-01-01T00:00:00.0000000+00:00';
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260901142320_AgregarSolicitadaEnAViabilidadAmbiental'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260901142320_AgregarSolicitadaEnAViabilidadAmbiental', N'8.0.10');
+END;
+GO
+
+COMMIT;
+GO
+
