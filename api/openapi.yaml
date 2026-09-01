@@ -17,6 +17,11 @@ tags:
     description: Consulta de inmuebles (Inmobiliaria)
   - name: Budgets
     description: Calculadora de obra (Domain Service sin persistencia)
+  - name: ViabilidadAmbiental
+    description: >
+      Fase 3 (SDD): solicitud de estudio de viabilidad ambiental pagado por
+      transferencia manual (sin pasarela de pago) y confirmación
+      administrativa del pago.
 
 paths:
   /api/leads:
@@ -183,7 +188,84 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidationProblemDetails'
 
+  /api/viabilidad-ambiental/solicitudes:
+    post:
+      tags: [ViabilidadAmbiental]
+      operationId: solicitarViabilidadAmbiental
+      summary: >
+        Registra una solicitud de estudio de viabilidad ambiental. El pago se
+        hace por transferencia manual (sin pasarela): la respuesta incluye el
+        monto y los datos bancarios, y también se envían por correo. Debe
+        indicarse propiedadId (lote ya catalogado) o departamento/municipio
+        (lote aún no catalogado) — exactamente uno de los dos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitarViabilidadAmbientalRequest'
+      responses:
+        '201':
+          description: Solicitud registrada
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitarViabilidadAmbientalResponse'
+        '400':
+          description: Error de validación
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetails'
+
+  /api/viabilidad-ambiental/solicitudes/{id}/confirmar-pago:
+    post:
+      tags: [ViabilidadAmbiental]
+      operationId: confirmarPagoViabilidadAmbiental
+      summary: >
+        Acción administrativa: marca la solicitud como pagada, tras verificar
+        manualmente la transferencia. Requiere el header X-Admin-Api-Key.
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Pago confirmado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmarPagoViabilidadAmbientalResponse'
+        '400':
+          description: >
+            La solicitud no está en un estado que permita confirmar el pago
+            (ej. ya estaba Pagada o Rechazada)
+          content:
+            application/problem+json:
+              schema:
+                type: object
+        '401':
+          description: X-Admin-Api-Key ausente o incorrecto
+        '404':
+          description: No existe una solicitud con ese id
+
 components:
+  securitySchemes:
+    AdminApiKey:
+      type: apiKey
+      in: header
+      name: X-Admin-Api-Key
+
   schemas:
     OrigenLead:
       type: string
@@ -378,3 +460,94 @@ components:
             type: array
             items:
               type: string
+
+    SolicitarViabilidadAmbientalRequest:
+      type: object
+      required: [nombre, email, telefono]
+      description: >
+        propiedadId es mutuamente excluyente con departamento/municipio —
+        exactamente uno de los dos debe llegar.
+      properties:
+        nombre:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        telefono:
+          type: string
+          pattern: '^[0-9]{7,15}$'
+        indicativo:
+          type: string
+          pattern: '^\+[0-9]{1,4}$'
+          default: '+57'
+        propiedadId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Lote ya catalogado en Properties.
+        departamento:
+          type: string
+          maxLength: 100
+          nullable: true
+        municipio:
+          type: string
+          maxLength: 100
+          nullable: true
+        direccionReferencia:
+          type: string
+          maxLength: 250
+          nullable: true
+
+    DatosBancarios:
+      type: object
+      required: [banco, tipoCuenta, numeroCuenta, titularCuenta, qrImageUrl]
+      description: >
+        Pueden llegar vacíos si aún no se han configurado (ver
+        ViabilidadAmbientalOptions) — el cliente decide cómo mostrarlo.
+      properties:
+        banco:
+          type: string
+        tipoCuenta:
+          type: string
+        numeroCuenta:
+          type: string
+        titularCuenta:
+          type: string
+        qrImageUrl:
+          type: string
+          format: uri
+
+    SolicitarViabilidadAmbientalResponse:
+      type: object
+      required: [id, estado, monto, moneda, datosBancarios]
+      properties:
+        id:
+          type: string
+          format: uuid
+        estado:
+          type: string
+          example: Solicitada
+        monto:
+          type: number
+          format: decimal
+        moneda:
+          type: string
+          example: COP
+        datosBancarios:
+          $ref: '#/components/schemas/DatosBancarios'
+
+    ConfirmarPagoViabilidadAmbientalResponse:
+      type: object
+      required: [id, estado, pagoConfirmadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        estado:
+          type: string
+          example: Pagada
+        pagoConfirmadoEn:
+          type: string
+          format: date-time

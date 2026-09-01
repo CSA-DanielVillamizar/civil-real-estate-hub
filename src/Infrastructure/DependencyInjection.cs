@@ -11,6 +11,7 @@ using Plataforma.Infrastructure.Notifications;
 using Plataforma.Infrastructure.Persistence;
 using Plataforma.Infrastructure.Persistence.Repositories;
 using Plataforma.Infrastructure.Reporting;
+using Plataforma.Infrastructure.ViabilidadAmbiental;
 using QuestPDF.Infrastructure;
 
 namespace Plataforma.Infrastructure;
@@ -34,6 +35,7 @@ public static class DependencyInjection
 
         services.AddScoped<IPropertyRepository, PropertyRepository>();
         services.AddScoped<ILeadRepository, LeadRepository>();
+        services.AddScoped<ISolicitudViabilidadAmbientalRepository, SolicitudViabilidadAmbientalRepository>();
 
         // QuestPDF Community License: gratuita para equipos/empresas con
         // ingresos anuales bajo el umbral que publica QuestPDF (a la fecha de
@@ -45,6 +47,7 @@ public static class DependencyInjection
         services.AddSingleton<IPresupuestoPdfGenerator, QuestPdfPresupuestoPdfGenerator>();
 
         services.AddMensajeriaYNotificaciones(configuration);
+        services.AddViabilidadAmbiental(configuration);
 
         return services;
     }
@@ -107,5 +110,17 @@ public static class DependencyInjection
             .AddStandardResilienceHandler();
 
         services.AddHostedService<LeadNotificationQueueProcessor>();
+    }
+
+    // Fase 3 (SDD): sin pasarela de pago — solo datos bancarios de referencia
+    // (opcionales, ver ViabilidadAmbientalOptions) y reutilización del
+    // EmailClient/Communication Services ya registrado arriba.
+    private static void AddViabilidadAmbiental(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<ViabilidadAmbientalOptions>()
+            .Bind(configuration.GetSection(ViabilidadAmbientalOptions.SectionName));
+
+        services.AddScoped<IDatosBancariosProvider, ConfiguracionDatosBancariosProvider>();
+        services.AddScoped<IEmailSolicitudViabilidadAmbientalService, AzureCommunicationEmailSolicitudViabilidadAmbientalService>();
     }
 }

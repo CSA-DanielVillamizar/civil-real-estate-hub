@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Plataforma.Domain.Common;
 using Plataforma.Domain.Leads;
 using Plataforma.Domain.Propiedades;
+using Plataforma.Domain.ViabilidadAmbiental;
 using Plataforma.Infrastructure.Persistence.Configurations;
 
 namespace Plataforma.Infrastructure.Persistence;
@@ -21,10 +22,13 @@ public sealed class ApplicationDbContext : DbContext
 
     public DbSet<Lead> Leads => Set<Lead>();
 
+    public DbSet<SolicitudViabilidadAmbiental> SolicitudesViabilidadAmbiental => Set<SolicitudViabilidadAmbiental>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new PropiedadConfiguration());
         modelBuilder.ApplyConfiguration(new LeadConfiguration());
+        modelBuilder.ApplyConfiguration(new SolicitudViabilidadAmbientalConfiguration());
     }
 
     // Prompt 4, ítem 1: los eventos de dominio se despachan ANTES de confirmar

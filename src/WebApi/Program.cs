@@ -4,6 +4,7 @@ using Plataforma.Application;
 using Plataforma.Infrastructure;
 using Plataforma.WebApi.Endpoints;
 using Plataforma.WebApi.ErrorHandling;
+using Plataforma.WebApi.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,13 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // AddApplicationServices — se registran aquí porque Contracts es un concepto
 // de borde de la Web API, no de Application/Domain.
 builder.Services.AddValidatorsFromAssembly(typeof(Plataforma.Contracts.Common.DatosCalculoObraDtoValidator).Assembly);
+
+// Fase 3 (SDD): API key del único endpoint administrativo actual — ver
+// AdminApiKeyEndpointFilter. ValidateOnStart() evita que la app arranque con
+// el endpoint sin protección real por un error de configuración.
+builder.Services.AddOptions<AdminApiKeyOptions>()
+    .Bind(builder.Configuration.GetSection(AdminApiKeyOptions.SectionName))
+    .ValidateOnStart();
 
 // Orígenes permitidos configurables (Cors:AllowedOrigins) — en local viene del
 // default en appsettings.json (Vite en :5173); en Azure se agrega el dominio
@@ -64,6 +72,7 @@ app.UseCors(FrontendCorsPolicy);
 app.MapLeadsEndpoints();
 app.MapPropertiesEndpoints();
 app.MapBudgetsEndpoints();
+app.MapViabilidadAmbientalEndpoints();
 
 app.Run();
 
