@@ -299,6 +299,9 @@ resource appServiceStorageQueueAccess 'Microsoft.Authorization/roleAssignments@2
 resource emailService 'Microsoft.Communication/emailServices@2023-04-01' = {
   name: emailServiceName
   location: 'global'
+  properties: {
+    dataLocation: 'United States'
+  }
 }
 
 resource emailDomain 'Microsoft.Communication/emailServices/domains@2023-04-01' = {
