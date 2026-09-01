@@ -222,3 +222,52 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260901130953_AgregarSolicitudesViabilidadAmbiental'
+)
+BEGIN
+    CREATE TABLE [solicitudes_viabilidad_ambiental] (
+        [id] uniqueidentifier NOT NULL,
+        [solicitante_nombre] nvarchar(150) NOT NULL,
+        [solicitante_email] nvarchar(254) NOT NULL,
+        [solicitante_telefono_numero] nvarchar(15) NOT NULL,
+        [solicitante_telefono_indicativo] nvarchar(5) NOT NULL,
+        [propiedad_id] uniqueidentifier NULL,
+        [lote_departamento] nvarchar(100) NULL,
+        [lote_municipio] nvarchar(100) NULL,
+        [lote_direccion_referencia] nvarchar(250) NULL,
+        [monto] numeric(18,2) NOT NULL,
+        [moneda] nvarchar(3) NOT NULL,
+        [estado] nvarchar(20) NOT NULL,
+        [pago_confirmado_en] datetimeoffset NULL,
+        CONSTRAINT [PK_solicitudes_viabilidad_ambiental] PRIMARY KEY ([id])
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260901130953_AgregarSolicitudesViabilidadAmbiental'
+)
+BEGIN
+    CREATE INDEX [IX_solicitudes_viabilidad_ambiental_estado] ON [solicitudes_viabilidad_ambiental] ([estado]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260901130953_AgregarSolicitudesViabilidadAmbiental'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260901130953_AgregarSolicitudesViabilidadAmbiental', N'8.0.10');
+END;
+GO
+
+COMMIT;
+GO
+
