@@ -4,6 +4,7 @@ import { PropertyDetailPage } from './PropertyDetailPage';
 import * as propertiesService from '../../services/propertiesService';
 import { ApiError } from '../../types/api';
 import type { PropertyDetailResponse } from '../../types/properties';
+import { SITE_TITLE } from '../../seo';
 
 vi.mock('../../services/propertiesService', async (importOriginal) => ({
   ...(await importOriginal<typeof propertiesService>()),
@@ -32,14 +33,12 @@ const PROPERTY_MOCK: PropertyDetailResponse = {
 };
 
 describe('PropertyDetailPage', () => {
-  const tituloOriginal = document.title;
-
   beforeEach(() => {
-    document.title = tituloOriginal;
+    document.title = SITE_TITLE;
   });
 
   afterEach(() => {
-    document.title = tituloOriginal;
+    document.title = SITE_TITLE;
   });
 
   it('actualiza document.title con el título de la propiedad y lo restaura al desmontar', async () => {
@@ -50,7 +49,7 @@ describe('PropertyDetailPage', () => {
     expect(document.title).toBe('Lote campestre | Plataforma Civil e Inmobiliaria');
 
     unmount();
-    expect(document.title).toBe(tituloOriginal);
+    expect(document.title).toBe(SITE_TITLE);
   });
 
   it('muestra el detalle y las restricciones de viabilidad cuando la propiedad no es viable', async () => {

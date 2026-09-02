@@ -4,8 +4,7 @@ import { PropertyInterestForm } from './PropertyInterestForm';
 import { PhotoGallery } from './PhotoGallery';
 import { PropertyLocationMap } from './PropertyLocationMap';
 import { WhatsAppButton } from './WhatsAppButton';
-
-const DEFAULT_TITLE = document.title;
+import { SITE_TITLE } from '../../seo';
 
 function usePageTitle(titulo: string | undefined) {
   // Google renderiza JS antes de indexar, así que esto sí ayuda al SEO de
@@ -13,9 +12,9 @@ function usePageTitle(titulo: string | undefined) {
   // estáticos), que los bots de redes sociales leen sin ejecutar JS y por
   // eso siempre muestran el título genérico del sitio al compartir un link.
   useEffect(() => {
-    document.title = titulo ? `${titulo} | Plataforma Civil e Inmobiliaria` : DEFAULT_TITLE;
+    document.title = titulo ? `${titulo} | Plataforma Civil e Inmobiliaria` : SITE_TITLE;
     return () => {
-      document.title = DEFAULT_TITLE;
+      document.title = SITE_TITLE;
     };
   }, [titulo]);
 }

@@ -1,16 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Estático a propósito: las fichas de propiedad (/propiedades/{id}) son
-  dinámicas (creadas desde el panel admin) y no tienen aquí una entrada
-  propia — Google las descubre igual siguiendo los enlaces del catálogo
-  (#propiedades). Si el volumen de propiedades crece lo suficiente para que
-  valga la pena, generar este archivo dinámicamente desde el backend sería
-  el siguiente paso.
+  Las fichas de propiedad (/propiedades/{id}) son dinámicas (creadas desde
+  el panel admin) y no tienen aquí una entrada propia — Google las
+  descubre igual siguiendo los enlaces del catálogo (#propiedades). Si el
+  volumen de propiedades crece lo suficiente para que valga la pena,
+  generar este archivo dinámicamente desde el backend sería el siguiente
+  paso.
+
+  /normativa/{slug} sí son rutas estáticas conocidas de antemano (el
+  listado de municipios vive en frontend/src/data/municipios.ts) — si se
+  agrega un municipio nuevo ahí, agregar también su URL aquí.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://delightful-cliff-00fc49d10.7.azurestaticapps.net/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://delightful-cliff-00fc49d10.7.azurestaticapps.net/normativa</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://delightful-cliff-00fc49d10.7.azurestaticapps.net/normativa/rionegro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://delightful-cliff-00fc49d10.7.azurestaticapps.net/normativa/la-ceja</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://delightful-cliff-00fc49d10.7.azurestaticapps.net/normativa/el-retiro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://delightful-cliff-00fc49d10.7.azurestaticapps.net/normativa/guarne</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://delightful-cliff-00fc49d10.7.azurestaticapps.net/normativa/marinilla</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

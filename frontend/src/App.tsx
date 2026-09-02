@@ -6,6 +6,9 @@ import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/Via
 import { PropertiesSection } from './components/Properties/PropertiesSection';
 import { PropertyDetailPage } from './components/Properties/PropertyDetailPage';
 import { ComparadorPage } from './components/Properties/ComparadorPage';
+import { NormativaIndexPage } from './components/Normativa/NormativaIndexPage';
+import { NormativaMunicipioPage } from './components/Normativa/NormativaMunicipioPage';
+import { NormativaTeaserSection } from './components/Normativa/NormativaTeaserSection';
 import { ConsultoriaEstructuralSection } from './components/Servicios/ConsultoriaEstructuralSection';
 import { InterventoriaSection } from './components/Servicios/InterventoriaSection';
 
@@ -36,6 +39,15 @@ function App() {
     return <ComparadorPage />;
   }
 
+  if (path === '/normativa') {
+    return <NormativaIndexPage />;
+  }
+
+  const normativaMatch = path.match(/^\/normativa\/([a-z-]+)$/);
+  if (normativaMatch) {
+    return <NormativaMunicipioPage slug={normativaMatch[1]} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white">
       <header className="border-b border-slate-200 bg-white">
@@ -58,6 +70,9 @@ function App() {
             </a>
             <a href="#interventoria" className="hover:text-slate-900">
               Interventoría
+            </a>
+            <a href="/normativa" className="hover:text-slate-900">
+              Normativa
             </a>
           </nav>
         </div>
@@ -91,6 +106,10 @@ function App() {
 
         <div id="interventoria" className="mt-12">
           <InterventoriaSection />
+        </div>
+
+        <div className="mt-12">
+          <NormativaTeaserSection />
         </div>
       </main>
     </div>
