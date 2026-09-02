@@ -10,6 +10,7 @@ using Plataforma.Application.Common.Interfaces;
 using Plataforma.Infrastructure.Auth;
 using Plataforma.Infrastructure.Messaging;
 using Plataforma.Infrastructure.Notifications;
+using Plataforma.Infrastructure.Obras;
 using Plataforma.Infrastructure.Persistence;
 using Plataforma.Infrastructure.Persistence.Repositories;
 using Plataforma.Infrastructure.Properties;
@@ -40,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<ILeadRepository, LeadRepository>();
         services.AddScoped<ISolicitudViabilidadAmbientalRepository, SolicitudViabilidadAmbientalRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IProyectoObraRepository, ProyectoObraRepository>();
 
         // QuestPDF Community License: gratuita para equipos/empresas con
         // ingresos anuales bajo el umbral que publica QuestPDF (a la fecha de
@@ -54,6 +56,7 @@ public static class DependencyInjection
         services.AddViabilidadAmbiental(configuration);
         services.AddPropertiesImageStorage(configuration);
         services.AddAuth(configuration);
+        services.AddObras(configuration);
 
         return services;
     }
@@ -167,5 +170,18 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, PasswordHasherAdapter>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddHostedService<AdminBootstrapper>();
+    }
+
+    // Portal de avance de obra (P3) — contenedor Blob nuevo en la misma
+    // Storage Account (ver deploy/bicep). AzureBlobObraEvidenciaStorage
+    // construye su propio BlobContainerClient a partir de ObrasOptions en
+    // vez de recibir uno inyectado (ver esa clase para el porqué).
+    private static void AddObras(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<ObrasOptions>()
+            .Bind(configuration.GetSection(ObrasOptions.SectionName))
+            .ValidateOnStart();
+
+        services.AddScoped<IObraEvidenciaStorage, AzureBlobObraEvidenciaStorage>();
     }
 }

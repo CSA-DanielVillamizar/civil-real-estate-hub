@@ -2,6 +2,9 @@ import { BudgetCalculator } from './components/BudgetCalculator/BudgetCalculator
 import { ViabilidadAmbientalAdminPage } from './components/Admin/ViabilidadAmbientalAdminPage';
 import { PropertiesAdminPage } from './components/Admin/PropertiesAdminPage';
 import { LeadsAdminPage } from './components/Admin/LeadsAdminPage';
+import { ObrasAdminPage } from './components/Admin/ObrasAdminPage';
+import { ProyectoObraAdminPage } from './components/Admin/ProyectoObraAdminPage';
+import { MiObraPage } from './components/Obras/MiObraPage';
 import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/ViabilidadAmbientalSection';
 import { PropertiesSection } from './components/Properties/PropertiesSection';
 import { PropertyDetailPage } from './components/Properties/PropertyDetailPage';
@@ -28,6 +31,20 @@ function App() {
 
   if (path === '/admin/leads') {
     return <LeadsAdminPage />;
+  }
+
+  if (path === '/admin/obras') {
+    return <ObrasAdminPage />;
+  }
+
+  const obraAdminMatch = path.match(/^\/admin\/obras\/([0-9a-fA-F-]{36})$/);
+  if (obraAdminMatch) {
+    return <ProyectoObraAdminPage id={obraAdminMatch[1]} />;
+  }
+
+  const miObraMatch = path.match(/^\/mi-obra\/([\w-]+)$/);
+  if (miObraMatch) {
+    return <MiObraPage token={miObraMatch[1]} />;
   }
 
   const detalleMatch = path.match(/^\/propiedades\/([0-9a-fA-F-]{36})$/);

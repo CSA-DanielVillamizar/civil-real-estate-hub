@@ -11,6 +11,7 @@ const LINKS: Link[] = [
   { href: '/admin/leads', label: 'Leads', roles: [RolUsuario.Admin, RolUsuario.AsesorComercial] },
   { href: '/admin/propiedades', label: 'Propiedades', roles: [RolUsuario.Admin] },
   { href: '/admin/viabilidad-ambiental', label: 'Viabilidad ambiental', roles: [RolUsuario.Admin] },
+  { href: '/admin/obras', label: 'Avance de obra', roles: [RolUsuario.Admin] },
 ];
 
 interface AdminNavProps {
@@ -35,7 +36,7 @@ export function AdminNav({ auth, onLogout }: AdminNavProps) {
               key={link.href}
               href={link.href}
               className={`border-b-2 px-3 py-3 text-sm font-medium transition ${
-                path === link.href
+                path === link.href || path.startsWith(`${link.href}/`)
                   ? 'border-emerald-600 text-emerald-700'
                   : 'border-transparent text-slate-500 hover:text-slate-900'
               }`}

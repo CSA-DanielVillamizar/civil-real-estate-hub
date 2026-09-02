@@ -398,3 +398,80 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902225715_AgregarProyectosObra'
+)
+BEGIN
+    CREATE TABLE [proyectos_obra] (
+        [id] uniqueidentifier NOT NULL,
+        [nombre_cliente] nvarchar(150) NOT NULL,
+        [email_cliente] nvarchar(254) NOT NULL,
+        [telefono_cliente_numero] nvarchar(15) NOT NULL,
+        [telefono_cliente_indicativo] nvarchar(5) NOT NULL,
+        [nombre_proyecto] nvarchar(200) NOT NULL,
+        [descripcion] nvarchar(2000) NULL,
+        [propiedad_id] uniqueidentifier NULL,
+        [token_acceso] nvarchar(64) NOT NULL,
+        [estado] nvarchar(20) NOT NULL,
+        [creado_en] datetimeoffset NOT NULL,
+        CONSTRAINT [PK_proyectos_obra] PRIMARY KEY ([id])
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902225715_AgregarProyectosObra'
+)
+BEGIN
+    CREATE TABLE [hitos_obra] (
+        [id] uniqueidentifier NOT NULL,
+        [nombre] nvarchar(200) NOT NULL,
+        [descripcion] nvarchar(2000) NULL,
+        [orden] int NOT NULL,
+        [estado] nvarchar(20) NOT NULL,
+        [fecha_estimada] date NULL,
+        [fecha_completado] datetimeoffset NULL,
+        [foto_evidencia_url] nvarchar(500) NULL,
+        [proyecto_obra_id] uniqueidentifier NOT NULL,
+        CONSTRAINT [PK_hitos_obra] PRIMARY KEY ([id]),
+        CONSTRAINT [FK_hitos_obra_proyectos_obra_proyecto_obra_id] FOREIGN KEY ([proyecto_obra_id]) REFERENCES [proyectos_obra] ([id]) ON DELETE CASCADE
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902225715_AgregarProyectosObra'
+)
+BEGIN
+    CREATE INDEX [IX_hitos_obra_proyecto_obra_id] ON [hitos_obra] ([proyecto_obra_id]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902225715_AgregarProyectosObra'
+)
+BEGIN
+    CREATE UNIQUE INDEX [IX_proyectos_obra_token_acceso] ON [proyectos_obra] ([token_acceso]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902225715_AgregarProyectosObra'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260902225715_AgregarProyectosObra', N'8.0.10');
+END;
+GO
+
+COMMIT;
+GO
+

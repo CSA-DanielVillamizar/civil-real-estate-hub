@@ -103,6 +103,7 @@ app.MapLeadsEndpoints();
 app.MapPropertiesEndpoints();
 app.MapBudgetsEndpoints();
 app.MapViabilidadAmbientalEndpoints();
+app.MapObrasEndpoints();
 
 app.Run();
 

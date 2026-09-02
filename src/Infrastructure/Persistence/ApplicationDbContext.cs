@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Plataforma.Domain.Common;
 using Plataforma.Domain.Leads;
+using Plataforma.Domain.Obras;
 using Plataforma.Domain.Propiedades;
 using Plataforma.Domain.Usuarios;
 using Plataforma.Domain.ViabilidadAmbiental;
@@ -27,12 +28,15 @@ public sealed class ApplicationDbContext : DbContext
 
     public DbSet<Usuario> Usuarios => Set<Usuario>();
 
+    public DbSet<ProyectoObra> ProyectosObra => Set<ProyectoObra>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new PropiedadConfiguration());
         modelBuilder.ApplyConfiguration(new LeadConfiguration());
         modelBuilder.ApplyConfiguration(new SolicitudViabilidadAmbientalConfiguration());
         modelBuilder.ApplyConfiguration(new UsuarioConfiguration());
+        modelBuilder.ApplyConfiguration(new ProyectoObraConfiguration());
     }
 
     // Prompt 4, ítem 1: los eventos de dominio se despachan ANTES de confirmar

@@ -1,5 +1,6 @@
 using ContractsEnums = Plataforma.Contracts.Common;
 using DomainLeads = Plataforma.Domain.Leads;
+using DomainObras = Plataforma.Domain.Obras;
 using DomainPropiedades = Plataforma.Domain.Propiedades;
 using DomainViabilidadAmbiental = Plataforma.Domain.ViabilidadAmbiental;
 
@@ -75,4 +76,16 @@ public static class EnumMapping
 
     public static ContractsEnums.ServicioDeInteresDto ToContract(this DomainLeads.ServicioDeInteres servicio) =>
         Enum.Parse<ContractsEnums.ServicioDeInteresDto>(servicio.ToString());
+
+    public static DomainObras.EstadoProyecto ToDomain(this ContractsEnums.EstadoProyectoDto estado) =>
+        Enum.Parse<DomainObras.EstadoProyecto>(estado.ToString());
+
+    public static ContractsEnums.EstadoProyectoDto ToContract(this DomainObras.EstadoProyecto estado) =>
+        Enum.Parse<ContractsEnums.EstadoProyectoDto>(estado.ToString());
+
+    public static DomainObras.EstadoHito ToDomain(this ContractsEnums.EstadoHitoDto estado) =>
+        Enum.Parse<DomainObras.EstadoHito>(estado.ToString());
+
+    public static ContractsEnums.EstadoHitoDto ToContract(this DomainObras.EstadoHito estado) =>
+        Enum.Parse<ContractsEnums.EstadoHitoDto>(estado.ToString());
 }

@@ -17,6 +17,11 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
-    pool: 'threads',
+    // 'forks' (procesos de SO separados) en vez de 'threads': varios
+    // archivos de test mutan globals compartidos como document.title
+    // (PropertyDetailPage, Normativa*, MiObraPage) — con 'threads' se vio
+    // interferencia intermitente entre archivos al correr la suite
+    // completa (cada archivo pasaba solo, pero no siempre juntos).
+    pool: 'forks',
   },
 })

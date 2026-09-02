@@ -27,6 +27,11 @@ tags:
       Fase 3 (SDD): solicitud de estudio de viabilidad ambiental pagado por
       transferencia manual (sin pasarela de pago) y confirmación
       administrativa del pago.
+  - name: Obras
+    description: >
+      P3: portal de avance de obra. El cliente entra a /api/obras/por-token/
+      {token} sin usuario ni contraseña — el token generado al crear el
+      proyecto es la única credencial de acceso.
 
 paths:
   /api/auth/login:
@@ -632,6 +637,242 @@ paths:
           description: Token JWT ausente, inválido o expirado
         '404':
           description: No existe una solicitud con ese id
+
+  /api/obras:
+    post:
+      tags: [Obras]
+      operationId: crearProyectoObra
+      summary: Crea un proyecto de obra y genera su token de acceso para el cliente.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearProyectoObraRequest'
+      responses:
+        '201':
+          description: Proyecto creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrearProyectoObraResponse'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+
+  /api/obras/admin:
+    get:
+      tags: [Obras]
+      operationId: getProyectosObraAdmin
+      summary: Lista todos los proyectos de obra.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Listado de proyectos (más reciente primero)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProyectoObraListItem'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+
+  /api/obras/admin/{id}:
+    get:
+      tags: [Obras]
+      operationId: getProyectoObraAdmin
+      summary: Detalle de un proyecto de obra (para gestionar sus hitos).
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detalle del proyecto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProyectoObraDetalle'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un proyecto con ese id
+
+  /api/obras/{id}/hitos:
+    post:
+      tags: [Obras]
+      operationId: agregarHito
+      summary: Agrega un hito al final de la lista de hitos del proyecto.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgregarHitoRequest'
+      responses:
+        '200':
+          description: Hito agregado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HitoResponse'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un proyecto con ese id
+
+  /api/obras/{id}/hitos/{hitoId}/estado:
+    post:
+      tags: [Obras]
+      operationId: cambiarEstadoHito
+      summary: Cambia el estado de un hito (Pendiente, EnProgreso, Completado).
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: hitoId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambiarEstadoHitoRequest'
+      responses:
+        '200':
+          description: Estado actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoHitoResponse'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un proyecto con ese id, o no existe ese hito en el proyecto
+
+  /api/obras/{id}/hitos/{hitoId}/evidencia:
+    post:
+      tags: [Obras]
+      operationId: agregarEvidenciaHito
+      summary: Sube una foto de evidencia para un hito (multipart/form-data).
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: hitoId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [archivo]
+              properties:
+                archivo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Evidencia agregada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgregarEvidenciaHitoResponse'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un proyecto con ese id, o no existe ese hito en el proyecto
+
+  /api/obras/{id}/estado:
+    post:
+      tags: [Obras]
+      operationId: cambiarEstadoProyecto
+      summary: Cambia el estado general del proyecto (Planificacion, EnEjecucion, Pausado, Finalizado).
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambiarEstadoProyectoRequest'
+      responses:
+        '200':
+          description: Estado actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoProyectoResponse'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un proyecto con ese id
+
+  /api/obras/por-token/{token}:
+    get:
+      tags: [Obras]
+      operationId: getProyectoObraPorToken
+      summary: >
+        Detalle del proyecto para el cliente — público, sin autenticación:
+        el token en sí ES la credencial de acceso.
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalle del proyecto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProyectoObraDetalle'
+        '404':
+          description: No existe ningún proyecto con ese token
 
 components:
   securitySchemes:
@@ -1311,3 +1552,214 @@ components:
         pagoConfirmadoEn:
           type: string
           format: date-time
+
+    EstadoProyecto:
+      type: string
+      enum: [Planificacion, EnEjecucion, Pausado, Finalizado]
+
+    EstadoHito:
+      type: string
+      enum: [Pendiente, EnProgreso, Completado]
+
+    CrearProyectoObraRequest:
+      type: object
+      required: [nombreCliente, emailCliente, telefonoCliente, nombreProyecto]
+      properties:
+        nombreCliente:
+          type: string
+          maxLength: 150
+        emailCliente:
+          type: string
+          format: email
+          maxLength: 254
+        telefonoCliente:
+          type: string
+          pattern: '^[0-9]{7,15}$'
+        indicativoCliente:
+          type: string
+          pattern: '^\+[0-9]{1,4}$'
+          default: '+57'
+        nombreProyecto:
+          type: string
+          maxLength: 200
+        descripcion:
+          type: string
+          maxLength: 2000
+          nullable: true
+        propiedadId:
+          type: string
+          format: uuid
+          nullable: true
+
+    CrearProyectoObraResponse:
+      type: object
+      required: [id, tokenAcceso]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tokenAcceso:
+          type: string
+          description: >
+            Única credencial de acceso del cliente al portal — compartirla
+            solo por un canal confiable (WhatsApp/email directo al cliente).
+
+    AgregarHitoRequest:
+      type: object
+      required: [nombre]
+      properties:
+        nombre:
+          type: string
+          maxLength: 200
+        descripcion:
+          type: string
+          maxLength: 2000
+          nullable: true
+        fechaEstimada:
+          type: string
+          format: date
+          nullable: true
+
+    HitoResponse:
+      type: object
+      required: [hitoId, nombre, estado]
+      properties:
+        hitoId:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        estado:
+          type: string
+          example: Pendiente
+
+    CambiarEstadoHitoRequest:
+      type: object
+      required: [nuevoEstado]
+      properties:
+        nuevoEstado:
+          $ref: '#/components/schemas/EstadoHito'
+
+    EstadoHitoResponse:
+      type: object
+      required: [hitoId, estado]
+      properties:
+        hitoId:
+          type: string
+          format: uuid
+        estado:
+          type: string
+          example: Completado
+
+    CambiarEstadoProyectoRequest:
+      type: object
+      required: [nuevoEstado]
+      properties:
+        nuevoEstado:
+          $ref: '#/components/schemas/EstadoProyecto'
+
+    EstadoProyectoResponse:
+      type: object
+      required: [id, estado]
+      properties:
+        id:
+          type: string
+          format: uuid
+        estado:
+          type: string
+          example: EnEjecucion
+
+    AgregarEvidenciaHitoResponse:
+      type: object
+      required: [hitoId, fotoEvidenciaUrl]
+      properties:
+        hitoId:
+          type: string
+          format: uuid
+        fotoEvidenciaUrl:
+          type: string
+          format: uri
+
+    Hito:
+      type: object
+      required: [id, nombre, orden, estado]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        descripcion:
+          type: string
+          nullable: true
+        orden:
+          type: integer
+        estado:
+          $ref: '#/components/schemas/EstadoHito'
+        fechaEstimada:
+          type: string
+          format: date
+          nullable: true
+        fechaCompletado:
+          type: string
+          format: date-time
+          nullable: true
+        fotoEvidenciaUrl:
+          type: string
+          format: uri
+          nullable: true
+
+    ProyectoObraDetalle:
+      type: object
+      required: [id, nombreCliente, emailCliente, telefonoCliente, nombreProyecto, estado, creadoEn, hitos]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombreCliente:
+          type: string
+        emailCliente:
+          type: string
+        telefonoCliente:
+          type: string
+        nombreProyecto:
+          type: string
+        descripcion:
+          type: string
+          nullable: true
+        propiedadId:
+          type: string
+          format: uuid
+          nullable: true
+        estado:
+          $ref: '#/components/schemas/EstadoProyecto'
+        creadoEn:
+          type: string
+          format: date-time
+        hitos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hito'
+
+    ProyectoObraListItem:
+      type: object
+      required: [id, nombreCliente, nombreProyecto, estado, creadoEn, totalHitos, hitosCompletados, tokenAcceso]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombreCliente:
+          type: string
+        nombreProyecto:
+          type: string
+        estado:
+          $ref: '#/components/schemas/EstadoProyecto'
+        creadoEn:
+          type: string
+          format: date-time
+        totalHitos:
+          type: integer
+        hitosCompletados:
+          type: integer
+        tokenAcceso:
+          type: string

@@ -105,3 +105,18 @@ public enum UnidadMedidaAreaDto
     M2,
     Hectarea
 }
+
+public enum EstadoProyectoDto
+{
+    Planificacion,
+    EnEjecucion,
+    Pausado,
+    Finalizado
+}
+
+public enum EstadoHitoDto
+{
+    Pendiente,
+    EnProgreso,
+    Completado
+}

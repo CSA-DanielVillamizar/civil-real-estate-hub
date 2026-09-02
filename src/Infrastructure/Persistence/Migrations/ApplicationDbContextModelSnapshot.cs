@@ -77,6 +77,57 @@ namespace Plataforma.Infrastructure.Persistence.Migrations
                     b.ToTable("leads", (string)null);
                 });
 
+            modelBuilder.Entity("Plataforma.Domain.Obras.ProyectoObra", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreadoEn")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("creado_en");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("estado");
+
+                    b.Property<string>("NombreCliente")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("nombre_cliente");
+
+                    b.Property<string>("NombreProyecto")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("nombre_proyecto");
+
+                    b.Property<Guid?>("PropiedadId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("propiedad_id");
+
+                    b.Property<string>("TokenAcceso")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("token_acceso");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenAcceso")
+                        .IsUnique();
+
+                    b.ToTable("proyectos_obra", (string)null);
+                });
+
             modelBuilder.Entity("Plataforma.Domain.Propiedades.Propiedad", b =>
                 {
                     b.Property<Guid>("Id")
@@ -397,6 +448,114 @@ namespace Plataforma.Infrastructure.Persistence.Migrations
                     b.Navigation("ResultadoCalculadora");
 
                     b.Navigation("Telefono")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Plataforma.Domain.Obras.ProyectoObra", b =>
+                {
+                    b.OwnsOne("Plataforma.Domain.Leads.ValueObjects.Email", "EmailCliente", b1 =>
+                        {
+                            b1.Property<Guid>("ProyectoObraId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Valor")
+                                .IsRequired()
+                                .HasMaxLength(254)
+                                .HasColumnType("nvarchar(254)")
+                                .HasColumnName("email_cliente");
+
+                            b1.HasKey("ProyectoObraId");
+
+                            b1.ToTable("proyectos_obra");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProyectoObraId");
+                        });
+
+                    b.OwnsOne("Plataforma.Domain.Leads.ValueObjects.Telefono", "TelefonoCliente", b1 =>
+                        {
+                            b1.Property<Guid>("ProyectoObraId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Indicativo")
+                                .IsRequired()
+                                .HasMaxLength(5)
+                                .HasColumnType("nvarchar(5)")
+                                .HasColumnName("telefono_cliente_indicativo");
+
+                            b1.Property<string>("Numero")
+                                .IsRequired()
+                                .HasMaxLength(15)
+                                .HasColumnType("nvarchar(15)")
+                                .HasColumnName("telefono_cliente_numero");
+
+                            b1.HasKey("ProyectoObraId");
+
+                            b1.ToTable("proyectos_obra");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProyectoObraId");
+                        });
+
+                    b.OwnsMany("Plataforma.Domain.Obras.HitoObra", "Hitos", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Descripcion")
+                                .HasMaxLength(2000)
+                                .HasColumnType("nvarchar(2000)")
+                                .HasColumnName("descripcion");
+
+                            b1.Property<string>("Estado")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("estado");
+
+                            b1.Property<DateTimeOffset?>("FechaCompletado")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("fecha_completado");
+
+                            b1.Property<DateOnly?>("FechaEstimada")
+                                .HasColumnType("date")
+                                .HasColumnName("fecha_estimada");
+
+                            b1.Property<string>("FotoEvidenciaUrl")
+                                .HasMaxLength(500)
+                                .HasColumnType("nvarchar(500)")
+                                .HasColumnName("foto_evidencia_url");
+
+                            b1.Property<string>("Nombre")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("nombre");
+
+                            b1.Property<int>("Orden")
+                                .HasColumnType("int")
+                                .HasColumnName("orden");
+
+                            b1.Property<Guid>("proyecto_obra_id")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("proyecto_obra_id");
+
+                            b1.ToTable("hitos_obra", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("proyecto_obra_id");
+                        });
+
+                    b.Navigation("EmailCliente")
+                        .IsRequired();
+
+                    b.Navigation("Hitos");
+
+                    b.Navigation("TelefonoCliente")
                         .IsRequired();
                 });
 
