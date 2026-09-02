@@ -22,6 +22,8 @@ const initial = {
   pendientePorcentaje: '',
   tipoSuelo: TipoSuelo.Franco as string,
   topografia: Topografia.Plana as string,
+  latitud: '',
+  longitud: '',
 };
 
 export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormProps) {
@@ -50,6 +52,8 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
       pendientePorcentaje: Number(values.pendientePorcentaje),
       tipoSuelo: values.tipoSuelo as CrearPropiedadRequest['tipoSuelo'],
       topografia: values.topografia as CrearPropiedadRequest['topografia'],
+      latitud: values.latitud ? Number(values.latitud) : undefined,
+      longitud: values.longitud ? Number(values.longitud) : undefined,
     });
 
     setCreando(false);
@@ -132,6 +136,24 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
           </option>
         ))}
       </select>
+
+      <input
+        type="number"
+        step="any"
+        placeholder="Latitud (opcional)"
+        value={values.latitud}
+        onChange={(e) => set('latitud', e.target.value)}
+        className={inputClasses}
+      />
+
+      <input
+        type="number"
+        step="any"
+        placeholder="Longitud (opcional)"
+        value={values.longitud}
+        onChange={(e) => set('longitud', e.target.value)}
+        className={inputClasses}
+      />
 
       <button
         type="submit"
