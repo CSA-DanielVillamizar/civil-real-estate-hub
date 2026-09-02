@@ -5,6 +5,7 @@ import { LeadsAdminPage } from './components/Admin/LeadsAdminPage';
 import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/ViabilidadAmbientalSection';
 import { PropertiesSection } from './components/Properties/PropertiesSection';
 import { PropertyDetailPage } from './components/Properties/PropertyDetailPage';
+import { ComparadorPage } from './components/Properties/ComparadorPage';
 import { ConsultoriaEstructuralSection } from './components/Servicios/ConsultoriaEstructuralSection';
 import { InterventoriaSection } from './components/Servicios/InterventoriaSection';
 
@@ -29,6 +30,10 @@ function App() {
   const detalleMatch = path.match(/^\/propiedades\/([0-9a-fA-F-]{36})$/);
   if (detalleMatch) {
     return <PropertyDetailPage id={detalleMatch[1]} />;
+  }
+
+  if (path === '/comparar') {
+    return <ComparadorPage />;
   }
 
   return (

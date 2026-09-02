@@ -23,6 +23,8 @@ const PROPERTY_MOCK: PropertyResponse = {
   esViableConstructivamente: true,
 };
 
+const PROPERTY_MOCK_2: PropertyResponse = { ...PROPERTY_MOCK, id: 'prop-2', titulo: 'Finca La Esperanza' };
+
 function pagina(items: PropertyResponse[]): PagedPropertyResponse {
   return { items, page: 1, pageSize: 12, totalCount: items.length };
 }
@@ -59,5 +61,36 @@ describe('PropertiesSection', () => {
       expect.objectContaining({ municipio: 'Rionegro', page: 1 }),
       expect.anything(),
     );
+  });
+
+  it('marcar 2 propiedades para comparar habilita el link "Comparar" con sus ids en la URL', async () => {
+    vi.mocked(propertiesService.getProperties).mockResolvedValue(pagina([PROPERTY_MOCK, PROPERTY_MOCK_2]));
+    const user = userEvent.setup();
+    render(<PropertiesSection />);
+
+    await screen.findByText('Lote campestre');
+
+    expect(screen.queryByText(/seleccionadas para comparar/i)).not.toBeInTheDocument();
+
+    const checkboxes = screen.getAllByRole('checkbox', { name: /comparar/i });
+    await user.click(checkboxes[0]);
+    expect(screen.getByText(/1 de 4 propiedades seleccionadas/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^comparar$/i })).toBeDisabled();
+    expect(screen.queryByRole('link', { name: /^comparar$/i })).not.toBeInTheDocument();
+
+    await user.click(checkboxes[1]);
+    expect(screen.getByText(/2 de 4 propiedades seleccionadas/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^comparar$/i })).toHaveAttribute('href', '/comparar?ids=prop-1,prop-2');
+  });
+
+  it('marcar una casilla no navega a la ficha de la propiedad', async () => {
+    vi.mocked(propertiesService.getProperties).mockResolvedValue(pagina([PROPERTY_MOCK]));
+    const user = userEvent.setup();
+    render(<PropertiesSection />);
+
+    await screen.findByText('Lote campestre');
+    await user.click(screen.getByRole('checkbox', { name: /comparar/i }));
+
+    expect(window.location.pathname).toBe('/');
   });
 });
