@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Plataforma.Contracts.Common;
 using Plataforma.Contracts.Properties;
 using Plataforma.WebApi.Mapping;
@@ -91,7 +92,7 @@ public static class PropertiesEndpoints
     private static async Task<IResult> AgregarMultimediaAsync(
         Guid id,
         IFormFile archivo,
-        TipoMultimediaDto tipo,
+        [FromForm] TipoMultimediaDto tipo,
         ISender mediator,
         CancellationToken cancellationToken)
     {
