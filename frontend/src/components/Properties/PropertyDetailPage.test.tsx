@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PropertyDetailPage } from './PropertyDetailPage';
 import * as propertiesService from '../../services/propertiesService';
 import { ApiError } from '../../types/api';
@@ -32,6 +32,27 @@ const PROPERTY_MOCK: PropertyDetailResponse = {
 };
 
 describe('PropertyDetailPage', () => {
+  const tituloOriginal = document.title;
+
+  beforeEach(() => {
+    document.title = tituloOriginal;
+  });
+
+  afterEach(() => {
+    document.title = tituloOriginal;
+  });
+
+  it('actualiza document.title con el título de la propiedad y lo restaura al desmontar', async () => {
+    vi.mocked(propertiesService.getPropertyById).mockResolvedValue(PROPERTY_MOCK);
+    const { unmount } = render(<PropertyDetailPage id="prop-1" />);
+
+    await screen.findByText('Lote campestre');
+    expect(document.title).toBe('Lote campestre | Plataforma Civil e Inmobiliaria');
+
+    unmount();
+    expect(document.title).toBe(tituloOriginal);
+  });
+
   it('muestra el detalle y las restricciones de viabilidad cuando la propiedad no es viable', async () => {
     vi.mocked(propertiesService.getPropertyById).mockResolvedValue(PROPERTY_MOCK);
     render(<PropertyDetailPage id="prop-1" />);

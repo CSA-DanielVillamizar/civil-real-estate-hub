@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://delightful-cliff-00fc49d10.7.azurestaticapps.net/sitemap.xml

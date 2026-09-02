@@ -42,6 +42,7 @@ jobs:
         run: npm run build
         env:
           VITE_API_BASE_URL: ${{ vars.BACKEND_API_BASE_URL }}
+          VITE_SITE_URL: ${{ vars.SITE_URL }}
 
       # Con skip_app_build: true la acción sube el contenido de app_location
       # tal cual, IGNORANDO output_location (ese combo solo aplica cuando ella

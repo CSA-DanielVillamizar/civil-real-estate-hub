@@ -1,11 +1,28 @@
+import { useEffect } from 'react';
 import { usePropertyDetail } from '../../hooks/usePropertyDetail';
 import { PropertyInterestForm } from './PropertyInterestForm';
 import { PhotoGallery } from './PhotoGallery';
 import { PropertyLocationMap } from './PropertyLocationMap';
 import { WhatsAppButton } from './WhatsAppButton';
 
+const DEFAULT_TITLE = document.title;
+
+function usePageTitle(titulo: string | undefined) {
+  // Google renderiza JS antes de indexar, así que esto sí ayuda al SEO de
+  // cada ficha — a diferencia de Open Graph/Twitter Card (index.html,
+  // estáticos), que los bots de redes sociales leen sin ejecutar JS y por
+  // eso siempre muestran el título genérico del sitio al compartir un link.
+  useEffect(() => {
+    document.title = titulo ? `${titulo} | Plataforma Civil e Inmobiliaria` : DEFAULT_TITLE;
+    return () => {
+      document.title = DEFAULT_TITLE;
+    };
+  }, [titulo]);
+}
+
 export function PropertyDetailPage({ id }: { id: string }) {
   const { property, isLoading, error, notFound } = usePropertyDetail(id);
+  usePageTitle(property?.titulo);
 
   if (isLoading) {
     return <div className="mx-auto max-w-4xl px-6 py-16 text-center text-slate-500">Cargando…</div>;
