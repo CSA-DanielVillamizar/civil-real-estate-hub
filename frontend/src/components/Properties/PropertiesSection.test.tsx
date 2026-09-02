@@ -19,6 +19,7 @@ const PROPERTY_MOCK: PropertyResponse = {
   municipio: 'Rionegro',
   departamento: 'Antioquia',
   areaTerrenoM2: 1200,
+  estado: 'Publicada',
   esViableConstructivamente: true,
 };
 

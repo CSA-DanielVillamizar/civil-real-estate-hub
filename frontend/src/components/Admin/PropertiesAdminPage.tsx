@@ -87,8 +87,8 @@ function PropertyRow({
 }: {
   property: PropertyResponse;
   busy: boolean;
-  onSubirFoto: (id: string, archivo: File, tipo: string) => void;
-  onPublicar: (id: string) => void;
+  onSubirFoto: (id: string, archivo: File, tipo: TipoMultimedia) => Promise<void>;
+  onPublicar: (id: string) => Promise<void>;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
