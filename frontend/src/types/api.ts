@@ -1,6 +1,7 @@
 export interface ValidationProblemDetails {
   type?: string;
   title?: string;
+  detail?: string;
   status?: number;
   errors?: Record<string, string[]>;
 }
@@ -10,7 +11,11 @@ export class ApiError extends Error {
   readonly problem?: ValidationProblemDetails;
 
   constructor(status: number, problem?: ValidationProblemDetails) {
-    super(problem?.title ?? `La API respondió con estado ${status}.`);
+    // detail trae el mensaje específico de la regla violada (ver
+    // ApplicationExceptionHandler.HandleDomainExceptionAsync en el
+    // backend — title es siempre el genérico "Se violó una regla de
+    // negocio."); se prioriza sobre title cuando está presente.
+    super(problem?.detail ?? problem?.title ?? `La API respondió con estado ${status}.`);
     this.name = 'ApiError';
     this.status = status;
     this.problem = problem;
