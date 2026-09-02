@@ -43,6 +43,45 @@ export const EstadoPropiedad = {
 } as const;
 export type EstadoPropiedad = (typeof EstadoPropiedad)[keyof typeof EstadoPropiedad];
 
+export const TipoSuelo = {
+  Arcilloso: 'Arcilloso',
+  Arenoso: 'Arenoso',
+  Rocoso: 'Rocoso',
+  Franco: 'Franco',
+  Limoso: 'Limoso',
+} as const;
+export type TipoSuelo = (typeof TipoSuelo)[keyof typeof TipoSuelo];
+
+export const Topografia = {
+  Plana: 'Plana',
+  Inclinada: 'Inclinada',
+  Irregular: 'Irregular',
+} as const;
+export type Topografia = (typeof Topografia)[keyof typeof Topografia];
+
+export const TipoFuenteRetiro = {
+  Rio: 'Rio',
+  Quebrada: 'Quebrada',
+  Bosque: 'Bosque',
+  ViaPrincipal: 'ViaPrincipal',
+  LineaAltaTension: 'LineaAltaTension',
+} as const;
+export type TipoFuenteRetiro = (typeof TipoFuenteRetiro)[keyof typeof TipoFuenteRetiro];
+
+export const TipoMultimedia = {
+  Foto: 'Foto',
+  Plano: 'Plano',
+  Render: 'Render',
+  Video: 'Video',
+} as const;
+export type TipoMultimedia = (typeof TipoMultimedia)[keyof typeof TipoMultimedia];
+
+export const UnidadMedidaArea = {
+  M2: 'M2',
+  Hectarea: 'Hectarea',
+} as const;
+export type UnidadMedidaArea = (typeof UnidadMedidaArea)[keyof typeof UnidadMedidaArea];
+
 export interface DatosCalculoObra {
   areaConstruccionM2: number;
   tipoAcabado: TipoAcabado;

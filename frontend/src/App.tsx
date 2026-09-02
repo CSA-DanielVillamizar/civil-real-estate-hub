@@ -1,13 +1,27 @@
 import { BudgetCalculator } from './components/BudgetCalculator/BudgetCalculator';
 import { ViabilidadAmbientalAdminPage } from './components/Admin/ViabilidadAmbientalAdminPage';
+import { PropertiesAdminPage } from './components/Admin/PropertiesAdminPage';
 import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/ViabilidadAmbientalSection';
+import { PropertiesSection } from './components/Properties/PropertiesSection';
+import { PropertyDetailPage } from './components/Properties/PropertyDetailPage';
 
 function App() {
-  // Ruteo mínimo por path — no se agrega react-router para una sola ruta
-  // administrativa, coherente con la filosofía de dependencias mínimas del
+  // Ruteo mínimo por path — no se agrega react-router para un puñado de
+  // rutas fijas, coherente con la filosofía de dependencias mínimas del
   // proyecto (ver docs/02-business-case.md §6, FinOps).
-  if (window.location.pathname === '/admin/viabilidad-ambiental') {
+  const path = window.location.pathname;
+
+  if (path === '/admin/viabilidad-ambiental') {
     return <ViabilidadAmbientalAdminPage />;
+  }
+
+  if (path === '/admin/propiedades') {
+    return <PropertiesAdminPage />;
+  }
+
+  const detalleMatch = path.match(/^\/propiedades\/([0-9a-fA-F-]{36})$/);
+  if (detalleMatch) {
+    return <PropertyDetailPage id={detalleMatch[1]} />;
   }
 
   return (
@@ -47,6 +61,10 @@ function App() {
 
         <div id="viabilidad-ambiental" className="mt-12">
           <ViabilidadAmbientalSection />
+        </div>
+
+        <div id="propiedades" className="mt-12">
+          <PropertiesSection />
         </div>
       </main>
     </div>

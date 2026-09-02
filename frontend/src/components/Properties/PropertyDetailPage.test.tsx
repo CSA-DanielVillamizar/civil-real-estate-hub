@@ -1,0 +1,50 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { PropertyDetailPage } from './PropertyDetailPage';
+import * as propertiesService from '../../services/propertiesService';
+import { ApiError } from '../../types/api';
+import type { PropertyDetailResponse } from '../../types/properties';
+
+vi.mock('../../services/propertiesService', async (importOriginal) => ({
+  ...(await importOriginal<typeof propertiesService>()),
+  getPropertyById: vi.fn(),
+}));
+
+const PROPERTY_MOCK: PropertyDetailResponse = {
+  id: 'prop-1',
+  titulo: 'Lote campestre',
+  descripcion: 'Un lote con vista.',
+  tipoInmueble: 'Lote',
+  precio: 250_000_000,
+  moneda: 'COP',
+  direccion: 'Vereda La Primavera',
+  municipio: 'Rionegro',
+  departamento: 'Antioquia',
+  areaTerrenoM2: 1200,
+  pendientePorcentaje: 30,
+  tipoSuelo: 'Franco',
+  topografia: 'Inclinada',
+  estado: 'Publicada',
+  esViableConstructivamente: false,
+  restriccionesViabilidad: ['Pendiente del terreno (30%) supera el máximo de referencia (25%).'],
+  retirosAmbientales: [],
+  multimedia: [],
+};
+
+describe('PropertyDetailPage', () => {
+  it('muestra el detalle y las restricciones de viabilidad cuando la propiedad no es viable', async () => {
+    vi.mocked(propertiesService.getPropertyById).mockResolvedValue(PROPERTY_MOCK);
+    render(<PropertyDetailPage id="prop-1" />);
+
+    expect(await screen.findByText('Lote campestre')).toBeInTheDocument();
+    expect(screen.getByText(/supera el máximo de referencia/i)).toBeInTheDocument();
+    expect(screen.getByText('¿Te interesa esta propiedad?')).toBeInTheDocument();
+  });
+
+  it('con un 404, muestra "no encontrada" en vez de un error genérico', async () => {
+    vi.mocked(propertiesService.getPropertyById).mockRejectedValue(new ApiError(404));
+    render(<PropertyDetailPage id="inexistente" />);
+
+    expect(await screen.findByText(/propiedad no encontrada/i)).toBeInTheDocument();
+  });
+});

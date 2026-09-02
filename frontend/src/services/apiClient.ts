@@ -18,13 +18,18 @@ async function fetchOk(path: string, options: RequestOptions): Promise<Response>
   let response: Response;
 
   try {
+    // FormData (subida de archivos) viaja tal cual — el navegador arma el
+    // header Content-Type con el boundary correcto; fijarlo a mano rompería
+    // el multipart/form-data.
+    const isFormData = options.body instanceof FormData;
+
     response = await fetch(`${API_BASE_URL}${path}`, {
       method: options.method ?? 'GET',
       headers: {
-        ...(options.body ? { 'Content-Type': 'application/json' } : undefined),
+        ...(options.body && !isFormData ? { 'Content-Type': 'application/json' } : undefined),
         ...options.headers,
       },
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      body: isFormData ? (options.body as FormData) : options.body ? JSON.stringify(options.body) : undefined,
       signal: options.signal,
     });
   } catch (err) {
