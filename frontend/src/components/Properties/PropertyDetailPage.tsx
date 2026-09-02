@@ -1,5 +1,8 @@
 import { usePropertyDetail } from '../../hooks/usePropertyDetail';
 import { PropertyInterestForm } from './PropertyInterestForm';
+import { PhotoGallery } from './PhotoGallery';
+import { PropertyLocationMap } from './PropertyLocationMap';
+import { WhatsAppButton } from './WhatsAppButton';
 
 export function PropertyDetailPage({ id }: { id: string }) {
   const { property, isLoading, error, notFound } = usePropertyDetail(id);
@@ -40,22 +43,7 @@ export function PropertyDetailPage({ id }: { id: string }) {
           ← Volver al catálogo
         </a>
 
-        {fotos.length > 0 ? (
-          <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {fotos.map((foto, i) => (
-              <img
-                key={foto.id}
-                src={foto.url}
-                alt={`${property.titulo} — foto ${i + 1}`}
-                className={`h-48 w-full rounded-lg object-cover ${i === 0 ? 'col-span-2 row-span-2 h-full sm:col-span-2' : ''}`}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="mb-6 flex h-64 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
-            Sin fotos disponibles
-          </div>
-        )}
+        <PhotoGallery fotos={fotos} titulo={property.titulo} />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
@@ -117,9 +105,12 @@ export function PropertyDetailPage({ id }: { id: string }) {
                 ))}
               </ul>
             )}
+
+            <PropertyLocationMap latitud={property.latitud} longitud={property.longitud} titulo={property.titulo} />
           </div>
 
-          <aside className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:h-fit">
+          <aside className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:h-fit">
+            <WhatsAppButton mensaje={`Hola, me interesa la propiedad "${property.titulo}" (${property.municipio}, ${property.departamento}).`} />
             <PropertyInterestForm propiedadId={property.id} />
           </aside>
         </div>
