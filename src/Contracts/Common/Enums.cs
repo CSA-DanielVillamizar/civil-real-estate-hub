@@ -8,6 +8,14 @@ public enum OrigenLeadDto
     Referido
 }
 
+public enum ServicioDeInteresDto
+{
+    Inmobiliaria,
+    CalculadoraDeObra,
+    ConsultoriaYDisenoEstructural,
+    InterventoriaYPresupuestos
+}
+
 public enum EstadoLeadDto
 {
     Nuevo,

@@ -15,6 +15,8 @@ public sealed class Lead : AggregateRoot<LeadId>
     public EstadoLead Estado { get; private set; }
     public PropiedadId? PropiedadDeInteresId { get; private set; }
     public EstimacionCosto? ResultadoCalculadora { get; private set; }
+    public ServicioDeInteres? ServicioDeInteres { get; private set; }
+    public string? Mensaje { get; private set; }
     public DateTimeOffset CapturadoEn { get; private set; }
 
     // Marca de idempotencia (Fase 2 — SDD): el consumidor en background de la
@@ -33,7 +35,9 @@ public sealed class Lead : AggregateRoot<LeadId>
         Telefono telefono,
         OrigenLead origen,
         PropiedadId? propiedadDeInteresId,
-        EstimacionCosto? resultadoCalculadora) : base(id)
+        EstimacionCosto? resultadoCalculadora,
+        ServicioDeInteres? servicioDeInteres,
+        string? mensaje) : base(id)
     {
         Nombre = nombre;
         Email = email;
@@ -41,6 +45,8 @@ public sealed class Lead : AggregateRoot<LeadId>
         Origen = origen;
         PropiedadDeInteresId = propiedadDeInteresId;
         ResultadoCalculadora = resultadoCalculadora;
+        ServicioDeInteres = servicioDeInteres;
+        Mensaje = mensaje;
         Estado = EstadoLead.Nuevo;
         CapturadoEn = DateTimeOffset.UtcNow;
     }
@@ -51,7 +57,9 @@ public sealed class Lead : AggregateRoot<LeadId>
         Telefono telefono,
         OrigenLead origen,
         PropiedadId? propiedadDeInteresId = null,
-        EstimacionCosto? resultadoCalculadora = null)
+        EstimacionCosto? resultadoCalculadora = null,
+        ServicioDeInteres? servicioDeInteres = null,
+        string? mensaje = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new ArgumentException("El nombre es obligatorio.", nameof(nombre));
@@ -64,9 +72,33 @@ public sealed class Lead : AggregateRoot<LeadId>
                 "ResultadoCalculadora es obligatorio cuando el origen es CalculadoraObra.",
                 nameof(resultadoCalculadora));
 
-        var lead = new Lead(LeadId.Nueva(), nombre.Trim(), email, telefono, origen, propiedadDeInteresId, resultadoCalculadora);
+        // Inferencia automática (solo cuando el llamador no lo indica
+        // explícito): los flujos existentes (calculadora, interés en una
+        // propiedad) ya traen la señal necesaria — los formularios nuevos de
+        // Consultoría/Interventoría, que no tienen ninguna señal propia del
+        // dominio, sí deben indicarlo explícitamente.
+        var servicioResuelto = servicioDeInteres ?? InferirServicioDeInteres(origen, propiedadDeInteresId);
+        var mensajeNormalizado = string.IsNullOrWhiteSpace(mensaje) ? null : mensaje.Trim();
+
+        var lead = new Lead(
+            LeadId.Nueva(), nombre.Trim(), email, telefono, origen, propiedadDeInteresId, resultadoCalculadora,
+            servicioResuelto, mensajeNormalizado);
         lead.AddDomainEvent(new LeadCaptadoEvent(lead.Id, origen));
         return lead;
+    }
+
+    private static ServicioDeInteres? InferirServicioDeInteres(OrigenLead origen, PropiedadId? propiedadDeInteresId)
+    {
+        // Calificado con el namespace completo — dentro de Lead, el nombre
+        // simple "ServicioDeInteres" resuelve a la propiedad (mismo nombre
+        // que el enum, "problema Color Color" clásico de C#), no al tipo.
+        if (origen == OrigenLead.CalculadoraObra)
+            return Plataforma.Domain.Leads.ServicioDeInteres.CalculadoraDeObra;
+
+        if (propiedadDeInteresId is not null)
+            return Plataforma.Domain.Leads.ServicioDeInteres.Inmobiliaria;
+
+        return null;
     }
 
     public void MarcarContactado()

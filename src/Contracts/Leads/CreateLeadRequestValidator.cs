@@ -41,5 +41,12 @@ public sealed class CreateLeadRequestValidator : AbstractValidator<CreateLeadReq
         RuleFor(x => x.DatosCalculoObra!)
             .SetValidator(new DatosCalculoObraDtoValidator())
             .When(x => x.DatosCalculoObra is not null);
+
+        RuleFor(x => x.ServicioDeInteres)
+            .IsInEnum()
+            .When(x => x.ServicioDeInteres.HasValue);
+
+        RuleFor(x => x.Mensaje)
+            .MaximumLength(1000);
     }
 }

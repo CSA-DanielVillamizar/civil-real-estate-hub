@@ -9,6 +9,14 @@ export const OrigenLead = {
 } as const;
 export type OrigenLead = (typeof OrigenLead)[keyof typeof OrigenLead];
 
+export const ServicioDeInteres = {
+  Inmobiliaria: 'Inmobiliaria',
+  CalculadoraDeObra: 'CalculadoraDeObra',
+  ConsultoriaYDisenoEstructural: 'ConsultoriaYDisenoEstructural',
+  InterventoriaYPresupuestos: 'InterventoriaYPresupuestos',
+} as const;
+export type ServicioDeInteres = (typeof ServicioDeInteres)[keyof typeof ServicioDeInteres];
+
 export const EstadoLead = {
   Nuevo: 'Nuevo',
   Contactado: 'Contactado',

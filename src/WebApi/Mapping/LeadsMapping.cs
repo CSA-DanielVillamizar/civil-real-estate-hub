@@ -22,7 +22,9 @@ public static class LeadsMapping
         request.Indicativo,
         request.Origen.ToDomain(),
         request.PropiedadDeInteresId,
-        request.DatosCalculoObra.ToApplicationInput());
+        request.DatosCalculoObra.ToApplicationInput(),
+        request.ServicioDeInteres?.ToDomain(),
+        request.Mensaje);
 
     // Reutiliza el mismo CreateLeadRequest como body del endpoint de PDF —
     // misma forma de datos (nombre/email/telefono/datosCalculoObra), sin
@@ -63,7 +65,9 @@ public static class LeadsMapping
         item.PropiedadDeInteresId,
         item.EstimacionMontoMinimo,
         item.EstimacionMontoMaximo,
-        item.EstimacionMoneda);
+        item.EstimacionMoneda,
+        item.ServicioDeInteres?.ToContract(),
+        item.Mensaje);
 
     public static ApplicationMarcarLeadContactadoCommand ToMarcarContactadoCommand(this Guid leadId) => new(leadId);
 

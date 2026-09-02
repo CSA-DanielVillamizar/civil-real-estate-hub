@@ -30,7 +30,9 @@ public sealed class CreateLeadCommandHandlerTests
             "+57",
             OrigenLead.FormularioContacto,
             PropiedadDeInteresId: null,
-            DatosCalculoObra: null);
+            DatosCalculoObra: null,
+            ServicioDeInteres: null,
+            Mensaje: null);
 
         await _sut.Handle(command, CancellationToken.None);
 
@@ -57,7 +59,9 @@ public sealed class CreateLeadCommandHandlerTests
             null,
             OrigenLead.CalculadoraObra,
             null,
-            datosCalculoObra);
+            datosCalculoObra,
+            null,
+            null);
 
         await _sut.Handle(command, CancellationToken.None);
 
@@ -76,7 +80,7 @@ public sealed class CreateLeadCommandHandlerTests
     {
         var command = new CreateLeadCommand(
             "Ana Restrepo", "ana@example.com", "3109876543", null,
-            OrigenLead.FormularioContacto, null, null);
+            OrigenLead.FormularioContacto, null, null, null, null);
 
         var resultado = await _sut.Handle(command, CancellationToken.None);
 
@@ -86,12 +90,30 @@ public sealed class CreateLeadCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ConServicioDeInteresYMensajeExplicitos_LosAsignaAlLeadPersistido()
+    {
+        var command = new CreateLeadCommand(
+            "Ana Restrepo", "ana@example.com", "3109876543", null,
+            OrigenLead.FormularioContacto, null, null,
+            ServicioDeInteres.InterventoriaYPresupuestos, "Necesito interventoría para un proyecto en Rionegro.");
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        _leadRepositoryMock.Verify(repo => repo.AddAsync(
+            It.Is<Lead>(lead =>
+                lead.ServicioDeInteres == ServicioDeInteres.InterventoriaYPresupuestos &&
+                lead.Mensaje == "Necesito interventoría para un proyecto en Rionegro."),
+            It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Handle_ConPropiedadDeInteres_AsignaElIdDeLaPropiedadAlLead()
     {
         var propiedadId = Guid.NewGuid();
         var command = new CreateLeadCommand(
             "Ana Restrepo", "ana@example.com", "3109876543", null,
-            OrigenLead.FormularioContacto, propiedadId, null);
+            OrigenLead.FormularioContacto, propiedadId, null, null, null);
 
         await _sut.Handle(command, CancellationToken.None);
 

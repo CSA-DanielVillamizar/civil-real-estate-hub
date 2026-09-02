@@ -9,5 +9,7 @@ public sealed record CreateLeadRequest(
     string? Indicativo,
     OrigenLeadDto Origen,
     Guid? PropiedadDeInteresId,
-    DatosCalculoObraDto? DatosCalculoObra
+    DatosCalculoObraDto? DatosCalculoObra,
+    ServicioDeInteresDto? ServicioDeInteres,
+    string? Mensaje
 );

@@ -364,3 +364,37 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902143549_AgregarServicioDeInteresYMensajeALead'
+)
+BEGIN
+    ALTER TABLE [leads] ADD [mensaje] nvarchar(1000) NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902143549_AgregarServicioDeInteresYMensajeALead'
+)
+BEGIN
+    ALTER TABLE [leads] ADD [servicio_de_interes] nvarchar(40) NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902143549_AgregarServicioDeInteresYMensajeALead'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260902143549_AgregarServicioDeInteresYMensajeALead', N'8.0.10');
+END;
+GO
+
+COMMIT;
+GO
+

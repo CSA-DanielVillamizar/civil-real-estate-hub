@@ -1,4 +1,4 @@
-import type { DatosCalculoObra, EstadoLead, EstimacionCosto, OrigenLead } from './common';
+import type { DatosCalculoObra, EstadoLead, EstimacionCosto, OrigenLead, ServicioDeInteres } from './common';
 
 export interface CreateLeadRequest {
   nombre: string;
@@ -8,6 +8,8 @@ export interface CreateLeadRequest {
   origen: OrigenLead;
   propiedadDeInteresId?: string;
   datosCalculoObra?: DatosCalculoObra;
+  servicioDeInteres?: ServicioDeInteres;
+  mensaje?: string;
 }
 
 export interface CreateLeadResponse {
@@ -28,6 +30,8 @@ export interface LeadListItem {
   estimacionMontoMinimo?: number;
   estimacionMontoMaximo?: number;
   estimacionMoneda?: string;
+  servicioDeInteres?: ServicioDeInteres;
+  mensaje?: string;
 }
 
 export interface LeadEstadoResponse {

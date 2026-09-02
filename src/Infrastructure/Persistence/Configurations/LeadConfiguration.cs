@@ -43,6 +43,16 @@ public sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
             .HasColumnName("capturado_en")
             .IsRequired();
 
+        // Independiente de Origen — ver Lead.Registrar/InferirServicioDeInteres.
+        builder.Property(l => l.ServicioDeInteres)
+            .HasColumnName("servicio_de_interes")
+            .HasConversion<string>()
+            .HasMaxLength(40);
+
+        builder.Property(l => l.Mensaje)
+            .HasColumnName("mensaje")
+            .HasMaxLength(1000);
+
         // PropiedadId es un value object externo (referencia débil entre bounded
         // contexts — ver docs/01-domain-model.md §5): se guarda como Guid plano,
         // nunca como FK real hacia la tabla propiedades.

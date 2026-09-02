@@ -5,6 +5,8 @@ import { LeadsAdminPage } from './components/Admin/LeadsAdminPage';
 import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/ViabilidadAmbientalSection';
 import { PropertiesSection } from './components/Properties/PropertiesSection';
 import { PropertyDetailPage } from './components/Properties/PropertyDetailPage';
+import { ConsultoriaEstructuralSection } from './components/Servicios/ConsultoriaEstructuralSection';
+import { InterventoriaSection } from './components/Servicios/InterventoriaSection';
 
 function App() {
   // Ruteo mínimo por path — no se agrega react-router para un puñado de
@@ -46,6 +48,12 @@ function App() {
             <a href="#propiedades" className="hover:text-slate-900">
               Propiedades
             </a>
+            <a href="#consultoria-estructural" className="hover:text-slate-900">
+              Consultoría estructural
+            </a>
+            <a href="#interventoria" className="hover:text-slate-900">
+              Interventoría
+            </a>
           </nav>
         </div>
       </header>
@@ -70,6 +78,14 @@ function App() {
 
         <div id="propiedades" className="mt-12">
           <PropertiesSection />
+        </div>
+
+        <div id="consultoria-estructural" className="mt-12">
+          <ConsultoriaEstructuralSection />
+        </div>
+
+        <div id="interventoria" className="mt-12">
+          <InterventoriaSection />
         </div>
       </main>
     </div>

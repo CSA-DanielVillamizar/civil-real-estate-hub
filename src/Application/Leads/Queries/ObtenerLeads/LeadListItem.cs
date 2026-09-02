@@ -13,4 +13,6 @@ public sealed record LeadListItem(
     Guid? PropiedadDeInteresId,
     decimal? EstimacionMontoMinimo,
     decimal? EstimacionMontoMaximo,
-    string? EstimacionMoneda);
+    string? EstimacionMoneda,
+    ServicioDeInteres? ServicioDeInteres,
+    string? Mensaje);

@@ -69,4 +69,10 @@ public static class EnumMapping
 
     public static ContractsEnums.OrigenLeadDto ToContract(this DomainLeads.OrigenLead origen) =>
         Enum.Parse<ContractsEnums.OrigenLeadDto>(origen.ToString());
+
+    public static DomainLeads.ServicioDeInteres ToDomain(this ContractsEnums.ServicioDeInteresDto servicio) =>
+        Enum.Parse<DomainLeads.ServicioDeInteres>(servicio.ToString());
+
+    public static ContractsEnums.ServicioDeInteresDto ToContract(this DomainLeads.ServicioDeInteres servicio) =>
+        Enum.Parse<ContractsEnums.ServicioDeInteresDto>(servicio.ToString());
 }

@@ -22,6 +22,13 @@ const ORIGEN_LABEL: Record<string, string> = {
   Referido: 'Referido',
 };
 
+const SERVICIO_LABEL: Record<string, string> = {
+  Inmobiliaria: 'Inmobiliaria',
+  CalculadoraDeObra: 'Calculadora de obra',
+  ConsultoriaYDisenoEstructural: 'Consultoría estructural',
+  InterventoriaYPresupuestos: 'Interventoría y presupuestos',
+};
+
 export function LeadsAdminPage() {
   return (
     <RequireAuth rolesPermitidos={[RolUsuario.Admin, RolUsuario.AsesorComercial]}>
@@ -79,6 +86,7 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
             <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3">Lead</th>
+                <th className="px-4 py-3">Servicio de interés</th>
                 <th className="px-4 py-3">Origen</th>
                 <th className="px-4 py-3">Estimación</th>
                 <th className="px-4 py-3">Estado</th>
@@ -94,6 +102,10 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
                     <div className="text-xs text-slate-500">
                       {lead.email} · {lead.telefono}
                     </div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600" title={lead.mensaje}>
+                    {lead.servicioDeInteres ? (SERVICIO_LABEL[lead.servicioDeInteres] ?? lead.servicioDeInteres) : '—'}
+                    {lead.mensaje && <span className="ml-1 text-slate-400">💬</span>}
                   </td>
                   <td className="px-4 py-3 text-slate-600">{ORIGEN_LABEL[lead.origen] ?? lead.origen}</td>
                   <td className="px-4 py-3 text-slate-600">

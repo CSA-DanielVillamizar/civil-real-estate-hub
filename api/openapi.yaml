@@ -673,6 +673,14 @@ components:
       type: string
       enum: [CalculadoraObra, FormularioContacto, LandingPage, Referido]
 
+    ServicioDeInteres:
+      type: string
+      enum: [Inmobiliaria, CalculadoraDeObra, ConsultoriaYDisenoEstructural, InterventoriaYPresupuestos]
+      description: >
+        Independiente de origen (el canal): indica qué servicio le interesa
+        al lead. Se infiere automáticamente cuando origen=CalculadoraObra o
+        hay propiedadDeInteresId; en los demás casos lo indica el llamador.
+
     EstadoLead:
       type: string
       enum: [Nuevo, Contactado, Calificado, Convertido, Descartado, ContactoPendientePorReasignacion]
@@ -768,6 +776,14 @@ components:
             - $ref: '#/components/schemas/DatosCalculoObra'
           nullable: true
           description: Obligatorio cuando origen = CalculadoraObra
+        servicioDeInteres:
+          allOf:
+            - $ref: '#/components/schemas/ServicioDeInteres'
+          nullable: true
+        mensaje:
+          type: string
+          maxLength: 1000
+          nullable: true
 
     LeadListItem:
       type: object
@@ -802,6 +818,13 @@ components:
           format: decimal
           nullable: true
         estimacionMoneda:
+          type: string
+          nullable: true
+        servicioDeInteres:
+          allOf:
+            - $ref: '#/components/schemas/ServicioDeInteres'
+          nullable: true
+        mensaje:
           type: string
           nullable: true
 

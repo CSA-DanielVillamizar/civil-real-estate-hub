@@ -28,7 +28,9 @@ public sealed class ObtenerLeadsQueryHandler : IRequestHandler<ObtenerLeadsQuery
                 l.PropiedadDeInteresId?.Value,
                 l.ResultadoCalculadora?.MontoMinimo.Monto,
                 l.ResultadoCalculadora?.MontoMaximo.Monto,
-                l.ResultadoCalculadora?.MontoMinimo.Moneda))
+                l.ResultadoCalculadora?.MontoMinimo.Moneda,
+                l.ServicioDeInteres,
+                l.Mensaje))
             .ToList();
     }
 }

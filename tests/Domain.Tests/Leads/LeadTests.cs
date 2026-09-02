@@ -2,7 +2,9 @@ using FluentAssertions;
 using Plataforma.Domain.Leads;
 using Plataforma.Domain.Leads.Events;
 using Plataforma.Domain.Leads.Exceptions;
+using Plataforma.Domain.Leads.Services;
 using Plataforma.Domain.Leads.ValueObjects;
+using Plataforma.Domain.Propiedades;
 using Xunit;
 
 namespace Plataforma.Domain.Tests.Leads;
@@ -14,6 +16,67 @@ public sealed class LeadTests
         Email.Crear("ana@example.com"),
         Telefono.Crear("3109876543"),
         OrigenLead.FormularioContacto);
+
+    [Fact]
+    public void Registrar_ConOrigenCalculadoraObra_InfiereServicioDeInteresCalculadoraDeObra()
+    {
+        var datos = DatosCalculoObra.Crear(100, TipoAcabado.Basico, "Gómez Plata", TipoProyecto.Vivienda);
+        var estimacion = new CalculadoraDeObraService().Calcular(datos);
+
+        var lead = Lead.Registrar(
+            "Ana Restrepo", Email.Crear("ana@example.com"), Telefono.Crear("3109876543"),
+            OrigenLead.CalculadoraObra, resultadoCalculadora: estimacion);
+
+        lead.ServicioDeInteres.Should().Be(ServicioDeInteres.CalculadoraDeObra);
+    }
+
+    [Fact]
+    public void Registrar_ConPropiedadDeInteres_InfiereServicioDeInteresInmobiliaria()
+    {
+        var lead = Lead.Registrar(
+            "Ana Restrepo", Email.Crear("ana@example.com"), Telefono.Crear("3109876543"),
+            OrigenLead.FormularioContacto, propiedadDeInteresId: PropiedadId.Nueva());
+
+        lead.ServicioDeInteres.Should().Be(ServicioDeInteres.Inmobiliaria);
+    }
+
+    [Fact]
+    public void Registrar_SinSenalDelDominioNiServicioExplicito_DejaServicioDeInteresEnNull()
+    {
+        var lead = CrearLeadNuevo();
+
+        lead.ServicioDeInteres.Should().BeNull();
+    }
+
+    [Fact]
+    public void Registrar_ConServicioDeInteresExplicito_LoRespetaEnVezDeInferir()
+    {
+        var lead = Lead.Registrar(
+            "Ana Restrepo", Email.Crear("ana@example.com"), Telefono.Crear("3109876543"),
+            OrigenLead.FormularioContacto, servicioDeInteres: ServicioDeInteres.InterventoriaYPresupuestos);
+
+        lead.ServicioDeInteres.Should().Be(ServicioDeInteres.InterventoriaYPresupuestos);
+    }
+
+    [Fact]
+    public void Registrar_ConMensajeConEspaciosAlrededor_LoRecortaYLoGuarda()
+    {
+        var lead = Lead.Registrar(
+            "Ana Restrepo", Email.Crear("ana@example.com"), Telefono.Crear("3109876543"),
+            OrigenLead.FormularioContacto, mensaje: "  Tengo un lote de 800m² en Rionegro.  ");
+
+        lead.Mensaje.Should().Be("Tengo un lote de 800m² en Rionegro.");
+    }
+
+    [Fact]
+    public void Registrar_ConMensajeVacio_LoDejaEnNull()
+    {
+        var lead = Lead.Registrar(
+            "Ana Restrepo", Email.Crear("ana@example.com"), Telefono.Crear("3109876543"),
+            OrigenLead.FormularioContacto, mensaje: "   ");
+
+        lead.Mensaje.Should().BeNull();
+    }
 
     [Fact]
     public void CalificarPorDescargaDePdf_ConLeadNuevo_TransicionaACalificadoYDisparaEvento()

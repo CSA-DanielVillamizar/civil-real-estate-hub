@@ -45,7 +45,9 @@ public sealed class CreateLeadCommandHandler : IRequestHandler<CreateLeadCommand
             telefono,
             request.Origen,
             propiedadDeInteresId,
-            estimacionCosto);
+            estimacionCosto,
+            request.ServicioDeInteres,
+            request.Mensaje);
 
         await _leadRepository.AddAsync(lead, cancellationToken);
 

@@ -13,5 +13,7 @@ public sealed record CreateLeadCommand(
     string? Indicativo,
     OrigenLead Origen,
     Guid? PropiedadDeInteresId,
-    DatosCalculoObraInput? DatosCalculoObra
+    DatosCalculoObraInput? DatosCalculoObra,
+    ServicioDeInteres? ServicioDeInteres,
+    string? Mensaje
 ) : IRequest<CreateLeadResult>;
