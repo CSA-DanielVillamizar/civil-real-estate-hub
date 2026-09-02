@@ -99,6 +99,13 @@ export function descargarBlob(blob: Blob, fileName: string): void {
   URL.revokeObjectURL(url);
 }
 
+// Header compartido por todas las funciones administrativas (Leads,
+// Properties, ViabilidadAmbiental) — reemplaza el X-Admin-Api-Key único de
+// la Fase 3 por el token JWT de la sesión (ver useAuth).
+export function authHeader(token: string): Record<string, string> {
+  return { Authorization: `Bearer ${token}` };
+}
+
 export function buildQueryString(params: Record<string, unknown>): string {
   const query = new URLSearchParams();
 

@@ -1,10 +1,12 @@
-import { useRef, useState, type FormEvent } from 'react';
-import { useAdminApiKey } from '../../hooks/useAdminApiKey';
+import { useRef } from 'react';
 import { usePropertiesAdmin } from '../../hooks/usePropertiesAdmin';
+import type { AuthState } from '../../hooks/useAuth';
+import { RolUsuario } from '../../types/auth';
 import { TipoMultimedia } from '../../types/common';
 import type { PropertyResponse } from '../../types/properties';
 import { CrearPropiedadForm } from './CrearPropiedadForm';
 import { AdminNav } from './AdminNav';
+import { RequireAuth } from './RequireAuth';
 
 const ESTADO_BADGE: Record<string, string> = {
   Borrador: 'bg-slate-100 text-slate-700',
@@ -16,47 +18,19 @@ const ESTADO_BADGE: Record<string, string> = {
 };
 
 export function PropertiesAdminPage() {
-  const { apiKey, guardar, limpiar } = useAdminApiKey();
-
-  if (!apiKey) return <ApiKeyGate onGuardar={guardar} />;
-  return <Panel apiKey={apiKey} onUnauthorized={limpiar} />;
-}
-
-function ApiKeyGate({ onGuardar }: { onGuardar: (apiKey: string) => void }) {
-  const [valor, setValor] = useState('');
-
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (valor.trim()) onGuardar(valor.trim());
-  }
-
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <h1 className="mb-2 text-xl font-bold text-slate-900">Panel administrativo</h1>
-      <p className="mb-6 text-sm text-slate-500">Ingresa el API key de administrador.</p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="password"
-          value={valor}
-          onChange={(e) => setValor(e.target.value)}
-          placeholder="X-Admin-Api-Key"
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          autoFocus
-        />
-        <button type="submit" disabled={!valor.trim()} className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
-          Entrar
-        </button>
-      </form>
-    </div>
+    <RequireAuth rolesPermitidos={[RolUsuario.Admin]}>
+      {(auth, onUnauthorized) => <Panel auth={auth} onUnauthorized={onUnauthorized} />}
+    </RequireAuth>
   );
 }
 
-function Panel({ apiKey, onUnauthorized }: { apiKey: string; onUnauthorized: () => void }) {
-  const { properties, isLoading, error, fieldErrors, busyId, crear, subirFoto, publicar } = usePropertiesAdmin(apiKey, onUnauthorized);
+function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () => void }) {
+  const { properties, isLoading, error, fieldErrors, busyId, crear, subirFoto, publicar } = usePropertiesAdmin(auth.token, onUnauthorized);
 
   return (
     <div>
-    <AdminNav />
+    <AdminNav auth={auth} onLogout={onUnauthorized} />
     <div className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="mb-1 text-2xl font-bold text-slate-900">Propiedades</h1>
       <p className="mb-6 text-sm text-slate-500">Crea, sube fotos y publica propiedades en el catálogo.</p>

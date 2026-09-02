@@ -17,31 +17,31 @@ public static class LeadsEndpoints
             .WithName("generarPresupuestoPdf")
             .WithTags("Leads");
 
-        // Panel administrativo (CRM mínimo) — mismo AdminApiKeyEndpointFilter
-        // que ViabilidadAmbiental y Properties, un solo mecanismo de
-        // protección en todo el sistema.
+        // Panel administrativo (CRM mínimo) — accesible para Admin y para
+        // AsesorComercial (rol acotado exclusivamente a Leads, ver decisión
+        // aprobada de la Fase de autenticación).
         app.MapGet("/api/leads/admin", GetLeadsAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAsesorOAdmin)
             .WithName("getLeadsAdmin")
             .WithTags("Leads");
 
         app.MapPost("/api/leads/{id:guid}/marcar-contactado", MarcarContactadoAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAsesorOAdmin)
             .WithName("marcarLeadContactado")
             .WithTags("Leads");
 
         app.MapPost("/api/leads/{id:guid}/calificar", CalificarAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAsesorOAdmin)
             .WithName("calificarLead")
             .WithTags("Leads");
 
         app.MapPost("/api/leads/{id:guid}/convertir", ConvertirAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAsesorOAdmin)
             .WithName("convertirLead")
             .WithTags("Leads");
 
         app.MapPost("/api/leads/{id:guid}/descartar", DescartarAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAsesorOAdmin)
             .WithName("descartarLead")
             .WithTags("Leads");
     }

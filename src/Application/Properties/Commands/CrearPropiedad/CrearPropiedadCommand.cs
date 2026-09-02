@@ -3,8 +3,8 @@ using Plataforma.Domain.Propiedades;
 
 namespace Plataforma.Application.Properties.Commands.CrearPropiedad;
 
-// Acción administrativa (mismo API key que ConfirmarPagoViabilidadAmbiental
-// — ver AdminApiKeyEndpointFilter en WebApi). Recibe primitivos, igual que
+// Acción administrativa (protegida con .RequireAuthorization — ver
+// AuthorizationPolicies en WebApi). Recibe primitivos, igual que
 // el resto de comandos del proyecto; los Value Objects se construyen en el
 // handler. RetirosAmbientales es opcional — una propiedad puede no lindar
 // con ninguna fuente hídrica/vía/línea de alta tensión.

@@ -15,7 +15,7 @@ public sealed class GetPropertiesQueryHandler : IRequestHandler<GetPropertiesQue
 
     public async Task<PagedResult<PropertyDto>> Handle(GetPropertiesQuery request, CancellationToken cancellationToken)
     {
-        // GET /api/properties es público (sin AdminApiKeyEndpointFilter) — el
+        // GET /api/properties es público (sin .RequireAuthorization) — el
         // estado NUNCA es un parámetro que el llamador controle, siempre se
         // fuerza a Publicada. Sin esto, un Borrador (o cualquier otro estado
         // interno) quedaría expuesto en el catálogo público apenas se crea,

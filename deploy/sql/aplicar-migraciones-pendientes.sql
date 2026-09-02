@@ -296,3 +296,71 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902061024_AgregarCapturadoEnALead'
+)
+BEGIN
+    ALTER TABLE [leads] ADD [capturado_en] datetimeoffset NOT NULL DEFAULT '0001-01-01T00:00:00.0000000+00:00';
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902061024_AgregarCapturadoEnALead'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260902061024_AgregarCapturadoEnALead', N'8.0.10');
+END;
+GO
+
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902131658_AgregarUsuarios'
+)
+BEGIN
+    CREATE TABLE [usuarios] (
+        [id] uniqueidentifier NOT NULL,
+        [nombre] nvarchar(150) NOT NULL,
+        [email] nvarchar(254) NOT NULL,
+        [password_hash] nvarchar(500) NOT NULL,
+        [rol] nvarchar(30) NOT NULL,
+        [activo] bit NOT NULL,
+        [creado_en] datetimeoffset NOT NULL,
+        CONSTRAINT [PK_usuarios] PRIMARY KEY ([id])
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902131658_AgregarUsuarios'
+)
+BEGIN
+    CREATE UNIQUE INDEX [IX_usuarios_email] ON [usuarios] ([email]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260902131658_AgregarUsuarios'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260902131658_AgregarUsuarios', N'8.0.10');
+END;
+GO
+
+COMMIT;
+GO
+

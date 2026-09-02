@@ -11,6 +11,11 @@ servers:
     description: Entorno de referencia (a reemplazar por Azure App Service en Fase 4+)
 
 tags:
+  - name: Auth
+    description: >
+      Autenticación por JWT (reemplaza el API key administrativo compartido
+      de la Fase 3). Roles: Admin (acceso completo) y AsesorComercial
+      (acotado a /api/leads/admin y sus transiciones de estado).
   - name: Leads
     description: Captación de leads (CRM)
   - name: Properties
@@ -24,6 +29,27 @@ tags:
       administrativa del pago.
 
 paths:
+  /api/auth/login:
+    post:
+      operationId: login
+      tags: [Auth]
+      summary: Autentica un usuario y devuelve un token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Credenciales válidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Email o password incorrectos, o usuario inactivo
+
   /api/leads:
     post:
       tags: [Leads]
@@ -93,7 +119,7 @@ paths:
         contacto — por eso requiere el mismo API key que el resto de
         endpoints administrativos, no es público.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: estado
           in: query
@@ -110,7 +136,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/LeadListItem'
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
 
   /api/leads/{id}/marcar-contactado:
     post:
@@ -118,7 +144,7 @@ paths:
       operationId: marcarLeadContactado
       summary: Transición Nuevo → Contactado. Administrativo.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -136,7 +162,7 @@ paths:
         '400':
           description: El lead no está en un estado que permita esta transición
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
         '404':
           description: No existe un lead con ese id
 
@@ -146,7 +172,7 @@ paths:
       operationId: calificarLead
       summary: Transición Contactado → Calificado. Administrativo.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -164,7 +190,7 @@ paths:
         '400':
           description: El lead no está en un estado que permita esta transición
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
         '404':
           description: No existe un lead con ese id
 
@@ -174,7 +200,7 @@ paths:
       operationId: convertirLead
       summary: Transición Calificado → Convertido. Administrativo.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -192,7 +218,7 @@ paths:
         '400':
           description: El lead no está en un estado que permita esta transición
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
         '404':
           description: No existe un lead con ese id
 
@@ -202,7 +228,7 @@ paths:
       operationId: descartarLead
       summary: Marca el lead como Descartado, con motivo. No aplica si ya está Convertido. Administrativo.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -231,7 +257,7 @@ paths:
         '400':
           description: Error de validación o el lead ya está Convertido
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
         '404':
           description: No existe un lead con ese id
 
@@ -323,7 +349,7 @@ paths:
       operationId: createProperty
       summary: Crea una propiedad en estado Borrador. Administrativo.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -344,7 +370,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidationProblemDetails'
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
 
   /api/properties/admin:
     get:
@@ -355,7 +381,7 @@ paths:
         Administrativo — a diferencia de GET /api/properties, aquí el
         estado es un filtro real que controla el llamador.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: estado
           in: query
@@ -385,7 +411,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PagedPropertyResponse'
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
 
   /api/properties/{id}:
     get:
@@ -421,7 +447,7 @@ paths:
         Sube una foto/plano/render/video a Azure Blob Storage y lo agrega
         a la propiedad. Administrativo, multipart/form-data.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -450,7 +476,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AgregarMultimediaResponse'
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
         '404':
           description: No existe una propiedad con ese id
 
@@ -462,7 +488,7 @@ paths:
         Publica la propiedad (Borrador → Publicada). Falla si no tiene
         precio o al menos un archivo multimedia. Administrativo.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -480,7 +506,7 @@ paths:
         '400':
           description: La propiedad no cumple las condiciones para publicarse
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
         '404':
           description: No existe una propiedad con ese id
 
@@ -552,7 +578,7 @@ paths:
         contacto del solicitante — por eso requiere el mismo API key
         administrativo que confirmar-pago, no es un endpoint público.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: estado
           in: query
@@ -569,7 +595,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/SolicitudViabilidadAmbientalListItem'
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
 
   /api/viabilidad-ambiental/solicitudes/{id}/confirmar-pago:
     post:
@@ -579,7 +605,7 @@ paths:
         Acción administrativa: marca la solicitud como pagada, tras verificar
         manualmente la transferencia. Requiere el header X-Admin-Api-Key.
       security:
-        - AdminApiKey: []
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -603,18 +629,46 @@ paths:
               schema:
                 type: object
         '401':
-          description: X-Admin-Api-Key ausente o incorrecto
+          description: Token JWT ausente, inválido o expirado
         '404':
           description: No existe una solicitud con ese id
 
 components:
   securitySchemes:
-    AdminApiKey:
-      type: apiKey
-      in: header
-      name: X-Admin-Api-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
   schemas:
+    RolUsuario:
+      type: string
+      enum: [Admin, AsesorComercial]
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        expiraEn:
+          type: string
+          format: date-time
+        nombre:
+          type: string
+        rol:
+          $ref: '#/components/schemas/RolUsuario'
+
     OrigenLead:
       type: string
       enum: [CalculadoraObra, FormularioContacto, LandingPage, Referido]

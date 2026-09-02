@@ -105,6 +105,43 @@ namespace Plataforma.Infrastructure.Persistence.Migrations
                     b.ToTable("propiedades", (string)null);
                 });
 
+            modelBuilder.Entity("Plataforma.Domain.Usuarios.Usuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit")
+                        .HasColumnName("activo");
+
+                    b.Property<DateTimeOffset>("CreadoEn")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("creado_en");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("nombre");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("password_hash");
+
+                    b.Property<string>("Rol")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("rol");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("usuarios", (string)null);
+                });
+
             modelBuilder.Entity("Plataforma.Domain.ViabilidadAmbiental.SolicitudViabilidadAmbiental", b =>
                 {
                     b.Property<Guid>("Id")
@@ -599,6 +636,34 @@ namespace Plataforma.Infrastructure.Persistence.Migrations
                     b.Navigation("RetirosAmbientales");
 
                     b.Navigation("Ubicacion")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Plataforma.Domain.Usuarios.Usuario", b =>
+                {
+                    b.OwnsOne("Plataforma.Domain.Leads.ValueObjects.Email", "Email", b1 =>
+                        {
+                            b1.Property<Guid>("UsuarioId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Valor")
+                                .IsRequired()
+                                .HasMaxLength(254)
+                                .HasColumnType("nvarchar(254)")
+                                .HasColumnName("email");
+
+                            b1.HasKey("UsuarioId");
+
+                            b1.HasIndex("Valor")
+                                .IsUnique();
+
+                            b1.ToTable("usuarios");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UsuarioId");
+                        });
+
+                    b.Navigation("Email")
                         .IsRequired();
                 });
 

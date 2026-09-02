@@ -12,12 +12,12 @@ interface UseSolicitudesViabilidadAmbientalResult {
   confirmarPago: (id: string) => Promise<void>;
 }
 
-// apiKey inválido/revocado (401 del backend) se reporta vía onUnauthorized
+// token inválido/revocado (401 del backend) se reporta vía onUnauthorized
 // en vez de guardarse como "error" normal — quien use el hook decide qué
 // hacer (ViabilidadAmbientalAdminPage limpia el key guardado y vuelve a
 // pedirlo), en vez de que este hook conozca de localStorage.
 export function useSolicitudesViabilidadAmbiental(
-  apiKey: string | null,
+  token: string | null,
   onUnauthorized: () => void,
 ): UseSolicitudesViabilidadAmbientalResult {
   const [solicitudes, setSolicitudes] = useState<SolicitudViabilidadAmbientalListItem[]>([]);
@@ -29,7 +29,7 @@ export function useSolicitudesViabilidadAmbiental(
   const recargar = useCallback(() => setRecargaToken((t) => t + 1), []);
 
   useEffect(() => {
-    if (!apiKey) return;
+    if (!token) return;
 
     const controller = new AbortController();
 
@@ -38,7 +38,7 @@ export function useSolicitudesViabilidadAmbiental(
       setError(null);
 
       try {
-        const items = await listarSolicitudesViabilidadAmbiental(apiKey!, undefined, controller.signal);
+        const items = await listarSolicitudesViabilidadAmbiental(token!, undefined, controller.signal);
         setSolicitudes(items);
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
@@ -54,17 +54,17 @@ export function useSolicitudesViabilidadAmbiental(
     cargar();
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey, recargaToken]);
+  }, [token, recargaToken]);
 
   const confirmarPago = useCallback(
     async (id: string) => {
-      if (!apiKey) return;
+      if (!token) return;
 
       setConfirmandoId(id);
       setError(null);
 
       try {
-        await confirmarPagoViabilidadAmbiental(id, apiKey);
+        await confirmarPagoViabilidadAmbiental(id, token);
         recargar();
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
@@ -76,7 +76,7 @@ export function useSolicitudesViabilidadAmbiental(
         setConfirmandoId(null);
       }
     },
-    [apiKey, onUnauthorized, recargar],
+    [token, onUnauthorized, recargar],
   );
 
   return { solicitudes, isLoading, error, confirmandoId, recargar, confirmarPago };

@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react';
-import { useAdminApiKey } from '../../hooks/useAdminApiKey';
+import type { AuthState } from '../../hooks/useAuth';
 import { useSolicitudesViabilidadAmbiental } from '../../hooks/useSolicitudesViabilidadAmbiental';
+import { RolUsuario } from '../../types/auth';
 import { AdminNav } from './AdminNav';
+import { RequireAuth } from './RequireAuth';
 
 const ESTADO_BADGE: Record<string, string> = {
   Solicitada: 'bg-amber-100 text-amber-800',
@@ -10,59 +11,22 @@ const ESTADO_BADGE: Record<string, string> = {
 };
 
 export function ViabilidadAmbientalAdminPage() {
-  const { apiKey, guardar, limpiar } = useAdminApiKey();
-
-  if (!apiKey) {
-    return <ApiKeyGate onGuardar={guardar} />;
-  }
-
-  return <PanelSolicitudes apiKey={apiKey} onUnauthorized={limpiar} />;
-}
-
-function ApiKeyGate({ onGuardar }: { onGuardar: (apiKey: string) => void }) {
-  const [valor, setValor] = useState('');
-
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (valor.trim()) onGuardar(valor.trim());
-  }
-
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <h1 className="mb-2 text-xl font-bold text-slate-900">Panel administrativo</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        Ingresa el API key de administrador. Queda guardado solo en este navegador.
-      </p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="password"
-          value={valor}
-          onChange={(e) => setValor(e.target.value)}
-          placeholder="X-Admin-Api-Key"
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          autoFocus
-        />
-        <button
-          type="submit"
-          disabled={!valor.trim()}
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
-        >
-          Entrar
-        </button>
-      </form>
-    </div>
+    <RequireAuth rolesPermitidos={[RolUsuario.Admin]}>
+      {(auth, onUnauthorized) => <PanelSolicitudes auth={auth} onUnauthorized={onUnauthorized} />}
+    </RequireAuth>
   );
 }
 
-function PanelSolicitudes({ apiKey, onUnauthorized }: { apiKey: string; onUnauthorized: () => void }) {
+function PanelSolicitudes({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () => void }) {
   const { solicitudes, isLoading, error, confirmandoId, confirmarPago } = useSolicitudesViabilidadAmbiental(
-    apiKey,
+    auth.token,
     onUnauthorized,
   );
 
   return (
     <div>
-    <AdminNav />
+    <AdminNav auth={auth} onLogout={onUnauthorized} />
     <div className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="mb-1 text-2xl font-bold text-slate-900">Solicitudes de viabilidad ambiental</h1>
       <p className="mb-6 text-sm text-slate-500">

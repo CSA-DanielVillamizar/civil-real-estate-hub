@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Plataforma.Application.Common.Interfaces;
+using Plataforma.Infrastructure.Auth;
 using Plataforma.Infrastructure.Messaging;
 using Plataforma.Infrastructure.Notifications;
 using Plataforma.Infrastructure.Persistence;
@@ -38,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<IPropertyRepository, PropertyRepository>();
         services.AddScoped<ILeadRepository, LeadRepository>();
         services.AddScoped<ISolicitudViabilidadAmbientalRepository, SolicitudViabilidadAmbientalRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
         // QuestPDF Community License: gratuita para equipos/empresas con
         // ingresos anuales bajo el umbral que publica QuestPDF (a la fecha de
@@ -51,6 +53,7 @@ public static class DependencyInjection
         services.AddMensajeriaYNotificaciones(configuration);
         services.AddViabilidadAmbiental(configuration);
         services.AddPropertiesImageStorage(configuration);
+        services.AddAuth(configuration);
 
         return services;
     }
@@ -145,5 +148,24 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IPropertyImageStorage, AzureBlobPropertyImageStorage>();
+    }
+
+    // Reemplaza el API key administrativo compartido (Fase 3) por JWT + roles
+    // reales por persona (ver decisiones aprobadas: JWT propio, roles Admin/
+    // AsesorComercial, primer usuario sembrado directamente en la base de
+    // datos vía AdminBootstrapper). PasswordHasher<T> no requiere el resto de
+    // ASP.NET Core Identity — solo Microsoft.Extensions.Identity.Core.
+    private static void AddAuth(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .ValidateOnStart();
+
+        services.AddOptions<BootstrapOptions>()
+            .Bind(configuration.GetSection(BootstrapOptions.SectionName));
+
+        services.AddSingleton<IPasswordHasher, PasswordHasherAdapter>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddHostedService<AdminBootstrapper>();
     }
 }

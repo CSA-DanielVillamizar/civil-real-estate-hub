@@ -1,5 +1,4 @@
-import { apiRequest, apiRequestBlob, buildQueryString, type BlobResponse } from './apiClient';
-import { ADMIN_API_KEY_HEADER } from './viabilidadAmbientalService';
+import { apiRequest, apiRequestBlob, authHeader, buildQueryString, type BlobResponse } from './apiClient';
 import type { CreateLeadRequest, CreateLeadResponse, GetLeadsAdminParams, LeadEstadoResponse, LeadListItem } from '../types/leads';
 
 export function createLead(request: CreateLeadRequest, signal?: AbortSignal): Promise<CreateLeadResponse> {
@@ -13,40 +12,40 @@ export function generarPresupuestoPdf(request: CreateLeadRequest, signal?: Abort
 }
 
 // Todas las funciones de abajo son administrativas — requieren el mismo
-// apiKey que protege ViabilidadAmbiental y Properties (ver
+// token que protege ViabilidadAmbiental y Properties (ver
 // AdminApiKeyEndpointFilter en el backend).
 export function getLeadsAdmin(
-  apiKey: string,
+  token: string,
   params: GetLeadsAdminParams = {},
   signal?: AbortSignal,
 ): Promise<LeadListItem[]> {
   const query = buildQueryString({ ...params });
   return apiRequest<LeadListItem[]>(`/leads/admin${query}`, {
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }
 
-export function marcarLeadContactado(leadId: string, apiKey: string, signal?: AbortSignal): Promise<LeadEstadoResponse> {
+export function marcarLeadContactado(leadId: string, token: string, signal?: AbortSignal): Promise<LeadEstadoResponse> {
   return apiRequest<LeadEstadoResponse>(`/leads/${leadId}/marcar-contactado`, {
     method: 'POST',
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }
 
-export function calificarLead(leadId: string, apiKey: string, signal?: AbortSignal): Promise<LeadEstadoResponse> {
+export function calificarLead(leadId: string, token: string, signal?: AbortSignal): Promise<LeadEstadoResponse> {
   return apiRequest<LeadEstadoResponse>(`/leads/${leadId}/calificar`, {
     method: 'POST',
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }
 
-export function convertirLead(leadId: string, apiKey: string, signal?: AbortSignal): Promise<LeadEstadoResponse> {
+export function convertirLead(leadId: string, token: string, signal?: AbortSignal): Promise<LeadEstadoResponse> {
   return apiRequest<LeadEstadoResponse>(`/leads/${leadId}/convertir`, {
     method: 'POST',
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }
@@ -54,13 +53,13 @@ export function convertirLead(leadId: string, apiKey: string, signal?: AbortSign
 export function descartarLead(
   leadId: string,
   motivo: string,
-  apiKey: string,
+  token: string,
   signal?: AbortSignal,
 ): Promise<LeadEstadoResponse> {
   return apiRequest<LeadEstadoResponse>(`/leads/${leadId}/descartar`, {
     method: 'POST',
     body: { motivo },
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }

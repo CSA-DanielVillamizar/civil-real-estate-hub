@@ -1,7 +1,12 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Plataforma.Application;
+using Plataforma.Domain.Usuarios;
 using Plataforma.Infrastructure;
+using Plataforma.Infrastructure.Auth;
 using Plataforma.WebApi.Endpoints;
 using Plataforma.WebApi.ErrorHandling;
 using Plataforma.WebApi.Security;
@@ -25,12 +30,33 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // de borde de la Web API, no de Application/Domain.
 builder.Services.AddValidatorsFromAssembly(typeof(Plataforma.Contracts.Common.DatosCalculoObraDtoValidator).Assembly);
 
-// Fase 3 (SDD): API key del único endpoint administrativo actual — ver
-// AdminApiKeyEndpointFilter. ValidateOnStart() evita que la app arranque con
-// el endpoint sin protección real por un error de configuración.
-builder.Services.AddOptions<AdminApiKeyOptions>()
-    .Bind(builder.Configuration.GetSection(AdminApiKeyOptions.SectionName))
-    .ValidateOnStart();
+// Reemplaza el API key administrativo compartido (Fase 3) — ver decisión
+// aprobada: JWT propio + roles Admin/AsesorComercial por persona. El resto
+// de la configuración (JwtOptions, PasswordHasher, AdminBootstrapper) se
+// registra en Infrastructure/DependencyInjection.AddAuth.
+var jwtSection = builder.Configuration.GetSection(JwtOptions.SectionName);
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSection["Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["SigningKey"] ?? string.Empty)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1),
+        };
+    });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(AuthorizationPolicies.RequiereAdmin, policy => policy.RequireRole(nameof(RolUsuario.Admin)))
+    .AddPolicy(
+        AuthorizationPolicies.RequiereAsesorOAdmin,
+        policy => policy.RequireRole(nameof(RolUsuario.Admin), nameof(RolUsuario.AsesorComercial)));
 
 // Orígenes permitidos configurables (Cors:AllowedOrigins) — en local viene del
 // default en appsettings.json (Vite en :5173); en Azure se agrega el dominio
@@ -69,6 +95,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors(FrontendCorsPolicy);
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapAuthEndpoints();
 app.MapLeadsEndpoints();
 app.MapPropertiesEndpoints();
 app.MapBudgetsEndpoints();

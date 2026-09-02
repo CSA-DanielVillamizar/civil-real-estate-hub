@@ -1,9 +1,10 @@
-import { useAdminApiKey } from '../../hooks/useAdminApiKey';
 import { useLeadsAdmin } from '../../hooks/useLeadsAdmin';
+import type { AuthState } from '../../hooks/useAuth';
 import { EstadoLead } from '../../types/common';
+import { RolUsuario } from '../../types/auth';
 import type { LeadListItem } from '../../types/leads';
-import { useState, type FormEvent } from 'react';
 import { AdminNav } from './AdminNav';
+import { RequireAuth } from './RequireAuth';
 
 const ESTADO_BADGE: Record<string, string> = {
   Nuevo: 'bg-slate-100 text-slate-700',
@@ -22,44 +23,16 @@ const ORIGEN_LABEL: Record<string, string> = {
 };
 
 export function LeadsAdminPage() {
-  const { apiKey, guardar, limpiar } = useAdminApiKey();
-
-  if (!apiKey) return <ApiKeyGate onGuardar={guardar} />;
-  return <Panel apiKey={apiKey} onUnauthorized={limpiar} />;
-}
-
-function ApiKeyGate({ onGuardar }: { onGuardar: (apiKey: string) => void }) {
-  const [valor, setValor] = useState('');
-
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (valor.trim()) onGuardar(valor.trim());
-  }
-
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <h1 className="mb-2 text-xl font-bold text-slate-900">Panel administrativo</h1>
-      <p className="mb-6 text-sm text-slate-500">Ingresa el API key de administrador.</p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="password"
-          value={valor}
-          onChange={(e) => setValor(e.target.value)}
-          placeholder="X-Admin-Api-Key"
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          autoFocus
-        />
-        <button type="submit" disabled={!valor.trim()} className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
-          Entrar
-        </button>
-      </form>
-    </div>
+    <RequireAuth rolesPermitidos={[RolUsuario.Admin, RolUsuario.AsesorComercial]}>
+      {(auth, onUnauthorized) => <Panel auth={auth} onUnauthorized={onUnauthorized} />}
+    </RequireAuth>
   );
 }
 
-function Panel({ apiKey, onUnauthorized }: { apiKey: string; onUnauthorized: () => void }) {
+function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () => void }) {
   const { leads, isLoading, error, busyId, filtro, setFiltro, marcarContactado, calificar, convertir, descartar } =
-    useLeadsAdmin(apiKey, onUnauthorized);
+    useLeadsAdmin(auth.token, onUnauthorized);
 
   function handleDescartar(lead: LeadListItem) {
     const motivo = window.prompt(`¿Por qué se descarta a ${lead.nombre}?`);
@@ -68,7 +41,7 @@ function Panel({ apiKey, onUnauthorized }: { apiKey: string; onUnauthorized: () 
 
   return (
     <div>
-      <AdminNav />
+      <AdminNav auth={auth} onLogout={onUnauthorized} />
       <div className="mx-auto max-w-6xl px-6 py-10">
       <h1 className="mb-1 text-2xl font-bold text-slate-900">Leads</h1>
       <p className="mb-6 text-sm text-slate-500">

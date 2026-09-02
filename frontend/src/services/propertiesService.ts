@@ -1,5 +1,4 @@
-import { apiRequest, buildQueryString } from './apiClient';
-import { ADMIN_API_KEY_HEADER } from './viabilidadAmbientalService';
+import { apiRequest, authHeader, buildQueryString } from './apiClient';
 import type {
   AgregarMultimediaResponse,
   CrearPropiedadRequest,
@@ -22,29 +21,29 @@ export function getPropertyById(id: string, signal?: AbortSignal): Promise<Prope
 }
 
 // Todas las funciones de abajo son administrativas — requieren el mismo
-// apiKey que protege ViabilidadAmbiental (ver AdminApiKeyEndpointFilter en
+// token que protege ViabilidadAmbiental (ver AdminApiKeyEndpointFilter en
 // el backend, un solo mecanismo de protección en todo el sistema).
 export function getPropertiesAdmin(
-  apiKey: string,
+  token: string,
   params: GetPropertiesAdminParams = {},
   signal?: AbortSignal,
 ): Promise<PagedPropertyResponse> {
   const query = buildQueryString({ ...params });
   return apiRequest<PagedPropertyResponse>(`/properties/admin${query}`, {
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }
 
 export function createProperty(
   request: CrearPropiedadRequest,
-  apiKey: string,
+  token: string,
   signal?: AbortSignal,
 ): Promise<CrearPropiedadResponse> {
   return apiRequest<CrearPropiedadResponse>('/properties', {
     method: 'POST',
     body: request,
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }
@@ -53,7 +52,7 @@ export function agregarMultimediaAPropiedad(
   propiedadId: string,
   archivo: File,
   tipo: TipoMultimedia,
-  apiKey: string,
+  token: string,
   signal?: AbortSignal,
 ): Promise<AgregarMultimediaResponse> {
   const formData = new FormData();
@@ -63,15 +62,15 @@ export function agregarMultimediaAPropiedad(
   return apiRequest<AgregarMultimediaResponse>(`/properties/${propiedadId}/multimedia`, {
     method: 'POST',
     body: formData,
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }
 
-export function publicarPropiedad(propiedadId: string, apiKey: string, signal?: AbortSignal): Promise<PublicarPropiedadResponse> {
+export function publicarPropiedad(propiedadId: string, token: string, signal?: AbortSignal): Promise<PublicarPropiedadResponse> {
   return apiRequest<PublicarPropiedadResponse>(`/properties/${propiedadId}/publicar`, {
     method: 'POST',
-    headers: { [ADMIN_API_KEY_HEADER]: apiKey },
+    headers: authHeader(token),
     signal,
   });
 }

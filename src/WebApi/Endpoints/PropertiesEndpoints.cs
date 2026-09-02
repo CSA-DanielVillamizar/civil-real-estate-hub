@@ -25,26 +25,25 @@ public static class PropertiesEndpoints
         // estado — así el panel admin encuentra los borradores pendientes
         // de multimedia/publicación.
         app.MapGet("/api/properties/admin", GetAdminAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
             .WithName("getPropertiesAdmin")
             .WithTags("Properties");
 
-        // Endpoints administrativos — mismo AdminApiKeyEndpointFilter que
-        // ViabilidadAmbiental (un solo mecanismo de protección en todo el
-        // sistema, ver el análisis de esa fase).
+        // Endpoints administrativos — solo Admin (AsesorComercial queda
+        // acotado a Leads, ver decisión aprobada de la Fase de autenticación).
         app.MapPost("/api/properties", CreateAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
             .WithName("createProperty")
             .WithTags("Properties");
 
         app.MapPost("/api/properties/{id:guid}/multimedia", AgregarMultimediaAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
             .DisableAntiforgery()
             .WithName("agregarMultimediaAPropiedad")
             .WithTags("Properties");
 
         app.MapPost("/api/properties/{id:guid}/publicar", PublicarAsync)
-            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
             .WithName("publicarPropiedad")
             .WithTags("Properties");
     }

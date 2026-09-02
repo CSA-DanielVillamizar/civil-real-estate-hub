@@ -18,7 +18,7 @@ interface UseLeadsAdminResult {
   descartar: (leadId: string, motivo: string) => Promise<void>;
 }
 
-export function useLeadsAdmin(apiKey: string | null, onUnauthorized: () => void): UseLeadsAdminResult {
+export function useLeadsAdmin(token: string | null, onUnauthorized: () => void): UseLeadsAdminResult {
   const [leads, setLeads] = useState<LeadListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +29,13 @@ export function useLeadsAdmin(apiKey: string | null, onUnauthorized: () => void)
   const recargar = useCallback(() => setRecargaToken((t) => t + 1), []);
 
   useEffect(() => {
-    if (!apiKey) return;
+    if (!token) return;
     const controller = new AbortController();
 
     setIsLoading(true);
     setError(null);
 
-    getLeadsAdmin(apiKey, { estado: filtro || undefined }, controller.signal)
+    getLeadsAdmin(token, { estado: filtro || undefined }, controller.signal)
       .then(setLeads)
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) {
@@ -48,16 +48,16 @@ export function useLeadsAdmin(apiKey: string | null, onUnauthorized: () => void)
 
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey, filtro, recargaToken]);
+  }, [token, filtro, recargaToken]);
 
-  function ejecutarAccion(accion: (leadId: string, apiKeyValue: string) => Promise<unknown>) {
+  function ejecutarAccion(accion: (leadId: string, tokenValue: string) => Promise<unknown>) {
     return async (leadId: string) => {
-      if (!apiKey) return;
+      if (!token) return;
       setBusyId(leadId);
       setError(null);
 
       try {
-        await accion(leadId, apiKey);
+        await accion(leadId, token);
         recargar();
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
@@ -71,18 +71,18 @@ export function useLeadsAdmin(apiKey: string | null, onUnauthorized: () => void)
     };
   }
 
-  const marcarContactado = useCallback(ejecutarAccion((id, key) => marcarLeadContactado(id, key)), [apiKey, onUnauthorized]);
-  const calificar = useCallback(ejecutarAccion((id, key) => calificarLead(id, key)), [apiKey, onUnauthorized]);
-  const convertir = useCallback(ejecutarAccion((id, key) => convertirLead(id, key)), [apiKey, onUnauthorized]);
+  const marcarContactado = useCallback(ejecutarAccion((id, key) => marcarLeadContactado(id, key)), [token, onUnauthorized]);
+  const calificar = useCallback(ejecutarAccion((id, key) => calificarLead(id, key)), [token, onUnauthorized]);
+  const convertir = useCallback(ejecutarAccion((id, key) => convertirLead(id, key)), [token, onUnauthorized]);
 
   const descartar = useCallback(
     async (leadId: string, motivo: string) => {
-      if (!apiKey) return;
+      if (!token) return;
       setBusyId(leadId);
       setError(null);
 
       try {
-        await descartarLead(leadId, motivo, apiKey);
+        await descartarLead(leadId, motivo, token);
         recargar();
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
@@ -94,7 +94,7 @@ export function useLeadsAdmin(apiKey: string | null, onUnauthorized: () => void)
         setBusyId(null);
       }
     },
-    [apiKey, onUnauthorized, recargar],
+    [token, onUnauthorized, recargar],
   );
 
   return { leads, isLoading, error, busyId, filtro, setFiltro, recargar, marcarContactado, calificar, convertir, descartar };

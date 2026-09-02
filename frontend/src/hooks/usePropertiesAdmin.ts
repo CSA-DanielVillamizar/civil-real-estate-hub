@@ -16,7 +16,7 @@ interface UsePropertiesAdminResult {
   publicar: (propiedadId: string) => Promise<void>;
 }
 
-export function usePropertiesAdmin(apiKey: string | null, onUnauthorized: () => void): UsePropertiesAdminResult {
+export function usePropertiesAdmin(token: string | null, onUnauthorized: () => void): UsePropertiesAdminResult {
   const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,13 +27,13 @@ export function usePropertiesAdmin(apiKey: string | null, onUnauthorized: () => 
   const recargar = useCallback(() => setRecargaToken((t) => t + 1), []);
 
   useEffect(() => {
-    if (!apiKey) return;
+    if (!token) return;
     const controller = new AbortController();
 
     setIsLoading(true);
     setError(null);
 
-    getPropertiesAdmin(apiKey, { pageSize: 100 }, controller.signal)
+    getPropertiesAdmin(token, { pageSize: 100 }, controller.signal)
       .then((data) => setProperties(data.items))
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) {
@@ -46,16 +46,16 @@ export function usePropertiesAdmin(apiKey: string | null, onUnauthorized: () => 
 
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey, recargaToken]);
+  }, [token, recargaToken]);
 
   const crear = useCallback(
     async (request: CrearPropiedadRequest) => {
-      if (!apiKey) return null;
+      if (!token) return null;
       setError(null);
       setFieldErrors({});
 
       try {
-        const result = await createProperty(request, apiKey);
+        const result = await createProperty(request, token);
         recargar();
         return result.id;
       } catch (err) {
@@ -70,17 +70,17 @@ export function usePropertiesAdmin(apiKey: string | null, onUnauthorized: () => 
         return null;
       }
     },
-    [apiKey, onUnauthorized, recargar],
+    [token, onUnauthorized, recargar],
   );
 
   const subirFoto = useCallback(
     async (propiedadId: string, archivo: File, tipo: TipoMultimedia) => {
-      if (!apiKey) return;
+      if (!token) return;
       setBusyId(propiedadId);
       setError(null);
 
       try {
-        await agregarMultimediaAPropiedad(propiedadId, archivo, tipo, apiKey);
+        await agregarMultimediaAPropiedad(propiedadId, archivo, tipo, token);
         recargar();
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
@@ -92,17 +92,17 @@ export function usePropertiesAdmin(apiKey: string | null, onUnauthorized: () => 
         setBusyId(null);
       }
     },
-    [apiKey, onUnauthorized, recargar],
+    [token, onUnauthorized, recargar],
   );
 
   const publicar = useCallback(
     async (propiedadId: string) => {
-      if (!apiKey) return;
+      if (!token) return;
       setBusyId(propiedadId);
       setError(null);
 
       try {
-        await publicarPropiedad(propiedadId, apiKey);
+        await publicarPropiedad(propiedadId, token);
         recargar();
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
@@ -114,7 +114,7 @@ export function usePropertiesAdmin(apiKey: string | null, onUnauthorized: () => 
         setBusyId(null);
       }
     },
-    [apiKey, onUnauthorized, recargar],
+    [token, onUnauthorized, recargar],
   );
 
   return { properties, isLoading, error, fieldErrors, busyId, recargar, crear, subirFoto, publicar };
