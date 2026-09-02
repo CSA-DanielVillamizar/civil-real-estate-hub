@@ -97,4 +97,105 @@ public sealed class LeadTests
 
         lead.DomainEvents.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Registrar_AsignaCapturadoEnAlMomentoDeLaCreacion()
+    {
+        var lead = CrearLeadNuevo();
+
+        lead.CapturadoEn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public void MarcarContactado_ConLeadNuevo_TransicionaAContactado()
+    {
+        var lead = CrearLeadNuevo();
+
+        lead.MarcarContactado();
+
+        lead.Estado.Should().Be(EstadoLead.Contactado);
+    }
+
+    [Fact]
+    public void MarcarContactado_ConLeadYaContactado_LanzaEstadoLeadInvalidoException()
+    {
+        var lead = CrearLeadNuevo();
+        lead.MarcarContactado();
+
+        var act = lead.MarcarContactado;
+
+        act.Should().Throw<EstadoLeadInvalidoException>();
+    }
+
+    [Fact]
+    public void Calificar_ConLeadContactado_TransicionaACalificadoYDisparaEvento()
+    {
+        var lead = CrearLeadNuevo();
+        lead.MarcarContactado();
+        lead.ClearDomainEvents();
+
+        lead.Calificar();
+
+        lead.Estado.Should().Be(EstadoLead.Calificado);
+        lead.DomainEvents.Should().ContainSingle(e => e is LeadCalificadoEvent);
+    }
+
+    [Fact]
+    public void Calificar_ConLeadNuevo_LanzaEstadoLeadInvalidoException()
+    {
+        var lead = CrearLeadNuevo();
+
+        var act = lead.Calificar;
+
+        act.Should().Throw<EstadoLeadInvalidoException>();
+    }
+
+    [Fact]
+    public void Convertir_ConLeadCalificado_TransicionaAConvertidoYDisparaEvento()
+    {
+        var lead = CrearLeadNuevo();
+        lead.MarcarContactado();
+        lead.Calificar();
+        lead.ClearDomainEvents();
+
+        lead.Convertir();
+
+        lead.Estado.Should().Be(EstadoLead.Convertido);
+        lead.DomainEvents.Should().ContainSingle(e => e is LeadConvertidoEvent);
+    }
+
+    [Fact]
+    public void Convertir_ConLeadNuevo_LanzaEstadoLeadInvalidoException()
+    {
+        var lead = CrearLeadNuevo();
+
+        var act = lead.Convertir;
+
+        act.Should().Throw<EstadoLeadInvalidoException>();
+    }
+
+    [Fact]
+    public void Descartar_ConLeadNuevo_TransicionaADescartadoYDisparaEvento()
+    {
+        var lead = CrearLeadNuevo();
+        lead.ClearDomainEvents();
+
+        lead.Descartar("No contesta el teléfono.");
+
+        lead.Estado.Should().Be(EstadoLead.Descartado);
+        lead.DomainEvents.Should().ContainSingle(e => e is LeadDescartadoEvent);
+    }
+
+    [Fact]
+    public void Descartar_ConLeadYaConvertido_LanzaEstadoLeadInvalidoException()
+    {
+        var lead = CrearLeadNuevo();
+        lead.MarcarContactado();
+        lead.Calificar();
+        lead.Convertir();
+
+        var act = () => lead.Descartar("Cambió de opinión.");
+
+        act.Should().Throw<EstadoLeadInvalidoException>();
+    }
 }

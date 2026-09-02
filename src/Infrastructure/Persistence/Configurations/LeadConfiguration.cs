@@ -39,6 +39,10 @@ public sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
         builder.Property(l => l.NotificacionComercialEnviadaEn)
             .HasColumnName("notificacion_comercial_enviada_en");
 
+        builder.Property(l => l.CapturadoEn)
+            .HasColumnName("capturado_en")
+            .IsRequired();
+
         // PropiedadId es un value object externo (referencia débil entre bounded
         // contexts — ver docs/01-domain-model.md §5): se guarda como Guid plano,
         // nunca como FK real hacia la tabla propiedades.

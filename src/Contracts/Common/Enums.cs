@@ -8,6 +8,16 @@ public enum OrigenLeadDto
     Referido
 }
 
+public enum EstadoLeadDto
+{
+    Nuevo,
+    Contactado,
+    Calificado,
+    Convertido,
+    Descartado,
+    ContactoPendientePorReasignacion
+}
+
 public enum TipoAcabadoDto
 {
     Basico,

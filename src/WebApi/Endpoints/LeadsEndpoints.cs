@@ -1,6 +1,7 @@
 using MediatR;
 using Plataforma.Contracts.Leads;
 using Plataforma.WebApi.Mapping;
+using Plataforma.WebApi.Security;
 
 namespace Plataforma.WebApi.Endpoints;
 
@@ -14,6 +15,34 @@ public static class LeadsEndpoints
 
         app.MapPost("/api/leads/presupuesto-pdf", GenerarPresupuestoPdfAsync)
             .WithName("generarPresupuestoPdf")
+            .WithTags("Leads");
+
+        // Panel administrativo (CRM mínimo) — mismo AdminApiKeyEndpointFilter
+        // que ViabilidadAmbiental y Properties, un solo mecanismo de
+        // protección en todo el sistema.
+        app.MapGet("/api/leads/admin", GetLeadsAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("getLeadsAdmin")
+            .WithTags("Leads");
+
+        app.MapPost("/api/leads/{id:guid}/marcar-contactado", MarcarContactadoAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("marcarLeadContactado")
+            .WithTags("Leads");
+
+        app.MapPost("/api/leads/{id:guid}/calificar", CalificarAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("calificarLead")
+            .WithTags("Leads");
+
+        app.MapPost("/api/leads/{id:guid}/convertir", ConvertirAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("convertirLead")
+            .WithTags("Leads");
+
+        app.MapPost("/api/leads/{id:guid}/descartar", DescartarAsync)
+            .AddEndpointFilter<AdminApiKeyEndpointFilter>()
+            .WithName("descartarLead")
             .WithTags("Leads");
     }
 
@@ -29,9 +58,10 @@ public static class LeadsEndpoints
         var result = await mediator.Send(request.ToCommand(), cancellationToken);
         var response = result.ToContract();
 
-        // No existe todavía un GET /api/leads/{id} (fuera del alcance de la
-        // Fase 2 aprobada) — el Location apunta al recurso conceptual, tal
-        // como autoriza el Prompt 6 ("endpoint ficticio de lectura").
+        // No existe todavía un GET /api/leads/{id} público (fuera del
+        // alcance aprobado) — el Location apunta al recurso conceptual, tal
+        // como autoriza el Prompt 6 ("endpoint ficticio de lectura"). El
+        // panel admin usa GET /api/leads/admin para consultar leads.
         return Results.Created($"/api/leads/{response.Id}", response);
     }
 
@@ -47,5 +77,42 @@ public static class LeadsEndpoints
         var result = await mediator.Send(request.ToGenerarPresupuestoPdfCommand(), cancellationToken);
 
         return Results.File(result.PdfBytes, "application/pdf", result.FileName);
+    }
+
+    private static async Task<IResult> GetLeadsAsync(
+        [AsParameters] GetLeadsQuery query,
+        ISender mediator,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(query.ToApplicationQuery(), cancellationToken);
+        return Results.Ok(result.Select(item => item.ToContract()));
+    }
+
+    private static async Task<IResult> MarcarContactadoAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToMarcarContactadoCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> CalificarAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToCalificarCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> ConvertirAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToConvertirCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> DescartarAsync(
+        Guid id,
+        DescartarLeadRequest request,
+        ISender mediator,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToDescartarCommand(request), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
     }
 }

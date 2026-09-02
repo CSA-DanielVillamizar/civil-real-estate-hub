@@ -1,6 +1,7 @@
 import { BudgetCalculator } from './components/BudgetCalculator/BudgetCalculator';
 import { ViabilidadAmbientalAdminPage } from './components/Admin/ViabilidadAmbientalAdminPage';
 import { PropertiesAdminPage } from './components/Admin/PropertiesAdminPage';
+import { LeadsAdminPage } from './components/Admin/LeadsAdminPage';
 import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/ViabilidadAmbientalSection';
 import { PropertiesSection } from './components/Properties/PropertiesSection';
 import { PropertyDetailPage } from './components/Properties/PropertyDetailPage';
@@ -17,6 +18,10 @@ function App() {
 
   if (path === '/admin/propiedades') {
     return <PropertiesAdminPage />;
+  }
+
+  if (path === '/admin/leads') {
+    return <LeadsAdminPage />;
   }
 
   const detalleMatch = path.match(/^\/propiedades\/([0-9a-fA-F-]{36})$/);

@@ -4,6 +4,7 @@ import { usePropertiesAdmin } from '../../hooks/usePropertiesAdmin';
 import { TipoMultimedia } from '../../types/common';
 import type { PropertyResponse } from '../../types/properties';
 import { CrearPropiedadForm } from './CrearPropiedadForm';
+import { AdminNav } from './AdminNav';
 
 const ESTADO_BADGE: Record<string, string> = {
   Borrador: 'bg-slate-100 text-slate-700',
@@ -54,6 +55,8 @@ function Panel({ apiKey, onUnauthorized }: { apiKey: string; onUnauthorized: () 
   const { properties, isLoading, error, fieldErrors, busyId, crear, subirFoto, publicar } = usePropertiesAdmin(apiKey, onUnauthorized);
 
   return (
+    <div>
+    <AdminNav />
     <div className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="mb-1 text-2xl font-bold text-slate-900">Propiedades</h1>
       <p className="mb-6 text-sm text-slate-500">Crea, sube fotos y publica propiedades en el catálogo.</p>
@@ -75,6 +78,7 @@ function Panel({ apiKey, onUnauthorized }: { apiKey: string; onUnauthorized: () 
           ))}
         </div>
       )}
+    </div>
     </div>
   );
 }

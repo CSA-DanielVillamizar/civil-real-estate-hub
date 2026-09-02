@@ -9,6 +9,16 @@ export const OrigenLead = {
 } as const;
 export type OrigenLead = (typeof OrigenLead)[keyof typeof OrigenLead];
 
+export const EstadoLead = {
+  Nuevo: 'Nuevo',
+  Contactado: 'Contactado',
+  Calificado: 'Calificado',
+  Convertido: 'Convertido',
+  Descartado: 'Descartado',
+  ContactoPendientePorReasignacion: 'ContactoPendientePorReasignacion',
+} as const;
+export type EstadoLead = (typeof EstadoLead)[keyof typeof EstadoLead];
+
 export const TipoAcabado = {
   Basico: 'Basico',
   Medio: 'Medio',

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useAdminApiKey } from '../../hooks/useAdminApiKey';
 import { useSolicitudesViabilidadAmbiental } from '../../hooks/useSolicitudesViabilidadAmbiental';
+import { AdminNav } from './AdminNav';
 
 const ESTADO_BADGE: Record<string, string> = {
   Solicitada: 'bg-amber-100 text-amber-800',
@@ -60,6 +61,8 @@ function PanelSolicitudes({ apiKey, onUnauthorized }: { apiKey: string; onUnauth
   );
 
   return (
+    <div>
+    <AdminNav />
     <div className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="mb-1 text-2xl font-bold text-slate-900">Solicitudes de viabilidad ambiental</h1>
       <p className="mb-6 text-sm text-slate-500">
@@ -125,6 +128,7 @@ function PanelSolicitudes({ apiKey, onUnauthorized }: { apiKey: string; onUnauth
           </table>
         </div>
       )}
+    </div>
     </div>
   );
 }

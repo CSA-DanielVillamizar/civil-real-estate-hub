@@ -60,4 +60,13 @@ public static class EnumMapping
 
     public static DomainPropiedades.UnidadMedidaArea ToDomain(this ContractsEnums.UnidadMedidaAreaDto unidad) =>
         Enum.Parse<DomainPropiedades.UnidadMedidaArea>(unidad.ToString());
+
+    public static DomainLeads.EstadoLead ToDomain(this ContractsEnums.EstadoLeadDto estado) =>
+        Enum.Parse<DomainLeads.EstadoLead>(estado.ToString());
+
+    public static ContractsEnums.EstadoLeadDto ToContract(this DomainLeads.EstadoLead estado) =>
+        Enum.Parse<ContractsEnums.EstadoLeadDto>(estado.ToString());
+
+    public static ContractsEnums.OrigenLeadDto ToContract(this DomainLeads.OrigenLead origen) =>
+        Enum.Parse<ContractsEnums.OrigenLeadDto>(origen.ToString());
 }

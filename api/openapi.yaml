@@ -84,6 +84,157 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidationProblemDetails'
 
+  /api/leads/admin:
+    get:
+      tags: [Leads]
+      operationId: getLeadsAdmin
+      summary: >
+        Panel administrativo (CRM mínimo): lista leads con sus datos de
+        contacto — por eso requiere el mismo API key que el resto de
+        endpoints administrativos, no es público.
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/EstadoLead'
+      responses:
+        '200':
+          description: Listado de leads (más reciente primero)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeadListItem'
+        '401':
+          description: X-Admin-Api-Key ausente o incorrecto
+
+  /api/leads/{id}/marcar-contactado:
+    post:
+      tags: [Leads]
+      operationId: marcarLeadContactado
+      summary: Transición Nuevo → Contactado. Administrativo.
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lead actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadEstadoResponse'
+        '400':
+          description: El lead no está en un estado que permita esta transición
+        '401':
+          description: X-Admin-Api-Key ausente o incorrecto
+        '404':
+          description: No existe un lead con ese id
+
+  /api/leads/{id}/calificar:
+    post:
+      tags: [Leads]
+      operationId: calificarLead
+      summary: Transición Contactado → Calificado. Administrativo.
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lead actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadEstadoResponse'
+        '400':
+          description: El lead no está en un estado que permita esta transición
+        '401':
+          description: X-Admin-Api-Key ausente o incorrecto
+        '404':
+          description: No existe un lead con ese id
+
+  /api/leads/{id}/convertir:
+    post:
+      tags: [Leads]
+      operationId: convertirLead
+      summary: Transición Calificado → Convertido. Administrativo.
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lead actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadEstadoResponse'
+        '400':
+          description: El lead no está en un estado que permita esta transición
+        '401':
+          description: X-Admin-Api-Key ausente o incorrecto
+        '404':
+          description: No existe un lead con ese id
+
+  /api/leads/{id}/descartar:
+    post:
+      tags: [Leads]
+      operationId: descartarLead
+      summary: Marca el lead como Descartado, con motivo. No aplica si ya está Convertido. Administrativo.
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [motivo]
+              properties:
+                motivo:
+                  type: string
+                  maxLength: 500
+      responses:
+        '200':
+          description: Lead actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadEstadoResponse'
+        '400':
+          description: Error de validación o el lead ya está Convertido
+        '401':
+          description: X-Admin-Api-Key ausente o incorrecto
+        '404':
+          description: No existe un lead con ese id
+
   /api/properties:
     get:
       tags: [Properties]
@@ -468,6 +619,10 @@ components:
       type: string
       enum: [CalculadoraObra, FormularioContacto, LandingPage, Referido]
 
+    EstadoLead:
+      type: string
+      enum: [Nuevo, Contactado, Calificado, Convertido, Descartado, ContactoPendientePorReasignacion]
+
     TipoAcabado:
       type: string
       enum: [Basico, Medio, Alto]
@@ -559,6 +714,52 @@ components:
             - $ref: '#/components/schemas/DatosCalculoObra'
           nullable: true
           description: Obligatorio cuando origen = CalculadoraObra
+
+    LeadListItem:
+      type: object
+      required: [id, nombre, email, telefono, origen, estado, capturadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        email:
+          type: string
+        telefono:
+          type: string
+        origen:
+          $ref: '#/components/schemas/OrigenLead'
+        estado:
+          $ref: '#/components/schemas/EstadoLead'
+        capturadoEn:
+          type: string
+          format: date-time
+        propiedadDeInteresId:
+          type: string
+          format: uuid
+          nullable: true
+        estimacionMontoMinimo:
+          type: number
+          format: decimal
+          nullable: true
+        estimacionMontoMaximo:
+          type: number
+          format: decimal
+          nullable: true
+        estimacionMoneda:
+          type: string
+          nullable: true
+
+    LeadEstadoResponse:
+      type: object
+      required: [id, estado]
+      properties:
+        id:
+          type: string
+          format: uuid
+        estado:
+          type: string
 
     CreateLeadResponse:
       type: object

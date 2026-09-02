@@ -32,4 +32,14 @@ public sealed class LeadRepository : ILeadRepository
         _dbContext.Leads.Update(lead);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Lead>> ListAsync(EstadoLead? estado, CancellationToken cancellationToken)
+    {
+        var query = _dbContext.Leads.AsNoTracking().AsQueryable();
+
+        if (estado is not null)
+            query = query.Where(l => l.Estado == estado);
+
+        return await query.OrderByDescending(l => l.CapturadoEn).ToListAsync(cancellationToken);
+    }
 }

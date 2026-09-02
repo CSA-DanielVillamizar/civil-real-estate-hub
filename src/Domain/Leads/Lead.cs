@@ -15,6 +15,7 @@ public sealed class Lead : AggregateRoot<LeadId>
     public EstadoLead Estado { get; private set; }
     public PropiedadId? PropiedadDeInteresId { get; private set; }
     public EstimacionCosto? ResultadoCalculadora { get; private set; }
+    public DateTimeOffset CapturadoEn { get; private set; }
 
     // Marca de idempotencia (Fase 2 — SDD): el consumidor en background de la
     // cola de notificaciones (alerta al equipo comercial + correo de
@@ -41,6 +42,7 @@ public sealed class Lead : AggregateRoot<LeadId>
         PropiedadDeInteresId = propiedadDeInteresId;
         ResultadoCalculadora = resultadoCalculadora;
         Estado = EstadoLead.Nuevo;
+        CapturadoEn = DateTimeOffset.UtcNow;
     }
 
     public static Lead Registrar(
@@ -70,7 +72,7 @@ public sealed class Lead : AggregateRoot<LeadId>
     public void MarcarContactado()
     {
         if (Estado != EstadoLead.Nuevo)
-            throw new InvalidOperationException($"No se puede contactar un lead en estado {Estado}.");
+            throw new EstadoLeadInvalidoException($"No se puede contactar un lead en estado {Estado}.");
 
         Estado = EstadoLead.Contactado;
     }
@@ -78,7 +80,7 @@ public sealed class Lead : AggregateRoot<LeadId>
     public void Calificar()
     {
         if (Estado != EstadoLead.Contactado)
-            throw new InvalidOperationException($"No se puede calificar un lead en estado {Estado}.");
+            throw new EstadoLeadInvalidoException($"No se puede calificar un lead en estado {Estado}.");
 
         Estado = EstadoLead.Calificado;
         AddDomainEvent(new LeadCalificadoEvent(Id));
@@ -113,7 +115,7 @@ public sealed class Lead : AggregateRoot<LeadId>
     public void Convertir()
     {
         if (Estado != EstadoLead.Calificado)
-            throw new InvalidOperationException($"No se puede convertir un lead en estado {Estado}.");
+            throw new EstadoLeadInvalidoException($"No se puede convertir un lead en estado {Estado}.");
 
         Estado = EstadoLead.Convertido;
         AddDomainEvent(new LeadConvertidoEvent(Id));
@@ -125,7 +127,7 @@ public sealed class Lead : AggregateRoot<LeadId>
             throw new ArgumentException("El motivo de descarte es obligatorio.", nameof(motivo));
 
         if (Estado is EstadoLead.Convertido)
-            throw new InvalidOperationException("No se puede descartar un lead ya convertido.");
+            throw new EstadoLeadInvalidoException("No se puede descartar un lead ya convertido.");
 
         Estado = EstadoLead.Descartado;
         AddDomainEvent(new LeadDescartadoEvent(Id, motivo.Trim()));
