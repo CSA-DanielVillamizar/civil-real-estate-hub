@@ -137,11 +137,26 @@ function CrearUsuarioForm({
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" className={inputClasses} required />
+          <input
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            placeholder="Nombre"
+            aria-label="Nombre"
+            className={inputClasses}
+            required
+          />
           {err('nombre') && <p className="mt-1 text-xs text-red-600">{err('nombre')}</p>}
         </div>
         <div>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className={inputClasses} required />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            aria-label="Email"
+            className={inputClasses}
+            required
+          />
           {err('email') && <p className="mt-1 text-xs text-red-600">{err('email')}</p>}
         </div>
         <div>
@@ -150,13 +165,19 @@ function CrearUsuarioForm({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Contraseña temporal (mín. 8 caracteres)"
+            aria-label="Contraseña temporal"
             className={inputClasses}
             required
             minLength={8}
           />
           {err('password') && <p className="mt-1 text-xs text-red-600">{err('password')}</p>}
         </div>
-        <select value={rol} onChange={(e) => setRol(e.target.value as RolUsuario)} className={inputClasses}>
+        <select
+          value={rol}
+          onChange={(e) => setRol(e.target.value as RolUsuario)}
+          aria-label="Rol"
+          className={inputClasses}
+        >
           <option value={RolUsuario.AsesorComercial}>Asesor Comercial</option>
           <option value={RolUsuario.Admin}>Admin</option>
         </select>

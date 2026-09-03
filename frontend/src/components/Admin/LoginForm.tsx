@@ -27,6 +27,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+          aria-label="Email"
           autoComplete="username"
           className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
           autoFocus
@@ -36,6 +37,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Contraseña"
+          aria-label="Contraseña"
           autoComplete="current-password"
           className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
         />

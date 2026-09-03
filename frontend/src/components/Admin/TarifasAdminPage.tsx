@@ -199,7 +199,14 @@ function EditarPaqueteForm({
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3">
       <div>
-        <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Título" className={inputClasses} required />
+        <input
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          placeholder="Título"
+          aria-label="Título"
+          className={inputClasses}
+          required
+        />
         {err('titulo') && <p className="mt-1 text-xs text-red-600">{err('titulo')}</p>}
       </div>
       <div>
@@ -207,6 +214,7 @@ function EditarPaqueteForm({
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           placeholder="Descripción"
+          aria-label="Descripción"
           rows={3}
           className={inputClasses}
           required
@@ -219,6 +227,7 @@ function EditarPaqueteForm({
           value={precioDesde}
           onChange={(e) => setPrecioDesde(e.target.value)}
           placeholder="Precio desde (opcional)"
+          aria-label="Precio desde (opcional)"
           className={inputClasses}
         />
         <input
@@ -226,6 +235,7 @@ function EditarPaqueteForm({
           value={precioHasta}
           onChange={(e) => setPrecioHasta(e.target.value)}
           placeholder="Precio hasta (opcional)"
+          aria-label="Precio hasta (opcional)"
           className={inputClasses}
         />
       </div>
@@ -234,6 +244,7 @@ function EditarPaqueteForm({
           value={unidadPrecio}
           onChange={(e) => setUnidadPrecio(e.target.value)}
           placeholder='Unidad (ej. "por m²", "% del valor de la obra")'
+          aria-label="Unidad de precio"
           className={inputClasses}
           required
         />
@@ -242,6 +253,7 @@ function EditarPaqueteForm({
       <select
         value={servicioRelacionado}
         onChange={(e) => setServicioRelacionado(e.target.value as ServicioDeInteres)}
+        aria-label="Servicio relacionado"
         className={inputClasses}
       >
         {Object.values(ServicioDeInteres).map((s) => (
@@ -327,6 +339,7 @@ function CrearPaqueteForm({
         <select
           value={servicioRelacionado}
           onChange={(e) => setServicioRelacionado(e.target.value as ServicioDeInteres)}
+          aria-label="Servicio relacionado"
           className={`${inputClasses} sm:col-span-2`}
         >
           {Object.values(ServicioDeInteres).map((s) => (
@@ -337,7 +350,14 @@ function CrearPaqueteForm({
         </select>
 
         <div className="sm:col-span-2">
-          <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nombre del paquete" className={inputClasses} required />
+          <input
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            placeholder="Nombre del paquete"
+            aria-label="Nombre del paquete"
+            className={inputClasses}
+            required
+          />
           {err('titulo') && <p className="mt-1 text-xs text-red-600">{err('titulo')}</p>}
         </div>
 
@@ -346,6 +366,7 @@ function CrearPaqueteForm({
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             placeholder="Qué incluye"
+            aria-label="Qué incluye"
             rows={3}
             className={inputClasses}
             required
@@ -358,6 +379,7 @@ function CrearPaqueteForm({
           value={precioDesde}
           onChange={(e) => setPrecioDesde(e.target.value)}
           placeholder="Precio desde (opcional)"
+          aria-label="Precio desde (opcional)"
           className={inputClasses}
         />
         <input
@@ -365,6 +387,7 @@ function CrearPaqueteForm({
           value={precioHasta}
           onChange={(e) => setPrecioHasta(e.target.value)}
           placeholder="Precio hasta (opcional)"
+          aria-label="Precio hasta (opcional)"
           className={inputClasses}
         />
 
@@ -373,6 +396,7 @@ function CrearPaqueteForm({
             value={unidadPrecio}
             onChange={(e) => setUnidadPrecio(e.target.value)}
             placeholder='Unidad (ej. "por m²", "% del valor de la obra", "tarifa plana")'
+            aria-label="Unidad de precio"
             className={inputClasses}
             required
           />

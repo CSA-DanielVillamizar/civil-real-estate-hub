@@ -88,12 +88,22 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white">
+      {/* Accesibilidad (gap #8): invisible salvo con foco de teclado — deja
+          saltar directo al contenido sin tabular por los 6 links del nav
+          en cada carga de página. Primer elemento enfocable del documento. */}
+      <a
+        href="#contenido-principal"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-emerald-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Saltar al contenido principal
+      </a>
+
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <span className="text-lg font-bold text-slate-900">
             Plataforma <span className="text-emerald-600">Civil &amp; Inmobiliaria</span>
           </span>
-          <nav className="hidden gap-6 text-sm font-medium text-slate-600 sm:flex">
+          <nav aria-label="Principal" className="hidden gap-6 text-sm font-medium text-slate-600 sm:flex">
             <a href="#calculadora" className="hover:text-slate-900">
               Calculadora
             </a>
@@ -116,7 +126,7 @@ function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-12">
+      <main id="contenido-principal" className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             Ingeniería y bienes raíces, en un solo lugar

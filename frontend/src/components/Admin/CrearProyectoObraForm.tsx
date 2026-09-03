@@ -70,27 +70,63 @@ export function CrearProyectoObraForm({ fieldErrors, onCrear }: CrearProyectoObr
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <input placeholder="Nombre del cliente" value={values.nombreCliente} onChange={(e) => set('nombreCliente', e.target.value)} className={inputClasses} required />
+          <input
+            placeholder="Nombre del cliente"
+            aria-label="Nombre del cliente"
+            value={values.nombreCliente}
+            onChange={(e) => set('nombreCliente', e.target.value)}
+            className={inputClasses}
+            required
+          />
           {err('nombreCliente') && <p className="mt-1 text-xs text-red-600">{err('nombreCliente')}</p>}
         </div>
 
         <div>
-          <input type="email" placeholder="Email del cliente" value={values.emailCliente} onChange={(e) => set('emailCliente', e.target.value)} className={inputClasses} required />
+          <input
+            type="email"
+            placeholder="Email del cliente"
+            aria-label="Email del cliente"
+            value={values.emailCliente}
+            onChange={(e) => set('emailCliente', e.target.value)}
+            className={inputClasses}
+            required
+          />
           {err('emailCliente') && <p className="mt-1 text-xs text-red-600">{err('emailCliente')}</p>}
         </div>
 
         <div>
-          <input placeholder="Teléfono del cliente" value={values.telefonoCliente} onChange={(e) => set('telefonoCliente', e.target.value)} className={inputClasses} required />
+          <input
+            placeholder="Teléfono del cliente"
+            aria-label="Teléfono del cliente"
+            value={values.telefonoCliente}
+            onChange={(e) => set('telefonoCliente', e.target.value)}
+            className={inputClasses}
+            required
+          />
           {err('telefonoCliente') && <p className="mt-1 text-xs text-red-600">{err('telefonoCliente')}</p>}
         </div>
 
         <div>
-          <input placeholder="Nombre del proyecto" value={values.nombreProyecto} onChange={(e) => set('nombreProyecto', e.target.value)} className={inputClasses} required />
+          <input
+            placeholder="Nombre del proyecto"
+            aria-label="Nombre del proyecto"
+            value={values.nombreProyecto}
+            onChange={(e) => set('nombreProyecto', e.target.value)}
+            className={inputClasses}
+            required
+          />
           {err('nombreProyecto') && <p className="mt-1 text-xs text-red-600">{err('nombreProyecto')}</p>}
         </div>
 
         <div className="col-span-full">
-          <textarea placeholder="Descripción (opcional)" value={values.descripcion} onChange={(e) => set('descripcion', e.target.value)} className={inputClasses} rows={2} />
+          <textarea
+            placeholder="Descripción (opcional)"
+            aria-label="Descripción (opcional)"
+            value={values.descripcion}
+            onChange={(e) => set('descripcion', e.target.value)}
+            className={inputClasses}
+            rows={2}
+          />
         </div>
 
         <button

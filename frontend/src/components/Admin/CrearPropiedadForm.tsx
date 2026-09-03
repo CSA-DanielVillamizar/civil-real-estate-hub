@@ -67,13 +67,21 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
       <h3 className="col-span-full font-semibold text-slate-900">Nueva propiedad</h3>
 
       <div className="col-span-full">
-        <input placeholder="Título" value={values.titulo} onChange={(e) => set('titulo', e.target.value)} className={inputClasses} required />
+        <input
+          placeholder="Título"
+          aria-label="Título"
+          value={values.titulo}
+          onChange={(e) => set('titulo', e.target.value)}
+          className={inputClasses}
+          required
+        />
         {err('titulo') && <p className="mt-1 text-xs text-red-600">{err('titulo')}</p>}
       </div>
 
       <div className="col-span-full">
         <textarea
           placeholder="Descripción"
+          aria-label="Descripción"
           value={values.descripcion}
           onChange={(e) => set('descripcion', e.target.value)}
           className={inputClasses}
@@ -82,7 +90,12 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
         />
       </div>
 
-      <select value={values.tipoInmueble} onChange={(e) => set('tipoInmueble', e.target.value)} className={inputClasses}>
+      <select
+        value={values.tipoInmueble}
+        onChange={(e) => set('tipoInmueble', e.target.value)}
+        aria-label="Tipo de inmueble"
+        className={inputClasses}
+      >
         {Object.values(TipoInmueble).map((t) => (
           <option key={t} value={t}>
             {t}
@@ -93,19 +106,42 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
       <input
         type="number"
         placeholder="Precio (COP)"
+        aria-label="Precio en pesos colombianos"
         value={values.precio}
         onChange={(e) => set('precio', e.target.value)}
         className={inputClasses}
         required
       />
 
-      <input placeholder="Dirección / referencia" value={values.direccion} onChange={(e) => set('direccion', e.target.value)} className={inputClasses} required />
-      <input placeholder="Municipio" value={values.municipio} onChange={(e) => set('municipio', e.target.value)} className={inputClasses} required />
-      <input placeholder="Departamento" value={values.departamento} onChange={(e) => set('departamento', e.target.value)} className={inputClasses} required />
+      <input
+        placeholder="Dirección / referencia"
+        aria-label="Dirección o referencia"
+        value={values.direccion}
+        onChange={(e) => set('direccion', e.target.value)}
+        className={inputClasses}
+        required
+      />
+      <input
+        placeholder="Municipio"
+        aria-label="Municipio"
+        value={values.municipio}
+        onChange={(e) => set('municipio', e.target.value)}
+        className={inputClasses}
+        required
+      />
+      <input
+        placeholder="Departamento"
+        aria-label="Departamento"
+        value={values.departamento}
+        onChange={(e) => set('departamento', e.target.value)}
+        className={inputClasses}
+        required
+      />
 
       <input
         type="number"
         placeholder="Área terreno (m²)"
+        aria-label="Área del terreno en metros cuadrados"
         value={values.areaTerrenoValor}
         onChange={(e) => set('areaTerrenoValor', e.target.value)}
         className={inputClasses}
@@ -115,13 +151,19 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
       <input
         type="number"
         placeholder="Pendiente (%)"
+        aria-label="Pendiente del terreno en porcentaje"
         value={values.pendientePorcentaje}
         onChange={(e) => set('pendientePorcentaje', e.target.value)}
         className={inputClasses}
         required
       />
 
-      <select value={values.tipoSuelo} onChange={(e) => set('tipoSuelo', e.target.value)} className={inputClasses}>
+      <select
+        value={values.tipoSuelo}
+        onChange={(e) => set('tipoSuelo', e.target.value)}
+        aria-label="Tipo de suelo"
+        className={inputClasses}
+      >
         {Object.values(TipoSuelo).map((t) => (
           <option key={t} value={t}>
             {t}
@@ -129,7 +171,12 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
         ))}
       </select>
 
-      <select value={values.topografia} onChange={(e) => set('topografia', e.target.value)} className={inputClasses}>
+      <select
+        value={values.topografia}
+        onChange={(e) => set('topografia', e.target.value)}
+        aria-label="Topografía"
+        className={inputClasses}
+      >
         {Object.values(Topografia).map((t) => (
           <option key={t} value={t}>
             {t}
@@ -141,6 +188,7 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
         type="number"
         step="any"
         placeholder="Latitud (opcional)"
+        aria-label="Latitud (opcional)"
         value={values.latitud}
         onChange={(e) => set('latitud', e.target.value)}
         className={inputClasses}
@@ -150,6 +198,7 @@ export function CrearPropiedadForm({ fieldErrors, onCrear }: CrearPropiedadFormP
         type="number"
         step="any"
         placeholder="Longitud (opcional)"
+        aria-label="Longitud (opcional)"
         value={values.longitud}
         onChange={(e) => set('longitud', e.target.value)}
         className={inputClasses}

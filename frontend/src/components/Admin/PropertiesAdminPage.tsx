@@ -279,7 +279,14 @@ function EditarPropiedadForm({
   return (
     <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
       <div className="col-span-full">
-        <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Título" className={inputClasses} required />
+        <input
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          placeholder="Título"
+          aria-label="Título"
+          className={inputClasses}
+          required
+        />
         {err('titulo') && <p className="mt-1 text-xs text-red-600">{err('titulo')}</p>}
       </div>
       <div className="col-span-full">
@@ -287,6 +294,7 @@ function EditarPropiedadForm({
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           placeholder="Descripción"
+          aria-label="Descripción"
           className={inputClasses}
           rows={3}
           required
@@ -299,12 +307,20 @@ function EditarPropiedadForm({
           value={precio}
           onChange={(e) => setPrecio(e.target.value)}
           placeholder="Precio"
+          aria-label="Precio"
           className={inputClasses}
           required
         />
         {err('precio') && <p className="mt-1 text-xs text-red-600">{err('precio')}</p>}
       </div>
-      <input value={moneda} onChange={(e) => setMoneda(e.target.value)} placeholder="Moneda" className={inputClasses} required />
+      <input
+        value={moneda}
+        onChange={(e) => setMoneda(e.target.value)}
+        placeholder="Moneda"
+        aria-label="Moneda"
+        className={inputClasses}
+        required
+      />
 
       <div className="col-span-full flex gap-2">
         <button

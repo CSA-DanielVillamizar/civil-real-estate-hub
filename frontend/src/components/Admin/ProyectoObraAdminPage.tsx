@@ -58,6 +58,7 @@ function Panel({ id, auth, onUnauthorized }: { id: string; auth: AuthState; onUn
               <select
                 value={proyecto.estado}
                 onChange={(e) => cambiarEstadoProyecto(e.target.value as EstadoProyecto)}
+                aria-label="Estado del proyecto"
                 className="rounded-md border border-slate-300 px-3 py-1.5 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
               >
                 {Object.values(EstadoProyecto).map((estado) => (
@@ -186,10 +187,24 @@ function NuevoHitoForm({ onAgregar }: { onAgregar: (request: { nombre: string; d
     <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-5">
       <h3 className="mb-3 font-semibold text-slate-900">Agregar hito</h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <input placeholder="Nombre del hito" value={nombre} onChange={(e) => setNombre(e.target.value)} className={inputClasses} required />
-        <input type="date" value={fechaEstimada} onChange={(e) => setFechaEstimada(e.target.value)} className={inputClasses} />
+        <input
+          placeholder="Nombre del hito"
+          aria-label="Nombre del hito"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          className={inputClasses}
+          required
+        />
+        <input
+          type="date"
+          value={fechaEstimada}
+          onChange={(e) => setFechaEstimada(e.target.value)}
+          aria-label="Fecha estimada (opcional)"
+          className={inputClasses}
+        />
         <textarea
           placeholder="Descripción (opcional)"
+          aria-label="Descripción (opcional)"
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           className={`${inputClasses} col-span-full`}

@@ -181,7 +181,14 @@ function EditarContenidoForm({
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3">
       <div>
-        <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Título" className={inputClasses} required />
+        <input
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          placeholder="Título"
+          aria-label="Título"
+          className={inputClasses}
+          required
+        />
         {err('titulo') && <p className="mt-1 text-xs text-red-600">{err('titulo')}</p>}
       </div>
       <div>
@@ -189,6 +196,7 @@ function EditarContenidoForm({
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           placeholder="Descripción"
+          aria-label="Descripción"
           rows={3}
           className={inputClasses}
           required
@@ -199,11 +207,13 @@ function EditarContenidoForm({
         value={municipio}
         onChange={(e) => setMunicipio(e.target.value)}
         placeholder="Municipio (opcional)"
+        aria-label="Municipio (opcional)"
         className={inputClasses}
       />
       <select
         value={servicioRelacionado}
         onChange={(e) => setServicioRelacionado(e.target.value as ServicioDeInteres)}
+        aria-label="Servicio relacionado"
         className={inputClasses}
       >
         {Object.values(ServicioDeInteres).map((s) => (
@@ -273,7 +283,12 @@ function CrearContenidoForm({
       )}
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <select value={tipo} onChange={(e) => setTipo(e.target.value as TipoContenidoConfianza)} className={inputClasses}>
+        <select
+          value={tipo}
+          onChange={(e) => setTipo(e.target.value as TipoContenidoConfianza)}
+          aria-label="Tipo de contenido"
+          className={inputClasses}
+        >
           <option value={TipoContenidoConfianza.Testimonio}>Testimonio de cliente</option>
           <option value={TipoContenidoConfianza.Portafolio}>Caso de portafolio</option>
         </select>
@@ -281,6 +296,7 @@ function CrearContenidoForm({
         <select
           value={servicioRelacionado}
           onChange={(e) => setServicioRelacionado(e.target.value as ServicioDeInteres)}
+          aria-label="Servicio relacionado"
           className={inputClasses}
         >
           {Object.values(ServicioDeInteres).map((s) => (
@@ -295,6 +311,7 @@ function CrearContenidoForm({
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
             placeholder={tipo === TipoContenidoConfianza.Testimonio ? 'Nombre del cliente' : 'Nombre del proyecto'}
+            aria-label={tipo === TipoContenidoConfianza.Testimonio ? 'Nombre del cliente' : 'Nombre del proyecto'}
             className={inputClasses}
             required
           />
@@ -306,6 +323,7 @@ function CrearContenidoForm({
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             placeholder={tipo === TipoContenidoConfianza.Testimonio ? 'La cita del cliente' : 'Resumen del proyecto'}
+            aria-label={tipo === TipoContenidoConfianza.Testimonio ? 'La cita del cliente' : 'Resumen del proyecto'}
             rows={3}
             className={inputClasses}
             required
@@ -317,6 +335,7 @@ function CrearContenidoForm({
           value={municipio}
           onChange={(e) => setMunicipio(e.target.value)}
           placeholder="Municipio (opcional)"
+          aria-label="Municipio (opcional)"
           className={inputClasses}
         />
 

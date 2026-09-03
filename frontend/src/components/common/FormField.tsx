@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
 
 interface FormFieldProps {
   label: string;
@@ -8,17 +8,36 @@ interface FormFieldProps {
   children: ReactNode;
 }
 
+// Accesibilidad (gap #8): antes el error/hint solo se veía (el texto rojo
+// bajo el campo) — un lector de pantalla que enfoca el input no se enteraba
+// de nada. Se centraliza acá (en vez de tocar cada input/select/textarea de
+// cada formulario) inyectando aria-invalid/aria-describedby vía
+// cloneElement sobre el único hijo (siempre un elemento de formulario
+// controlado) — arregla todos los campos que usan FormField de una vez.
 export function FormField({ label, htmlFor, error, hint, children }: FormFieldProps) {
+  const describedBy = error ? `${htmlFor}-error` : hint ? `${htmlFor}-hint` : undefined;
+
+  const field = isValidElement(children)
+    ? cloneElement(children as ReactElement<Record<string, unknown>>, {
+        'aria-invalid': error ? true : undefined,
+        'aria-describedby': describedBy,
+      })
+    : children;
+
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={htmlFor} className="text-sm font-medium text-slate-700">
         {label}
       </label>
-      {children}
+      {field}
       {error ? (
-        <p className="text-sm text-red-600">{error}</p>
+        <p id={`${htmlFor}-error`} className="text-sm text-red-600">
+          {error}
+        </p>
       ) : hint ? (
-        <p className="text-sm text-slate-400">{hint}</p>
+        <p id={`${htmlFor}-hint`} className="text-sm text-slate-400">
+          {hint}
+        </p>
       ) : null}
     </div>
   );
