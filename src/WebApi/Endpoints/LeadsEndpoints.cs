@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.RateLimiting;
 using Plataforma.Contracts.Leads;
 using Plataforma.WebApi.Mapping;
 using Plataforma.WebApi.Security;
@@ -7,13 +8,18 @@ namespace Plataforma.WebApi.Endpoints;
 
 public static class LeadsEndpoints
 {
-    public static void MapLeadsEndpoints(this WebApplication app)
+    // rateLimiterPolicy: gap #6 — ambos endpoints públicos (sin auth) que
+    // reciben escritura de cualquier visitante del sitio, la superficie de
+    // spam/abuso real de este bounded context.
+    public static void MapLeadsEndpoints(this WebApplication app, string rateLimiterPolicy)
     {
         app.MapPost("/api/leads", CreateAsync)
+            .RequireRateLimiting(rateLimiterPolicy)
             .WithName("createLead")
             .WithTags("Leads");
 
         app.MapPost("/api/leads/presupuesto-pdf", GenerarPresupuestoPdfAsync)
+            .RequireRateLimiting(rateLimiterPolicy)
             .WithName("generarPresupuestoPdf")
             .WithTags("Leads");
 

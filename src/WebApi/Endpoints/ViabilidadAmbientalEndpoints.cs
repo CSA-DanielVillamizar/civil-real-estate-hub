@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.RateLimiting;
 using Plataforma.Contracts.ViabilidadAmbiental;
 using Plataforma.WebApi.Mapping;
 using Plataforma.WebApi.Security;
@@ -7,9 +8,12 @@ namespace Plataforma.WebApi.Endpoints;
 
 public static class ViabilidadAmbientalEndpoints
 {
-    public static void MapViabilidadAmbientalEndpoints(this WebApplication app)
+    // rateLimiterPolicy: gap #6 — mismo motivo que MapLeadsEndpoints, este
+    // es el único endpoint público (sin auth) de este bounded context.
+    public static void MapViabilidadAmbientalEndpoints(this WebApplication app, string rateLimiterPolicy)
     {
         app.MapPost("/api/viabilidad-ambiental/solicitudes", SolicitarAsync)
+            .RequireRateLimiting(rateLimiterPolicy)
             .WithName("solicitarViabilidadAmbiental")
             .WithTags("ViabilidadAmbiental");
 
