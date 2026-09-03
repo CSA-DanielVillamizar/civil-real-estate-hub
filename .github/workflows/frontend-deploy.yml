@@ -43,6 +43,10 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ vars.BACKEND_API_BASE_URL }}
           VITE_SITE_URL: ${{ vars.SITE_URL }}
+          # Gap #7 — sin definir todavía (analytics.ts no hace nada mientras
+          # esta var esté vacía): se activa creando la variable de repo
+          # GA_MEASUREMENT_ID con el Measurement ID real de GA4 (G-XXXXXXXXXX).
+          VITE_GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
 
       # Con skip_app_build: true la acción sube el contenido de app_location
       # tal cual, IGNORANDO output_location (ese combo solo aplica cuando ella
