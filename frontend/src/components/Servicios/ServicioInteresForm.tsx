@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useCreateLead } from '../../hooks/useCreateLead';
 import { OrigenLead, type ServicioDeInteres } from '../../types/common';
 import { FormField, inputClasses } from '../common/FormField';
+import { ConsentCheckbox } from '../common/ConsentCheckbox';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TELEFONO_REGEX = /^[0-9]{7,15}$/;
@@ -20,6 +21,7 @@ export function ServicioInteresForm({ servicio }: ServicioInteresFormProps) {
   const [email, setEmail] = useState('');
   const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { isSubmitting, error, fieldErrors, lead, enviar } = useCreateLead();
 
@@ -30,6 +32,7 @@ export function ServicioInteresForm({ servicio }: ServicioInteresFormProps) {
     if (!nombre.trim()) validationErrors.nombre = 'Ingresa tu nombre.';
     if (!EMAIL_REGEX.test(email.trim())) validationErrors.email = 'Ingresa un correo válido.';
     if (!TELEFONO_REGEX.test(telefono.trim())) validationErrors.telefono = 'Teléfono de 7 a 15 dígitos.';
+    if (!aceptaPrivacidad) validationErrors.aceptaPrivacidad = 'Debes aceptar la política de privacidad para continuar.';
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) return;
 
@@ -96,6 +99,13 @@ export function ServicioInteresForm({ servicio }: ServicioInteresFormProps) {
           className={inputClasses(false)}
         />
       </FormField>
+
+      <ConsentCheckbox
+        id={`${servicio}-acepta-privacidad`}
+        checked={aceptaPrivacidad}
+        onChange={setAceptaPrivacidad}
+        error={showError('aceptaPrivacidad')}
+      />
 
       <button
         type="submit"

@@ -24,6 +24,7 @@ describe('ServicioInteresForm', () => {
     await user.type(screen.getByLabelText(/email/i), 'ana@example.com');
     await user.type(screen.getByLabelText(/teléfono/i), '3109876543');
     await user.type(screen.getByLabelText(/cuéntanos tu proyecto/i), 'Lote de 800m² en Rionegro.');
+    await user.click(screen.getByRole('checkbox', { name: /acepto/i }));
     await user.click(screen.getByRole('button', { name: /solicitar contacto/i }));
 
     expect(leadsService.createLead).toHaveBeenCalledWith({

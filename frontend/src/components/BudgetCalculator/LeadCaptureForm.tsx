@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { FormField, inputClasses } from '../common/FormField';
+import { ConsentCheckbox } from '../common/ConsentCheckbox';
 import { initialLeadValues, validateLeadForm, type LeadFormValues } from './validation';
 
 interface LeadCaptureFormProps {
@@ -36,7 +37,7 @@ export function LeadCaptureForm({
   function validarYEjecutar(accion: (valores: LeadFormValues) => void) {
     const validationErrors = validateLeadForm(values);
     setErrors(validationErrors);
-    setTouched({ nombre: true, email: true, telefono: true });
+    setTouched({ nombre: true, email: true, telefono: true, aceptaPrivacidad: true });
 
     if (Object.keys(validationErrors).length > 0) return;
 
@@ -100,6 +101,13 @@ export function LeadCaptureForm({
           className={inputClasses(Boolean(showError('telefono')))}
         />
       </FormField>
+
+      <ConsentCheckbox
+        id="lead-acepta-privacidad"
+        checked={values.aceptaPrivacidad}
+        onChange={(checked) => handleChange('aceptaPrivacidad', checked)}
+        error={showError('aceptaPrivacidad')}
+      />
 
       <div className="mt-2 flex flex-col gap-3 sm:flex-row">
         <button

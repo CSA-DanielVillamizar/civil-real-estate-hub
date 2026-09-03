@@ -100,6 +100,7 @@ describe('BudgetCalculator', () => {
     await user.type(screen.getByLabelText(/nombre completo/i), 'Ana Restrepo');
     await user.type(screen.getByLabelText(/correo electrónico/i), 'ana@example.com');
     await user.type(screen.getByLabelText(/teléfono/i), '3109876543');
+    await user.click(screen.getByRole('checkbox', { name: /acepto/i }));
     await user.click(screen.getByRole('button', { name: /quiero mi cotización detallada/i }));
 
     expect(await screen.findByText(/ya recibimos tu solicitud/i)).toBeInTheDocument();
@@ -130,6 +131,7 @@ describe('BudgetCalculator', () => {
     await user.type(screen.getByLabelText(/nombre completo/i), 'Carlos Mendez');
     await user.type(screen.getByLabelText(/correo electrónico/i), 'carlos@example.com');
     await user.type(screen.getByLabelText(/teléfono/i), '3157894561');
+    await user.click(screen.getByRole('checkbox', { name: /acepto/i }));
     await user.click(screen.getByRole('button', { name: /descargar presupuesto en pdf/i }));
 
     expect(await screen.findByText(/tu pdf se está descargando/i)).toBeInTheDocument();

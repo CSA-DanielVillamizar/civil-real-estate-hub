@@ -11,6 +11,7 @@ export interface ViabilidadAmbientalFormValues {
   departamento: string;
   municipio: string;
   direccionReferencia: string;
+  aceptaPrivacidad: boolean;
 }
 
 export const initialViabilidadAmbientalValues: ViabilidadAmbientalFormValues = {
@@ -20,6 +21,7 @@ export const initialViabilidadAmbientalValues: ViabilidadAmbientalFormValues = {
   departamento: '',
   municipio: '',
   direccionReferencia: '',
+  aceptaPrivacidad: false,
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,6 +62,10 @@ export function validateViabilidadAmbientalForm(values: ViabilidadAmbientalFormV
 
   if (values.direccionReferencia.trim().length > 250) {
     errors.direccionReferencia = 'La referencia no puede superar 250 caracteres.';
+  }
+
+  if (!values.aceptaPrivacidad) {
+    errors.aceptaPrivacidad = 'Debes aceptar la política de privacidad para continuar.';
   }
 
   return errors;

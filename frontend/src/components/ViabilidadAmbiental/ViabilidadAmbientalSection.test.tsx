@@ -29,6 +29,7 @@ async function completarYEnviar(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/teléfono/i), '3109876543');
   await user.type(screen.getByLabelText(/departamento/i), 'Antioquia');
   await user.type(screen.getByLabelText(/municipio/i), 'Rionegro');
+  await user.click(screen.getByRole('checkbox', { name: /acepto/i }));
   await user.click(screen.getByRole('button', { name: /solicitar estudio de viabilidad ambiental/i }));
 }
 

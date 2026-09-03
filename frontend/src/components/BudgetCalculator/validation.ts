@@ -55,9 +55,10 @@ export interface LeadFormValues {
   nombre: string;
   email: string;
   telefono: string;
+  aceptaPrivacidad: boolean;
 }
 
-export const initialLeadValues: LeadFormValues = { nombre: '', email: '', telefono: '' };
+export const initialLeadValues: LeadFormValues = { nombre: '', email: '', telefono: '', aceptaPrivacidad: false };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TELEFONO_REGEX = /^[0-9]{7,15}$/;
@@ -81,6 +82,10 @@ export function validateLeadForm(values: LeadFormValues): Record<string, string>
     errors.telefono = 'Ingresa tu teléfono.';
   } else if (!TELEFONO_REGEX.test(values.telefono.trim())) {
     errors.telefono = 'El teléfono debe tener entre 7 y 15 dígitos, sin espacios ni símbolos.';
+  }
+
+  if (!values.aceptaPrivacidad) {
+    errors.aceptaPrivacidad = 'Debes aceptar la política de privacidad para continuar.';
   }
 
   return errors;

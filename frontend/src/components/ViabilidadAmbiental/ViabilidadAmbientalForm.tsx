@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { FormField, inputClasses } from '../common/FormField';
+import { ConsentCheckbox } from '../common/ConsentCheckbox';
 import {
   initialViabilidadAmbientalValues,
   validateViabilidadAmbientalForm,
@@ -32,7 +33,7 @@ export function ViabilidadAmbientalForm({ isSubmitting, serverFieldErrors, onSub
 
     const validationErrors = validateViabilidadAmbientalForm(values);
     setErrors(validationErrors);
-    setTouched({ nombre: true, email: true, telefono: true, departamento: true, municipio: true });
+    setTouched({ nombre: true, email: true, telefono: true, departamento: true, municipio: true, aceptaPrivacidad: true });
 
     if (Object.keys(validationErrors).length > 0) return;
 
@@ -136,6 +137,13 @@ export function ViabilidadAmbientalForm({ isSubmitting, serverFieldErrors, onSub
           className={inputClasses(Boolean(showError('direccionReferencia')))}
         />
       </FormField>
+
+      <ConsentCheckbox
+        id="va-acepta-privacidad"
+        checked={values.aceptaPrivacidad}
+        onChange={(checked) => handleChange('aceptaPrivacidad', checked)}
+        error={showError('aceptaPrivacidad')}
+      />
 
       <button
         type="submit"

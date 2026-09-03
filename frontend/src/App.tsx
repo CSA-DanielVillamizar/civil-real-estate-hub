@@ -15,6 +15,7 @@ import { NormativaMunicipioPage } from './components/Normativa/NormativaMunicipi
 import { NormativaTeaserSection } from './components/Normativa/NormativaTeaserSection';
 import { ConsultoriaEstructuralSection } from './components/Servicios/ConsultoriaEstructuralSection';
 import { InterventoriaSection } from './components/Servicios/InterventoriaSection';
+import { PoliticaPrivacidadPage } from './components/Legal/PoliticaPrivacidadPage';
 
 function App() {
   // Ruteo mínimo por path — no se agrega react-router para un puñado de
@@ -68,6 +69,10 @@ function App() {
   const normativaMatch = path.match(/^\/normativa\/([a-z-]+)$/);
   if (normativaMatch) {
     return <NormativaMunicipioPage slug={normativaMatch[1]} />;
+  }
+
+  if (path === '/politica-de-privacidad') {
+    return <PoliticaPrivacidadPage />;
   }
 
   return (
@@ -134,6 +139,15 @@ function App() {
           <NormativaTeaserSection />
         </div>
       </main>
+
+      <footer className="border-t border-slate-200 bg-white py-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 text-sm text-slate-500 sm:flex-row">
+          <span>© {new Date().getFullYear()} Plataforma Civil &amp; Inmobiliaria</span>
+          <a href="/politica-de-privacidad" className="hover:text-slate-900 hover:underline">
+            Política de privacidad
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
