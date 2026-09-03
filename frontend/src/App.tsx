@@ -19,6 +19,7 @@ import { NormativaTeaserSection } from './components/Normativa/NormativaTeaserSe
 import { ConsultoriaEstructuralSection } from './components/Servicios/ConsultoriaEstructuralSection';
 import { InterventoriaSection } from './components/Servicios/InterventoriaSection';
 import { PoliticaPrivacidadPage } from './components/Legal/PoliticaPrivacidadPage';
+import { NotFoundPage } from './components/NotFoundPage';
 
 function App() {
   // Ruteo mínimo por path — no se agrega react-router para un puñado de
@@ -84,6 +85,12 @@ function App() {
 
   if (path === '/politica-de-privacidad') {
     return <PoliticaPrivacidadPage />;
+  }
+
+  // Cualquier ruta que no haya calzado con nada de arriba (gap #9): antes
+  // caía en silencio al home completo, como si la URL rota fuera válida.
+  if (path !== '/') {
+    return <NotFoundPage />;
   }
 
   return (
