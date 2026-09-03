@@ -15,3 +15,26 @@ export interface LoginResponse {
   nombre: string;
   rol: RolUsuario;
 }
+
+export interface CrearUsuarioRequest {
+  nombre: string;
+  email: string;
+  password: string;
+  rol: RolUsuario;
+}
+
+export interface CrearUsuarioResponse {
+  id: string;
+  nombre: string;
+  email: string;
+  rol: string;
+}
+
+export interface UsuarioListItem {
+  id: string;
+  nombre: string;
+  email: string;
+  rol: string;
+  activo: boolean;
+  creadoEn: string;
+}

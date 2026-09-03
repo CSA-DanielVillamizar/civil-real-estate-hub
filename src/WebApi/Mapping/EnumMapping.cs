@@ -2,6 +2,7 @@ using ContractsEnums = Plataforma.Contracts.Common;
 using DomainLeads = Plataforma.Domain.Leads;
 using DomainObras = Plataforma.Domain.Obras;
 using DomainPropiedades = Plataforma.Domain.Propiedades;
+using DomainUsuarios = Plataforma.Domain.Usuarios;
 using DomainViabilidadAmbiental = Plataforma.Domain.ViabilidadAmbiental;
 
 namespace Plataforma.WebApi.Mapping;
@@ -88,4 +89,7 @@ public static class EnumMapping
 
     public static ContractsEnums.EstadoHitoDto ToContract(this DomainObras.EstadoHito estado) =>
         Enum.Parse<ContractsEnums.EstadoHitoDto>(estado.ToString());
+
+    public static DomainUsuarios.RolUsuario ToDomain(this ContractsEnums.RolUsuarioDto rol) =>
+        Enum.Parse<DomainUsuarios.RolUsuario>(rol.ToString());
 }

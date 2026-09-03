@@ -5,6 +5,7 @@ import { LeadsAdminPage } from './components/Admin/LeadsAdminPage';
 import { ObrasAdminPage } from './components/Admin/ObrasAdminPage';
 import { ProyectoObraAdminPage } from './components/Admin/ProyectoObraAdminPage';
 import { MiObraPage } from './components/Obras/MiObraPage';
+import { UsuariosAdminPage } from './components/Admin/UsuariosAdminPage';
 import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/ViabilidadAmbientalSection';
 import { PropertiesSection } from './components/Properties/PropertiesSection';
 import { PropertyDetailPage } from './components/Properties/PropertyDetailPage';
@@ -35,6 +36,10 @@ function App() {
 
   if (path === '/admin/obras') {
     return <ObrasAdminPage />;
+  }
+
+  if (path === '/admin/usuarios') {
+    return <UsuariosAdminPage />;
   }
 
   const obraAdminMatch = path.match(/^\/admin\/obras\/([0-9a-fA-F-]{36})$/);

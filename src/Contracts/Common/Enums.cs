@@ -120,3 +120,9 @@ public enum EstadoHitoDto
     EnProgreso,
     Completado
 }
+
+public enum RolUsuarioDto
+{
+    Admin,
+    AsesorComercial
+}

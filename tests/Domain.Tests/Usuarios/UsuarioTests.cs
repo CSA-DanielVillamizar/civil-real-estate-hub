@@ -59,4 +59,25 @@ public sealed class UsuarioTests
 
         accion.Should().Throw<ArgumentException>();
     }
+
+    [Fact]
+    public void Desactivar_DejaAlUsuarioInactivo()
+    {
+        var usuario = Usuario.Crear("Daniel Villamizar", Email.Crear("daniel@example.com"), "hash", RolUsuario.AsesorComercial);
+
+        usuario.Desactivar();
+
+        usuario.Activo.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Activar_DejaAlUsuarioActivo()
+    {
+        var usuario = Usuario.Crear("Daniel Villamizar", Email.Crear("daniel@example.com"), "hash", RolUsuario.AsesorComercial);
+        usuario.Desactivar();
+
+        usuario.Activar();
+
+        usuario.Activo.Should().BeTrue();
+    }
 }

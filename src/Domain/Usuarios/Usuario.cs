@@ -52,4 +52,10 @@ public sealed class Usuario : AggregateRoot<UsuarioId>
 
         PasswordHash = nuevoPasswordHash;
     }
+
+    // Revoca el acceso sin borrar la cuenta (login ya verifica Activo — ver
+    // LoginCommandHandler) — para cuando alguien deja el equipo.
+    public void Desactivar() => Activo = false;
+
+    public void Activar() => Activo = true;
 }

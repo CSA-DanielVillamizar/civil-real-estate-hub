@@ -55,6 +55,81 @@ paths:
         '401':
           description: Email o password incorrectos, o usuario inactivo
 
+  /api/auth/usuarios:
+    post:
+      tags: [Auth]
+      operationId: crearUsuario
+      summary: Crea una cuenta de equipo (Admin o AsesorComercial). Administrativo.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearUsuarioRequest'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrearUsuarioResponse'
+        '400':
+          description: Ya existe un usuario con ese email
+        '401':
+          description: Token JWT ausente, inválido o expirado
+
+    get:
+      tags: [Auth]
+      operationId: getUsuarios
+      summary: Lista los usuarios del equipo. Administrativo.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Listado de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UsuarioListItem'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+
+  /api/auth/usuarios/{id}/activo:
+    post:
+      tags: [Auth]
+      operationId: cambiarActivoUsuario
+      summary: Activa o desactiva una cuenta de equipo. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambiarActivoUsuarioRequest'
+      responses:
+        '200':
+          description: Estado actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CambiarActivoUsuarioResponse'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un usuario con ese id
+
   /api/leads:
     post:
       tags: [Leads]
@@ -1052,6 +1127,74 @@ components:
           type: string
         rol:
           $ref: '#/components/schemas/RolUsuario'
+
+    CrearUsuarioRequest:
+      type: object
+      required: [nombre, email, password, rol]
+      properties:
+        nombre:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          format: password
+          minLength: 8
+        rol:
+          $ref: '#/components/schemas/RolUsuario'
+
+    CrearUsuarioResponse:
+      type: object
+      required: [id, nombre, email, rol]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        email:
+          type: string
+        rol:
+          type: string
+
+    UsuarioListItem:
+      type: object
+      required: [id, nombre, email, rol, activo, creadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        email:
+          type: string
+        rol:
+          type: string
+        activo:
+          type: boolean
+        creadoEn:
+          type: string
+          format: date-time
+
+    CambiarActivoUsuarioRequest:
+      type: object
+      required: [activo]
+      properties:
+        activo:
+          type: boolean
+
+    CambiarActivoUsuarioResponse:
+      type: object
+      required: [id, activo]
+      properties:
+        id:
+          type: string
+          format: uuid
+        activo:
+          type: boolean
 
     OrigenLead:
       type: string

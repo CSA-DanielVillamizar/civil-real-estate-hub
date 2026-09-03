@@ -24,6 +24,9 @@ public sealed class UsuarioRepository : IUsuarioRepository
             .FirstOrDefaultAsync(u => u.Email.Valor.ToLower() == emailNormalizado, cancellationToken);
     }
 
+    public async Task<Usuario?> GetByIdAsync(UsuarioId id, CancellationToken cancellationToken) =>
+        await _dbContext.Usuarios.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
     public async Task AddAsync(Usuario usuario, CancellationToken cancellationToken)
     {
         await _dbContext.Usuarios.AddAsync(usuario, cancellationToken);
@@ -38,4 +41,7 @@ public sealed class UsuarioRepository : IUsuarioRepository
 
     public async Task<bool> ExisteAlgunoAsync(CancellationToken cancellationToken) =>
         await _dbContext.Usuarios.AsNoTracking().AnyAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Usuario>> ListAsync(CancellationToken cancellationToken) =>
+        await _dbContext.Usuarios.AsNoTracking().OrderBy(u => u.Nombre).ToListAsync(cancellationToken);
 }
