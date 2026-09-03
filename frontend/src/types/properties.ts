@@ -115,3 +115,18 @@ export interface PublicarPropiedadResponse {
   id: string;
   estado: string;
 }
+
+export interface ActualizarDatosBasicosPropiedadRequest {
+  titulo: string;
+  descripcion: string;
+  precio: number;
+  moneda: string;
+}
+
+export interface ActualizarDatosBasicosPropiedadResponse {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  precio: number;
+  moneda: string;
+}

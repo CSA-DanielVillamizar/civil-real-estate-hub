@@ -46,6 +46,31 @@ public static class PropertiesEndpoints
             .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
             .WithName("publicarPropiedad")
             .WithTags("Properties");
+
+        app.MapPost("/api/properties/{id:guid}/reservar", ReservarAsync)
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
+            .WithName("reservarPropiedad")
+            .WithTags("Properties");
+
+        app.MapPost("/api/properties/{id:guid}/marcar-vendida", MarcarVendidaAsync)
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
+            .WithName("marcarVendidaPropiedad")
+            .WithTags("Properties");
+
+        app.MapPost("/api/properties/{id:guid}/marcar-arrendada", MarcarArrendadaAsync)
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
+            .WithName("marcarArrendadaPropiedad")
+            .WithTags("Properties");
+
+        app.MapPost("/api/properties/{id:guid}/retirar", RetirarAsync)
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
+            .WithName("retirarPropiedad")
+            .WithTags("Properties");
+
+        app.MapPut("/api/properties/{id:guid}", ActualizarDatosBasicosAsync)
+            .RequireAuthorization(AuthorizationPolicies.RequiereAdmin)
+            .WithName("actualizarDatosBasicosPropiedad")
+            .WithTags("Properties");
     }
 
     // La validación de filtros (rangos, paginación) ocurre en el pipeline de
@@ -106,6 +131,37 @@ public static class PropertiesEndpoints
     private static async Task<IResult> PublicarAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(id.ToPublicarCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> ReservarAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToReservarCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> MarcarVendidaAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToMarcarVendidaCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> MarcarArrendadaAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToMarcarArrendadaCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> RetirarAsync(Guid id, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(id.ToRetirarCommand(), cancellationToken);
+        return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
+    }
+
+    private static async Task<IResult> ActualizarDatosBasicosAsync(
+        Guid id, ActualizarDatosBasicosPropiedadRequest request, ISender mediator, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(request.ToCommand(id), cancellationToken);
         return result is null ? Results.NotFound() : Results.Ok(result.ToContract());
     }
 }

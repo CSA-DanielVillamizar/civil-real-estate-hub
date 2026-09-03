@@ -5,7 +5,7 @@ import { ApiError, type ValidationProblemDetails } from '../types/api';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
 interface RequestOptions {
-  method?: 'GET' | 'POST';
+  method?: 'GET' | 'POST' | 'PUT';
   body?: unknown;
   signal?: AbortSignal;
   headers?: Record<string, string>;

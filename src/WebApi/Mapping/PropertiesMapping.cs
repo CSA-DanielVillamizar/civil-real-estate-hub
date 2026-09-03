@@ -2,6 +2,8 @@ using Plataforma.Application.Common.Models;
 using Plataforma.Application.Properties;
 using Plataforma.Contracts.Common;
 using Plataforma.Contracts.Properties;
+using ApplicationActualizarDatosBasicosCommand = Plataforma.Application.Properties.Commands.ActualizarDatosBasicosPropiedad.ActualizarDatosBasicosPropiedadCommand;
+using ApplicationActualizarDatosBasicosResult = Plataforma.Application.Properties.Commands.ActualizarDatosBasicosPropiedad.ActualizarDatosBasicosPropiedadResult;
 using ApplicationAgregarMultimediaCommand = Plataforma.Application.Properties.Commands.AgregarMultimediaAPropiedad.AgregarMultimediaAPropiedadCommand;
 using ApplicationAgregarMultimediaResult = Plataforma.Application.Properties.Commands.AgregarMultimediaAPropiedad.AgregarMultimediaAPropiedadResult;
 using ApplicationCrearPropiedadCommand = Plataforma.Application.Properties.Commands.CrearPropiedad.CrearPropiedadCommand;
@@ -9,9 +11,14 @@ using ApplicationCrearPropiedadResult = Plataforma.Application.Properties.Comman
 using ApplicationGetPropertiesAdminQuery = Plataforma.Application.Properties.Queries.GetPropertiesAdmin.GetPropertiesAdminQuery;
 using ApplicationGetPropertiesQuery = Plataforma.Application.Properties.Queries.GetProperties.GetPropertiesQuery;
 using ApplicationGetPropertyByIdQuery = Plataforma.Application.Properties.Queries.GetPropertyById.GetPropertyByIdQuery;
+using ApplicationMarcarArrendadaCommand = Plataforma.Application.Properties.Commands.MarcarArrendadaPropiedad.MarcarArrendadaPropiedadCommand;
+using ApplicationMarcarVendidaCommand = Plataforma.Application.Properties.Commands.MarcarVendidaPropiedad.MarcarVendidaPropiedadCommand;
 using ApplicationPropertyDetailDto = Plataforma.Application.Properties.Queries.GetPropertyById.PropertyDetailDto;
+using ApplicationPropertyEstadoResult = Plataforma.Application.Properties.Commands.Common.PropertyEstadoResult;
 using ApplicationPublicarPropiedadCommand = Plataforma.Application.Properties.Commands.PublicarPropiedad.PublicarPropiedadCommand;
 using ApplicationPublicarPropiedadResult = Plataforma.Application.Properties.Commands.PublicarPropiedad.PublicarPropiedadResult;
+using ApplicationReservarCommand = Plataforma.Application.Properties.Commands.ReservarPropiedad.ReservarPropiedadCommand;
+using ApplicationRetirarCommand = Plataforma.Application.Properties.Commands.RetirarPropiedad.RetirarPropiedadCommand;
 using ApplicationRetiroAmbientalInput = Plataforma.Application.Properties.Commands.CrearPropiedad.RetiroAmbientalInput;
 using ContractsGetPropertiesQuery = Plataforma.Contracts.Properties.GetPropertiesQuery;
 
@@ -47,6 +54,25 @@ public static class PropertiesMapping
     public static ApplicationPublicarPropiedadCommand ToPublicarCommand(this Guid propiedadId) => new(propiedadId);
 
     public static PublicarPropiedadResponse ToContract(this ApplicationPublicarPropiedadResult result) => new(result.Id, result.Estado);
+
+    public static ApplicationReservarCommand ToReservarCommand(this Guid propiedadId) => new(propiedadId);
+
+    public static ApplicationMarcarVendidaCommand ToMarcarVendidaCommand(this Guid propiedadId) => new(propiedadId);
+
+    public static ApplicationMarcarArrendadaCommand ToMarcarArrendadaCommand(this Guid propiedadId) => new(propiedadId);
+
+    public static ApplicationRetirarCommand ToRetirarCommand(this Guid propiedadId) => new(propiedadId);
+
+    // Mismo shape que PublicarPropiedadResponse (Id + Estado) — se reutiliza
+    // en vez de crear 4 DTOs casi idénticos para las otras transiciones de
+    // estado dentro de este mismo bounded context.
+    public static PublicarPropiedadResponse ToContract(this ApplicationPropertyEstadoResult result) => new(result.Id, result.Estado);
+
+    public static ApplicationActualizarDatosBasicosCommand ToCommand(this ActualizarDatosBasicosPropiedadRequest request, Guid propiedadId) =>
+        new(propiedadId, request.Titulo, request.Descripcion, request.Precio, request.Moneda);
+
+    public static ActualizarDatosBasicosPropiedadResponse ToContract(this ApplicationActualizarDatosBasicosResult result) => new(
+        result.Id, result.Titulo, result.Descripcion, result.Precio, result.Moneda);
 
     public static ApplicationGetPropertyByIdQuery ToGetByIdQuery(this Guid id) => new(id);
 

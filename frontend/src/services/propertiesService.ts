@@ -1,5 +1,7 @@
 import { apiRequest, authHeader, buildQueryString } from './apiClient';
 import type {
+  ActualizarDatosBasicosPropiedadRequest,
+  ActualizarDatosBasicosPropiedadResponse,
   AgregarMultimediaResponse,
   CrearPropiedadRequest,
   CrearPropiedadResponse,
@@ -70,6 +72,52 @@ export function agregarMultimediaAPropiedad(
 export function publicarPropiedad(propiedadId: string, token: string, signal?: AbortSignal): Promise<PublicarPropiedadResponse> {
   return apiRequest<PublicarPropiedadResponse>(`/properties/${propiedadId}/publicar`, {
     method: 'POST',
+    headers: authHeader(token),
+    signal,
+  });
+}
+
+export function reservarPropiedad(propiedadId: string, token: string, signal?: AbortSignal): Promise<PublicarPropiedadResponse> {
+  return apiRequest<PublicarPropiedadResponse>(`/properties/${propiedadId}/reservar`, {
+    method: 'POST',
+    headers: authHeader(token),
+    signal,
+  });
+}
+
+export function marcarVendidaPropiedad(propiedadId: string, token: string, signal?: AbortSignal): Promise<PublicarPropiedadResponse> {
+  return apiRequest<PublicarPropiedadResponse>(`/properties/${propiedadId}/marcar-vendida`, {
+    method: 'POST',
+    headers: authHeader(token),
+    signal,
+  });
+}
+
+export function marcarArrendadaPropiedad(propiedadId: string, token: string, signal?: AbortSignal): Promise<PublicarPropiedadResponse> {
+  return apiRequest<PublicarPropiedadResponse>(`/properties/${propiedadId}/marcar-arrendada`, {
+    method: 'POST',
+    headers: authHeader(token),
+    signal,
+  });
+}
+
+export function retirarPropiedad(propiedadId: string, token: string, signal?: AbortSignal): Promise<PublicarPropiedadResponse> {
+  return apiRequest<PublicarPropiedadResponse>(`/properties/${propiedadId}/retirar`, {
+    method: 'POST',
+    headers: authHeader(token),
+    signal,
+  });
+}
+
+export function actualizarDatosBasicosPropiedad(
+  propiedadId: string,
+  request: ActualizarDatosBasicosPropiedadRequest,
+  token: string,
+  signal?: AbortSignal,
+): Promise<ActualizarDatosBasicosPropiedadResponse> {
+  return apiRequest<ActualizarDatosBasicosPropiedadResponse>(`/properties/${propiedadId}`, {
+    method: 'PUT',
+    body: request,
     headers: authHeader(token),
     signal,
   });

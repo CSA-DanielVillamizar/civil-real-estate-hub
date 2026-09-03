@@ -444,6 +444,37 @@ paths:
         '404':
           description: No existe una propiedad con ese id
 
+    put:
+      tags: [Properties]
+      operationId: actualizarDatosBasicosPropiedad
+      summary: Actualiza título, descripción y precio de la propiedad. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarDatosBasicosPropiedadRequest'
+      responses:
+        '200':
+          description: Datos actualizados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualizarDatosBasicosPropiedadResponse'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe una propiedad con ese id
+
   /api/properties/{id}/multimedia:
     post:
       tags: [Properties]
@@ -510,6 +541,118 @@ paths:
                 $ref: '#/components/schemas/PublicarPropiedadResponse'
         '400':
           description: La propiedad no cumple las condiciones para publicarse
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe una propiedad con ese id
+
+  /api/properties/{id}/reservar:
+    post:
+      tags: [Properties]
+      operationId: reservarPropiedad
+      summary: Reserva la propiedad (Publicada → Reservada). Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Propiedad reservada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicarPropiedadResponse'
+        '400':
+          description: La propiedad no está en un estado que permita reservarla
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe una propiedad con ese id
+
+  /api/properties/{id}/marcar-vendida:
+    post:
+      tags: [Properties]
+      operationId: marcarVendidaPropiedad
+      summary: Marca la propiedad como vendida (Publicada/Reservada → Vendida). Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Propiedad marcada como vendida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicarPropiedadResponse'
+        '400':
+          description: La propiedad no está en un estado que permita marcarla vendida
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe una propiedad con ese id
+
+  /api/properties/{id}/marcar-arrendada:
+    post:
+      tags: [Properties]
+      operationId: marcarArrendadaPropiedad
+      summary: Marca la propiedad como arrendada (Publicada/Reservada → Arrendada). Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Propiedad marcada como arrendada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicarPropiedadResponse'
+        '400':
+          description: La propiedad no está en un estado que permita marcarla arrendada
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe una propiedad con ese id
+
+  /api/properties/{id}/retirar:
+    post:
+      tags: [Properties]
+      operationId: retirarPropiedad
+      summary: Retira la propiedad del catálogo público. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Propiedad retirada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicarPropiedadResponse'
+        '400':
+          description: La propiedad ya está vendida (no se puede retirar)
         '401':
           description: Token JWT ausente, inválido o expirado
         '404':
@@ -1292,6 +1435,40 @@ components:
         estado:
           type: string
           example: Publicada
+
+    ActualizarDatosBasicosPropiedadRequest:
+      type: object
+      required: [titulo, descripcion, precio, moneda]
+      properties:
+        titulo:
+          type: string
+          maxLength: 200
+        descripcion:
+          type: string
+          maxLength: 4000
+        precio:
+          type: number
+          format: decimal
+        moneda:
+          type: string
+          example: COP
+
+    ActualizarDatosBasicosPropiedadResponse:
+      type: object
+      required: [id, titulo, descripcion, precio, moneda]
+      properties:
+        id:
+          type: string
+          format: uuid
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        precio:
+          type: number
+          format: decimal
+        moneda:
+          type: string
 
     AgregarMultimediaResponse:
       type: object
