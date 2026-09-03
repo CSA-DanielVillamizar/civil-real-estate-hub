@@ -1,4 +1,5 @@
 import { ServicioDeInteres } from '../../types/common';
+import { PaquetesTarifaList } from './PaquetesTarifaList';
 import { ServicioInteresForm } from './ServicioInteresForm';
 
 // Copy tomado de docs/02-business-case.md §3.3 — línea de negocio sin
@@ -22,6 +23,8 @@ export function InterventoriaSection() {
               cumplimiento de las normativas estructurales y ambientales durante toda la ejecución del proyecto.
             </li>
           </ul>
+
+          <PaquetesTarifaList servicio={ServicioDeInteres.InterventoriaYPresupuestos} />
         </div>
 
         <div>

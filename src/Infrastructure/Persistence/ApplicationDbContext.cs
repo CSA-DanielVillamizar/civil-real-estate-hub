@@ -5,6 +5,7 @@ using Plataforma.Domain.Confianza;
 using Plataforma.Domain.Leads;
 using Plataforma.Domain.Obras;
 using Plataforma.Domain.Propiedades;
+using Plataforma.Domain.Tarifas;
 using Plataforma.Domain.Usuarios;
 using Plataforma.Domain.ViabilidadAmbiental;
 using Plataforma.Infrastructure.Persistence.Configurations;
@@ -33,6 +34,8 @@ public sealed class ApplicationDbContext : DbContext
 
     public DbSet<ContenidoConfianza> ContenidosConfianza => Set<ContenidoConfianza>();
 
+    public DbSet<PaqueteTarifa> PaquetesTarifa => Set<PaqueteTarifa>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new PropiedadConfiguration());
@@ -41,6 +44,7 @@ public sealed class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new UsuarioConfiguration());
         modelBuilder.ApplyConfiguration(new ProyectoObraConfiguration());
         modelBuilder.ApplyConfiguration(new ContenidoConfianzaConfiguration());
+        modelBuilder.ApplyConfiguration(new PaqueteTarifaConfiguration());
     }
 
     // Prompt 4, ítem 1: los eventos de dominio se despachan ANTES de confirmar

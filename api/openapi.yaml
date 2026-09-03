@@ -38,6 +38,11 @@ tags:
       confianza para las 2 líneas de negocio sin prueba social hoy
       (Consultoría/Interventoría). Un mismo recurso sirve ambos tipos —
       ver el esquema TipoContenidoConfianza.
+  - name: Tarifas
+    description: >
+      Transparencia de precios (gap #5) para Consultoría/Interventoría —
+      paquetes con un rango de precio opcional (el modelo de cobro varía por
+      línea de negocio: por m², % del valor de la obra, tarifa plana).
 
 paths:
   /api/auth/login:
@@ -1238,6 +1243,146 @@ paths:
         '404':
           description: No existe contenido con ese id
 
+  /api/paquetes-tarifa:
+    get:
+      tags: [Tarifas]
+      operationId: getPaquetesTarifaPublicados
+      summary: Lista los paquetes de tarifa publicados. Público.
+      responses:
+        '200':
+          description: Listado de paquetes publicados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaqueteTarifa'
+
+    post:
+      tags: [Tarifas]
+      operationId: crearPaqueteTarifa
+      summary: Crea un paquete de tarifa, sin publicar. Administrativo.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearPaqueteTarifaRequest'
+      responses:
+        '201':
+          description: Paquete creado (sin publicar)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaqueteTarifa'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+
+  /api/paquetes-tarifa/admin:
+    get:
+      tags: [Tarifas]
+      operationId: getPaquetesTarifaAdmin
+      summary: Lista todos los paquetes de tarifa, publicados o no. Administrativo.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Listado completo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaqueteTarifa'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+
+  /api/paquetes-tarifa/{id}:
+    put:
+      tags: [Tarifas]
+      operationId: actualizarPaqueteTarifa
+      summary: Actualiza el título, la descripción, el rango de precio y el servicio relacionado. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarPaqueteTarifaRequest'
+      responses:
+        '200':
+          description: Paquete actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaqueteTarifa'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un paquete con ese id
+
+  /api/paquetes-tarifa/{id}/publicar:
+    post:
+      tags: [Tarifas]
+      operationId: publicarPaqueteTarifa
+      summary: Publica un paquete de tarifa en el sitio público. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Paquete publicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaqueteTarifa'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un paquete con ese id
+
+  /api/paquetes-tarifa/{id}/despublicar:
+    post:
+      tags: [Tarifas]
+      operationId: despublicarPaqueteTarifa
+      summary: Retira un paquete de tarifa del sitio público. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Paquete despublicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaqueteTarifa'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe un paquete con ese id
+
 components:
   securitySchemes:
     BearerAuth:
@@ -2295,5 +2440,88 @@ components:
           type: string
           maxLength: 100
           nullable: true
+        servicioRelacionado:
+          $ref: '#/components/schemas/ServicioDeInteres'
+
+    PaqueteTarifa:
+      type: object
+      required: [id, servicioRelacionado, titulo, descripcion, unidadPrecio, moneda, publicado, creadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        servicioRelacionado:
+          $ref: '#/components/schemas/ServicioDeInteres'
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        precioDesde:
+          type: number
+          format: decimal
+          nullable: true
+        precioHasta:
+          type: number
+          format: decimal
+          nullable: true
+        unidadPrecio:
+          type: string
+          description: 'Ej. "por m²", "% del valor de la obra", "tarifa plana por proyecto".'
+        moneda:
+          type: string
+        publicado:
+          type: boolean
+        creadoEn:
+          type: string
+          format: date-time
+
+    CrearPaqueteTarifaRequest:
+      type: object
+      required: [servicioRelacionado, titulo, descripcion, unidadPrecio, moneda]
+      properties:
+        servicioRelacionado:
+          $ref: '#/components/schemas/ServicioDeInteres'
+        titulo:
+          type: string
+          maxLength: 150
+        descripcion:
+          type: string
+          maxLength: 1000
+        precioDesde:
+          type: number
+          format: decimal
+          nullable: true
+        precioHasta:
+          type: number
+          format: decimal
+          nullable: true
+        unidadPrecio:
+          type: string
+          maxLength: 100
+        moneda:
+          type: string
+          maxLength: 10
+
+    ActualizarPaqueteTarifaRequest:
+      type: object
+      required: [titulo, descripcion, unidadPrecio, servicioRelacionado]
+      properties:
+        titulo:
+          type: string
+          maxLength: 150
+        descripcion:
+          type: string
+          maxLength: 1000
+        precioDesde:
+          type: number
+          format: decimal
+          nullable: true
+        precioHasta:
+          type: number
+          format: decimal
+          nullable: true
+        unidadPrecio:
+          type: string
+          maxLength: 100
         servicioRelacionado:
           $ref: '#/components/schemas/ServicioDeInteres'

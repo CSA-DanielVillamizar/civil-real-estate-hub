@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IProyectoObraRepository, ProyectoObraRepository>();
         services.AddScoped<IContenidoConfianzaRepository, ContenidoConfianzaRepository>();
+        services.AddScoped<IPaqueteTarifaRepository, PaqueteTarifaRepository>();
 
         // QuestPDF Community License: gratuita para equipos/empresas con
         // ingresos anuales bajo el umbral que publica QuestPDF (a la fecha de

@@ -1,4 +1,5 @@
 import { ServicioDeInteres } from '../../types/common';
+import { PaquetesTarifaList } from './PaquetesTarifaList';
 import { ServicioInteresForm } from './ServicioInteresForm';
 
 // Copy tomado de docs/02-business-case.md §3.2 — línea de negocio sin
@@ -23,6 +24,8 @@ export function ConsultoriaEstructuralSection() {
               tiempos de obra y reducir la carga muerta en terrenos inclinados.
             </li>
           </ul>
+
+          <PaquetesTarifaList servicio={ServicioDeInteres.ConsultoriaYDisenoEstructural} />
         </div>
 
         <div>

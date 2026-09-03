@@ -8,6 +8,7 @@ import { MiObraPage } from './components/Obras/MiObraPage';
 import { UsuariosAdminPage } from './components/Admin/UsuariosAdminPage';
 import { ConfianzaAdminPage } from './components/Admin/ConfianzaAdminPage';
 import { ConfianzaSection } from './components/Confianza/ConfianzaSection';
+import { TarifasAdminPage } from './components/Admin/TarifasAdminPage';
 import { ViabilidadAmbientalSection } from './components/ViabilidadAmbiental/ViabilidadAmbientalSection';
 import { PropertiesSection } from './components/Properties/PropertiesSection';
 import { PropertyDetailPage } from './components/Properties/PropertyDetailPage';
@@ -47,6 +48,10 @@ function App() {
 
   if (path === '/admin/confianza') {
     return <ConfianzaAdminPage />;
+  }
+
+  if (path === '/admin/tarifas') {
+    return <TarifasAdminPage />;
   }
 
   const obraAdminMatch = path.match(/^\/admin\/obras\/([0-9a-fA-F-]{36})$/);
