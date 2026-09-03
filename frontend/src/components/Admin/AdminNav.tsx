@@ -13,6 +13,7 @@ const LINKS: Link[] = [
   { href: '/admin/viabilidad-ambiental', label: 'Viabilidad ambiental', roles: [RolUsuario.Admin] },
   { href: '/admin/obras', label: 'Avance de obra', roles: [RolUsuario.Admin] },
   { href: '/admin/usuarios', label: 'Usuarios', roles: [RolUsuario.Admin] },
+  { href: '/admin/confianza', label: 'Testimonios', roles: [RolUsuario.Admin] },
 ];
 
 interface AdminNavProps {

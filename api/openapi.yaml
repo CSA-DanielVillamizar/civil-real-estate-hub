@@ -32,6 +32,12 @@ tags:
       P3: portal de avance de obra. El cliente entra a /api/obras/por-token/
       {token} sin usuario ni contraseña — el token generado al crear el
       proyecto es la única credencial de acceso.
+  - name: Confianza
+    description: >
+      Testimonios de clientes y casos de portafolio (gap #4): contenido de
+      confianza para las 2 líneas de negocio sin prueba social hoy
+      (Consultoría/Interventoría). Un mismo recurso sirve ambos tipos —
+      ver el esquema TipoContenidoConfianza.
 
 paths:
   /api/auth/login:
@@ -1092,6 +1098,146 @@ paths:
         '404':
           description: No existe ningún proyecto con ese token
 
+  /api/contenido-confianza:
+    get:
+      tags: [Confianza]
+      operationId: getContenidoConfianzaPublicado
+      summary: Lista los testimonios y casos de portafolio publicados. Público.
+      responses:
+        '200':
+          description: Listado de contenido publicado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContenidoConfianza'
+
+    post:
+      tags: [Confianza]
+      operationId: crearContenidoConfianza
+      summary: Crea un testimonio o caso de portafolio, sin publicar. Administrativo.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearContenidoConfianzaRequest'
+      responses:
+        '201':
+          description: Contenido creado (sin publicar)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContenidoConfianza'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+
+  /api/contenido-confianza/admin:
+    get:
+      tags: [Confianza]
+      operationId: getContenidoConfianzaAdmin
+      summary: Lista todo el contenido, publicado o no. Administrativo.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Listado completo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContenidoConfianza'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+
+  /api/contenido-confianza/{id}:
+    put:
+      tags: [Confianza]
+      operationId: actualizarContenidoConfianza
+      summary: Actualiza el título, la descripción, el municipio y el servicio relacionado. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarContenidoConfianzaRequest'
+      responses:
+        '200':
+          description: Contenido actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContenidoConfianza'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe contenido con ese id
+
+  /api/contenido-confianza/{id}/publicar:
+    post:
+      tags: [Confianza]
+      operationId: publicarContenidoConfianza
+      summary: Publica un testimonio o caso de portafolio en el sitio público. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contenido publicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContenidoConfianza'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe contenido con ese id
+
+  /api/contenido-confianza/{id}/despublicar:
+    post:
+      tags: [Confianza]
+      operationId: despublicarContenidoConfianza
+      summary: Retira un testimonio o caso de portafolio del sitio público. Administrativo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contenido despublicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContenidoConfianza'
+        '401':
+          description: Token JWT ausente, inválido o expirado
+        '404':
+          description: No existe contenido con ese id
+
 components:
   securitySchemes:
     BearerAuth:
@@ -2083,3 +2229,71 @@ components:
           type: integer
         tokenAcceso:
           type: string
+
+    TipoContenidoConfianza:
+      type: string
+      enum: [Testimonio, Portafolio]
+      description: >
+        Un mismo recurso sirve dos vitrinas: Testimonio (titulo=nombre del
+        cliente, descripcion=la cita) y Portafolio (titulo=nombre del
+        proyecto, descripcion=el resumen del caso).
+
+    ContenidoConfianza:
+      type: object
+      required: [id, tipo, titulo, descripcion, servicioRelacionado, publicado, creadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tipo:
+          $ref: '#/components/schemas/TipoContenidoConfianza'
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        municipio:
+          type: string
+          nullable: true
+        servicioRelacionado:
+          $ref: '#/components/schemas/ServicioDeInteres'
+        publicado:
+          type: boolean
+        creadoEn:
+          type: string
+          format: date-time
+
+    CrearContenidoConfianzaRequest:
+      type: object
+      required: [tipo, titulo, descripcion, servicioRelacionado]
+      properties:
+        tipo:
+          $ref: '#/components/schemas/TipoContenidoConfianza'
+        titulo:
+          type: string
+          maxLength: 150
+        descripcion:
+          type: string
+          maxLength: 1000
+        municipio:
+          type: string
+          maxLength: 100
+          nullable: true
+        servicioRelacionado:
+          $ref: '#/components/schemas/ServicioDeInteres'
+
+    ActualizarContenidoConfianzaRequest:
+      type: object
+      required: [titulo, descripcion, servicioRelacionado]
+      properties:
+        titulo:
+          type: string
+          maxLength: 150
+        descripcion:
+          type: string
+          maxLength: 1000
+        municipio:
+          type: string
+          maxLength: 100
+          nullable: true
+        servicioRelacionado:
+          $ref: '#/components/schemas/ServicioDeInteres'

@@ -1,4 +1,5 @@
 using ContractsEnums = Plataforma.Contracts.Common;
+using DomainConfianza = Plataforma.Domain.Confianza;
 using DomainLeads = Plataforma.Domain.Leads;
 using DomainObras = Plataforma.Domain.Obras;
 using DomainPropiedades = Plataforma.Domain.Propiedades;
@@ -92,4 +93,7 @@ public static class EnumMapping
 
     public static DomainUsuarios.RolUsuario ToDomain(this ContractsEnums.RolUsuarioDto rol) =>
         Enum.Parse<DomainUsuarios.RolUsuario>(rol.ToString());
+
+    public static DomainConfianza.TipoContenidoConfianza ToDomain(this ContractsEnums.TipoContenidoConfianzaDto tipo) =>
+        Enum.Parse<DomainConfianza.TipoContenidoConfianza>(tipo.ToString());
 }

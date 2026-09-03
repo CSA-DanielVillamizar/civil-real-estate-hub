@@ -104,6 +104,7 @@ app.MapPropertiesEndpoints();
 app.MapBudgetsEndpoints();
 app.MapViabilidadAmbientalEndpoints();
 app.MapObrasEndpoints();
+app.MapConfianzaEndpoints();
 
 app.Run();
 

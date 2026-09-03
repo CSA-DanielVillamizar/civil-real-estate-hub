@@ -16,6 +16,12 @@ public enum ServicioDeInteresDto
     InterventoriaYPresupuestos
 }
 
+public enum TipoContenidoConfianzaDto
+{
+    Testimonio,
+    Portafolio
+}
+
 public enum EstadoLeadDto
 {
     Nuevo,
