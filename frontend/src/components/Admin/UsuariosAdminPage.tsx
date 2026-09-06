@@ -36,15 +36,29 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
           <CrearUsuarioForm fieldErrors={fieldErrors} onCrear={crear} />
         </div>
 
+        {!isLoading && usuarios.length > 0 && <ResumenUsuarios usuarios={usuarios} />}
+
         {isLoading ? (
           <p className="text-sm text-slate-500">Cargando…</p>
         ) : usuarios.length === 0 ? (
           <p className="text-sm text-slate-500">Aún no hay usuarios (raro — al menos tu cuenta debería aparecer aquí).</p>
         ) : (
-          <div className="flex flex-col gap-3">
-            {usuarios.map((u) => (
-              <UsuarioRow key={u.id} usuario={u} busy={busyId === u.id} onCambiarActivo={cambiarActivo} />
-            ))}
+          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table className="w-full min-w-[600px] table-fixed border-collapse text-left text-sm">
+              <thead className="bg-slate-50 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="w-64 px-3 py-2">Usuario</th>
+                  <th className="w-40 px-3 py-2">Rol</th>
+                  <th className="w-28 px-3 py-2">Estado</th>
+                  <th className="px-3 py-2 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {usuarios.map((u) => (
+                  <FilaUsuario key={u.id} usuario={u} busy={busyId === u.id} onCambiarActivo={cambiarActivo} />
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -52,7 +66,33 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
   );
 }
 
-function UsuarioRow({
+// Tarjetas de resumen — agregados reales sobre los usuarios ya cargados,
+// para ver de un vistazo el estado y la composición del equipo.
+function ResumenUsuarios({ usuarios }: { usuarios: UsuarioListItem[] }) {
+  const activos = usuarios.filter((u) => u.activo).length;
+  const inactivos = usuarios.length - activos;
+  const admins = usuarios.filter((u) => u.rol === RolUsuario.Admin).length;
+
+  const tarjetas = [
+    { etiqueta: 'Total usuarios', valor: usuarios.length },
+    { etiqueta: 'Cuentas activas', valor: activos },
+    { etiqueta: 'Cuentas inactivas', valor: inactivos },
+    { etiqueta: 'Admins', valor: admins },
+  ];
+
+  return (
+    <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {tarjetas.map((t) => (
+        <div key={t.etiqueta} className="rounded-xl border border-slate-200 bg-white p-4">
+          <p className="font-heading text-[11px] font-bold uppercase tracking-wide text-slate-500">{t.etiqueta}</p>
+          <p className="font-heading mt-1 text-2xl font-bold tracking-tight text-slate-900">{t.valor}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FilaUsuario({
   usuario,
   busy,
   onCambiarActivo,
@@ -62,33 +102,32 @@ function UsuarioRow({
   onCambiarActivo: (id: string, activo: boolean) => Promise<void>;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white p-4">
-      <div>
-        <p className="font-medium text-slate-900">{usuario.nombre}</p>
-        <p className="text-xs text-slate-500">
-          {usuario.email} · {usuario.rol}
-        </p>
-      </div>
-
-      <div className="flex items-center gap-2">
+    <tr className="align-top hover:bg-slate-50">
+      <td className="px-3 py-2">
+        <p className="font-heading truncate font-semibold text-slate-900">{usuario.nombre}</p>
+        <p className="truncate text-xs text-slate-500">{usuario.email}</p>
+      </td>
+      <td className="px-3 py-2 text-slate-600">{usuario.rol}</td>
+      <td className="px-3 py-2">
         <span
-          className={`rounded-full px-2 py-1 text-xs font-medium ${
+          className={`font-heading rounded-full px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
             usuario.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
           }`}
         >
           {usuario.activo ? 'Activo' : 'Inactivo'}
         </span>
-
+      </td>
+      <td className="px-3 py-2 text-right">
         <button
           type="button"
           onClick={() => onCambiarActivo(usuario.id, !usuario.activo)}
           disabled={busy}
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          className="rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
         >
           {busy ? '…' : usuario.activo ? 'Desactivar' : 'Activar'}
         </button>
-      </div>
-    </div>
+      </td>
+    </tr>
   );
 }
 
