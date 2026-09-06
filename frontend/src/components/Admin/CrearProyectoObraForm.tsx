@@ -50,7 +50,7 @@ export function CrearProyectoObraForm({ fieldErrors, onCrear }: CrearProyectoObr
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <h3 className="mb-3 font-semibold text-slate-900">Nuevo proyecto</h3>
+      <h3 className="font-heading mb-3 font-semibold text-slate-900">Nuevo proyecto</h3>
 
       {linkCreado && (
         <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -132,7 +132,7 @@ export function CrearProyectoObraForm({ fieldErrors, onCrear }: CrearProyectoObr
         <button
           type="submit"
           disabled={creando}
-          className="col-span-full mt-1 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="font-heading col-span-full mt-1 rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
         >
           {creando ? 'Creando…' : 'Crear proyecto'}
         </button>
