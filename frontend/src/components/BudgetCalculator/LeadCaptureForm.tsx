@@ -114,7 +114,7 @@ export function LeadCaptureForm({
           type="button"
           onClick={handleDescargarPdf}
           disabled={deshabilitado}
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-emerald-600 px-5 py-3 font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-emerald-300 disabled:text-emerald-300"
+          className="font-heading inline-flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-emerald-600 px-5 py-3 font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-emerald-300 disabled:text-emerald-300"
         >
           {isGenerandoPdf ? 'Generando PDF…' : 'Descargar presupuesto en PDF'}
         </button>
@@ -122,7 +122,7 @@ export function LeadCaptureForm({
         <button
           type="submit"
           disabled={deshabilitado}
-          className="inline-flex flex-1 items-center justify-center rounded-lg bg-slate-900 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="font-heading inline-flex flex-1 items-center justify-center rounded-lg bg-slate-900 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
           {isSubmitting ? 'Enviando…' : 'Quiero mi cotización detallada'}
         </button>

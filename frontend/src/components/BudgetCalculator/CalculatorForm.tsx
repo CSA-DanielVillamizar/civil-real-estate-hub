@@ -124,7 +124,7 @@ export function CalculatorForm({ isSubmitting, onSubmit }: CalculatorFormProps) 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-2 inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-300"
+        className="font-heading mt-2 inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
       >
         {isSubmitting ? 'Calculando…' : 'Calcular estimado'}
       </button>
