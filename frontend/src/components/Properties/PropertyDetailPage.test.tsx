@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PropertyDetailPage } from './PropertyDetailPage';
 import * as propertiesService from '../../services/propertiesService';
@@ -46,7 +46,11 @@ describe('PropertyDetailPage', () => {
     const { unmount } = render(<PropertyDetailPage id="prop-1" />);
 
     await screen.findByText('Lote campestre');
-    expect(document.title).toBe('Lote campestre | Plataforma Civil e Inmobiliaria');
+    // El efecto que fija document.title es un efecto pasivo (useEffect) —
+    // bajo carga, puede confirmarse un instante después de que el texto ya
+    // está en el DOM; se espera explícitamente en vez de asumir que ambos
+    // ocurren en el mismo tick (causa de flakiness intermitente observada).
+    await waitFor(() => expect(document.title).toBe('Lote campestre | Plataforma Civil e Inmobiliaria'));
 
     unmount();
     expect(document.title).toBe(SITE_TITLE);

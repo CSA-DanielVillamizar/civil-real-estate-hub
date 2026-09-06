@@ -4,6 +4,8 @@ import { PropertyInterestForm } from './PropertyInterestForm';
 import { PhotoGallery } from './PhotoGallery';
 import { PropertyLocationMap } from './PropertyLocationMap';
 import { WhatsAppButton } from './WhatsAppButton';
+import { AlertTriangleIcon, CheckCircleIcon, LocationPinIcon } from '../common/icons';
+import { TIPO_INMUEBLE_LABEL } from './propertyLabels';
 import { SITE_TITLE } from '../../seo';
 
 function usePageTitle(titulo: string | undefined) {
@@ -30,8 +32,8 @@ export function PropertyDetailPage({ id }: { id: string }) {
   if (notFound) {
     return (
       <div className="mx-auto max-w-4xl px-6 py-16 text-center">
-        <h1 className="text-xl font-bold text-slate-900">Propiedad no encontrada</h1>
-        <a href="/" className="mt-4 inline-block text-emerald-700 hover:underline">
+        <h1 className="font-heading text-xl font-bold text-slate-900">Propiedad no encontrada</h1>
+        <a href="/" className="mt-4 inline-block text-sky-700 hover:underline">
           Volver al catálogo
         </a>
       </div>
@@ -48,8 +50,8 @@ export function PropertyDetailPage({ id }: { id: string }) {
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-4">
-          <a href="/" className="text-lg font-bold text-slate-900">
-            Plataforma <span className="text-emerald-600">Civil &amp; Inmobiliaria</span>
+          <a href="/" className="font-heading text-lg font-bold text-slate-900">
+            Plataforma <span className="text-sky-600">Civil &amp; Inmobiliaria</span>
           </a>
         </div>
       </header>
@@ -63,63 +65,98 @@ export function PropertyDetailPage({ id }: { id: string }) {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900">{property.titulo}</h1>
-                <p className="text-slate-500">
-                  {property.direccion}, {property.municipio}, {property.departamento}
-                </p>
-              </div>
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span className="rounded bg-slate-900 px-2 py-1 font-heading text-[11px] font-bold uppercase tracking-wider text-white">
+                {TIPO_INMUEBLE_LABEL[property.tipoInmueble] ?? property.tipoInmueble}
+              </span>
               {property.esViableConstructivamente ? (
-                <span className="whitespace-nowrap rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-800">
-                  Viable constructivamente
+                <span className="flex items-center gap-1 whitespace-nowrap rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-800">
+                  <CheckCircleIcon className="h-4 w-4" /> Viable constructivamente
                 </span>
               ) : (
-                <span className="whitespace-nowrap rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
-                  Con restricciones
+                <span className="flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
+                  <AlertTriangleIcon className="h-4 w-4" /> Con restricciones
                 </span>
               )}
             </div>
 
-            <p className="text-2xl font-bold text-slate-900">
-              {property.precio.toLocaleString('es-CO')} {property.moneda}
+            <h1 className="font-heading text-2xl font-bold tracking-tight text-slate-900">{property.titulo}</h1>
+            <p className="mt-1 flex items-center gap-1 text-slate-500">
+              <LocationPinIcon className="h-4 w-4 text-sky-600" />
+              {property.direccion}, {property.municipio}, {property.departamento}
             </p>
 
-            <div className="my-6 grid grid-cols-2 gap-4 rounded-lg border border-slate-200 p-4 text-sm sm:grid-cols-4">
-              <div>
-                <p className="text-slate-500">Área terreno</p>
-                <p className="font-semibold text-slate-900">{property.areaTerrenoM2.toLocaleString('es-CO')} m²</p>
+            <p className="mt-4 font-heading text-3xl font-bold tracking-tight text-slate-900">
+              {property.precio.toLocaleString('es-CO')}{' '}
+              <span className="text-lg font-semibold text-slate-500">{property.moneda}</span>
+            </p>
+
+            {/* Ficha técnica — solo campos reales del dominio (área, pendiente,
+                tipo de suelo, topografía), en el mismo formato de tarjeta
+                escaneable de datos técnicos del nuevo sistema de diseño. */}
+            <div className="my-6 grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-4">
+              <div className="flex flex-col">
+                <span className="font-heading text-[11px] font-medium uppercase tracking-wide text-slate-500">Área terreno</span>
+                <span className="font-heading text-sm font-semibold text-slate-900">
+                  {property.areaTerrenoM2.toLocaleString('es-CO')} m²
+                </span>
               </div>
               {property.areaConstruidaM2 && (
-                <div>
-                  <p className="text-slate-500">Área construida</p>
-                  <p className="font-semibold text-slate-900">{property.areaConstruidaM2.toLocaleString('es-CO')} m²</p>
+                <div className="flex flex-col">
+                  <span className="font-heading text-[11px] font-medium uppercase tracking-wide text-slate-500">Área construida</span>
+                  <span className="font-heading text-sm font-semibold text-slate-900">
+                    {property.areaConstruidaM2.toLocaleString('es-CO')} m²
+                  </span>
                 </div>
               )}
-              <div>
-                <p className="text-slate-500">Pendiente</p>
-                <p className="font-semibold text-slate-900">{property.pendientePorcentaje}%</p>
+              <div className="flex flex-col">
+                <span className="font-heading text-[11px] font-medium uppercase tracking-wide text-slate-500">Pendiente</span>
+                <span className="font-heading text-sm font-semibold text-slate-900">{property.pendientePorcentaje}%</span>
               </div>
-              <div>
-                <p className="text-slate-500">Topografía</p>
-                <p className="font-semibold text-slate-900">{property.topografia}</p>
+              <div className="flex flex-col">
+                <span className="font-heading text-[11px] font-medium uppercase tracking-wide text-slate-500">Topografía</span>
+                <span className="font-heading text-sm font-semibold text-slate-900">{property.topografia}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-heading text-[11px] font-medium uppercase tracking-wide text-slate-500">Tipo de suelo</span>
+                <span className="font-heading text-sm font-semibold text-slate-900">{property.tipoSuelo}</span>
               </div>
             </div>
 
-            <h2 className="mb-2 font-semibold text-slate-900">Descripción</h2>
+            <h2 className="mb-2 font-heading font-semibold text-slate-900">Descripción</h2>
             <p className="mb-6 whitespace-pre-line text-slate-600">{property.descripcion}</p>
 
-            <h2 className="mb-2 font-semibold text-slate-900">Viabilidad constructiva</h2>
+            <h2 className="mb-2 font-heading font-semibold text-slate-900">Viabilidad constructiva</h2>
             {property.restriccionesViabilidad.length === 0 ? (
-              <p className="mb-6 text-sm text-emerald-700">
+              <p className="mb-6 flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
+                <CheckCircleIcon className="h-4 w-4 shrink-0" />
                 Sin restricciones detectadas frente a las reglas de referencia (pendiente y retiros ambientales).
               </p>
             ) : (
-              <ul className="mb-6 list-disc space-y-1 pl-5 text-sm text-amber-800">
+              <ul className="mb-6 flex flex-col gap-2">
                 {property.restriccionesViabilidad.map((r, i) => (
-                  <li key={i}>{r}</li>
+                  <li key={i} className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+                    <AlertTriangleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{r}</span>
+                  </li>
                 ))}
               </ul>
+            )}
+
+            {property.retirosAmbientales.length > 0 && (
+              <>
+                <h2 className="mb-2 font-heading font-semibold text-slate-900">Retiros ambientales</h2>
+                <ul className="mb-6 flex flex-wrap gap-2">
+                  {property.retirosAmbientales.map((r, i) => (
+                    <li
+                      key={i}
+                      className="rounded-full bg-sky-50 px-3 py-1 font-heading text-xs font-medium text-sky-800"
+                    >
+                      {r.tipoFuente}: {r.distanciaMinimaMetros} m
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
 
             <PropertyLocationMap latitud={property.latitud} longitud={property.longitud} titulo={property.titulo} />

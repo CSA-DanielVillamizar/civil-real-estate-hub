@@ -1,15 +1,8 @@
 import type { ReactNode } from 'react';
 import { useComparador } from '../../hooks/useComparador';
+import { AlertTriangleIcon, CheckCircleIcon, CompareArrowsIcon, LocationPinIcon, RulerIcon } from '../common/icons';
+import { TIPO_INMUEBLE_LABEL } from './propertyLabels';
 import type { PropertyDetailResponse } from '../../types/properties';
-
-const TIPO_INMUEBLE_LABEL: Record<string, string> = {
-  Lote: 'Lote',
-  Casa: 'Casa',
-  Apartamento: 'Apartamento',
-  Local: 'Local comercial',
-  Bodega: 'Bodega',
-  Finca: 'Finca',
-};
 
 function leerIdsDeLaUrl(): string[] {
   const params = new URLSearchParams(window.location.search);
@@ -26,8 +19,8 @@ export function ComparadorPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-4">
-          <a href="/" className="text-lg font-bold text-slate-900">
-            Plataforma <span className="text-emerald-600">Civil &amp; Inmobiliaria</span>
+          <a href="/" className="font-heading text-lg font-bold text-slate-900">
+            Plataforma <span className="text-sky-600">Civil &amp; Inmobiliaria</span>
           </a>
         </div>
       </header>
@@ -37,15 +30,20 @@ export function ComparadorPage() {
           ← Volver al catálogo
         </a>
 
-        <h1 className="mb-1 text-2xl font-bold text-slate-900">Comparar propiedades</h1>
+        <span className="font-heading text-xs font-bold uppercase tracking-widest text-sky-600">
+          Herramienta de decisión inmobiliaria
+        </span>
+        <h1 className="mb-1 flex items-center gap-2 font-heading text-2xl font-bold tracking-tight text-slate-900">
+          <CompareArrowsIcon className="h-6 w-6 text-sky-600" /> Cuadro comparativo técnico
+        </h1>
 
         {ids.length < 2 ? (
-          <div className="mt-6 rounded-lg border border-slate-200 bg-white p-8 text-center">
+          <div className="mt-6 rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
             <p className="text-slate-600">
               Selecciona al menos 2 propiedades desde el catálogo (con el check "Comparar" en cada ficha) para verlas
               lado a lado aquí.
             </p>
-            <a href="/#propiedades" className="mt-4 inline-block text-emerald-700 hover:underline">
+            <a href="/#propiedades" className="mt-4 inline-block text-sky-700 hover:underline">
               Ir al catálogo
             </a>
           </div>
@@ -63,65 +61,81 @@ export function ComparadorPage() {
 
 function TablaComparativa({ propiedades }: { propiedades: PropertyDetailResponse[] }) {
   return (
-    <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
-      <table className="w-full min-w-[640px] table-fixed border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-slate-200">
-            <th className="w-40 p-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Propiedad
+    <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <table className="w-full min-w-[720px] table-fixed border-collapse text-left">
+        <thead className="sticky top-0 z-10 bg-white shadow-[0_1px_0_rgba(15,23,42,0.08)]">
+          <tr>
+            <th className="w-48 p-4 align-top">
+              <span className="font-heading text-sm font-bold text-slate-900">Parámetros técnicos</span>
+              <span className="mt-1 block font-heading text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                {propiedades.length} activos seleccionados
+              </span>
             </th>
             {propiedades.map((p) => (
-              <th key={p.id} className="p-4 text-left align-top">
-                <a href={`/propiedades/${p.id}`} className="block hover:opacity-80">
-                  {p.multimedia.find((m) => m.tipo === 'Foto') ? (
-                    <img
-                      src={p.multimedia.find((m) => m.tipo === 'Foto')!.url}
-                      alt={p.titulo}
-                      className="mb-2 h-32 w-full rounded-md object-cover"
-                    />
-                  ) : (
-                    <div className="mb-2 flex h-32 w-full items-center justify-center rounded-md bg-slate-100 text-xs text-slate-400">
-                      Sin foto
-                    </div>
-                  )}
-                  <span className="font-semibold text-slate-900">{p.titulo}</span>
+              <th key={p.id} className="w-64 bg-white p-4 align-top">
+                <a href={`/propiedades/${p.id}`} className="group flex flex-col gap-2 hover:opacity-90">
+                  <div className="h-28 w-full overflow-hidden rounded-lg bg-slate-100">
+                    {p.multimedia.find((m) => m.tipo === 'Foto') ? (
+                      <img
+                        src={p.multimedia.find((m) => m.tipo === 'Foto')!.url}
+                        alt={p.titulo}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">Sin foto</div>
+                    )}
+                  </div>
+                  <span className="font-heading text-sm font-semibold leading-snug text-slate-900">{p.titulo}</span>
+                  <span className="font-heading text-base font-bold text-slate-900">
+                    {p.precio.toLocaleString('es-CO')} {p.moneda}
+                  </span>
+                </a>
+                <a
+                  href={`/propiedades/${p.id}`}
+                  className="mt-2 block rounded-lg bg-slate-900 px-3 py-2 text-center font-heading text-xs font-semibold text-white transition hover:bg-slate-800"
+                >
+                  Ver ficha completa
                 </a>
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
           <Fila
-            label="Precio"
+            icono={<LocationPinIcon className="h-4 w-4 text-sky-600" />}
+            label="Ubicación"
             propiedades={propiedades}
-            render={(p) => (
-              <span className="font-semibold text-slate-900">
-                {p.precio.toLocaleString('es-CO')} {p.moneda}
-              </span>
-            )}
+            render={(p) => `${p.municipio}, ${p.departamento}`}
           />
           <Fila label="Tipo" propiedades={propiedades} render={(p) => TIPO_INMUEBLE_LABEL[p.tipoInmueble] ?? p.tipoInmueble} />
-          <Fila label="Ubicación" propiedades={propiedades} render={(p) => `${p.municipio}, ${p.departamento}`} />
           <Fila
+            icono={<RulerIcon className="h-4 w-4 text-sky-600" />}
             label="Área terreno"
             propiedades={propiedades}
-            render={(p) => `${p.areaTerrenoM2.toLocaleString('es-CO')} m²`}
+            render={(p) => (
+              <span className="font-heading font-semibold">{p.areaTerrenoM2.toLocaleString('es-CO')} m²</span>
+            )}
           />
           <Fila
             label="Área construida"
             propiedades={propiedades}
             render={(p) => (p.areaConstruidaM2 ? `${p.areaConstruidaM2.toLocaleString('es-CO')} m²` : '—')}
           />
-          <Fila label="Pendiente" propiedades={propiedades} render={(p) => `${p.pendientePorcentaje}%`} />
+          <Fila label="Pendiente del terreno" propiedades={propiedades} render={(p) => `${p.pendientePorcentaje}%`} />
           <Fila label="Topografía" propiedades={propiedades} render={(p) => p.topografia} />
+          <Fila label="Tipo de suelo" propiedades={propiedades} render={(p) => p.tipoSuelo} />
           <Fila
             label="Viabilidad constructiva"
             propiedades={propiedades}
             render={(p) =>
               p.esViableConstructivamente ? (
-                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">Viable</span>
+                <span className="flex w-fit items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+                  <CheckCircleIcon className="h-3.5 w-3.5" /> Viable
+                </span>
               ) : (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Con restricciones</span>
+                <span className="flex w-fit items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                  <AlertTriangleIcon className="h-3.5 w-3.5" /> Con restricciones
+                </span>
               )
             }
           />
@@ -164,19 +178,24 @@ function TablaComparativa({ propiedades }: { propiedades: PropertyDetailResponse
 }
 
 function Fila({
+  icono,
   label,
   propiedades,
   render,
 }: {
+  icono?: ReactNode;
   label: string;
   propiedades: PropertyDetailResponse[];
   render: (p: PropertyDetailResponse) => ReactNode;
 }) {
   return (
-    <tr>
-      <td className="p-4 align-top text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</td>
+    <tr className="odd:bg-slate-50/60 hover:bg-slate-50">
+      <td className="flex items-center gap-2 p-4 align-top font-heading text-sm font-semibold text-slate-900">
+        {icono}
+        {label}
+      </td>
       {propiedades.map((p) => (
-        <td key={p.id} className="p-4 align-top text-slate-700">
+        <td key={p.id} className="p-4 align-top font-heading text-sm text-slate-700">
           {render(p)}
         </td>
       ))}

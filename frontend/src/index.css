@@ -1,7 +1,17 @@
 @import "tailwindcss";
 
+/* Rediseño UI "Corporate Modern with Architectural Precision"
+   (civil_real_estate_hub_ui/DESIGN.md): Inter para títulos/controles/datos
+   técnicos, Open Sans para texto largo — la pareja tipográfica es una de
+   las señas de identidad más visibles del nuevo sistema. Los colores del
+   mockup ya tienen un equivalente casi exacto en la paleta estándar de
+   Tailwind que el resto del sitio usa (slate-900 ≈ slate-corporate-anchor,
+   sky-500 ≈ engineering-cyan, amber-600 ≈ construction-amber, emerald ≈
+   trust/viabilidad) — se reutilizan esos nombres en vez de inventar
+   tokens de color nuevos, para no romper el resto de la app ya construida. */
 @theme {
-  --font-sans: 'Segoe UI', system-ui, Roboto, sans-serif;
+  --font-sans: 'Open Sans', 'Segoe UI', system-ui, Roboto, sans-serif;
+  --font-heading: 'Inter', 'Segoe UI', system-ui, Roboto, sans-serif;
 }
 
 body {
