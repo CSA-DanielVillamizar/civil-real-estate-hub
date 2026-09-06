@@ -40,11 +40,12 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
     auth.token,
     onUnauthorized,
   );
+  const [editandoId, setEditandoId] = useState<string | null>(null);
 
   return (
     <div>
       <AdminNav auth={auth} onLogout={onUnauthorized} />
-      <div className="mx-auto max-w-3xl px-6 py-10">
+      <div className="mx-auto max-w-5xl px-6 py-10">
         <h1 className="font-heading mb-1 text-2xl font-bold tracking-tight text-slate-900">Tarifas</h1>
         <p className="mb-6 text-sm text-slate-500">
           Transparencia de precios para consultoría estructural e interventoría — hoy no hay ningún indicio de costo
@@ -57,23 +58,44 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
           <CrearPaqueteForm fieldErrors={fieldErrors} onCrear={crear} />
         </div>
 
+        {!isLoading && items.length > 0 && <ResumenTarifas items={items} />}
+
         {isLoading ? (
           <p className="text-sm text-slate-500">Cargando…</p>
         ) : items.length === 0 ? (
           <p className="text-sm text-slate-500">Todavía no hay paquetes de tarifa.</p>
         ) : (
-          <div className="flex flex-col gap-3">
-            {items.map((item) => (
-              <PaqueteRow
-                key={item.id}
-                item={item}
-                busy={busyId === item.id}
-                fieldErrors={fieldErrors}
-                onActualizar={actualizar}
-                onPublicar={publicar}
-                onDespublicar={despublicar}
-              />
-            ))}
+          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table className="w-full min-w-[820px] table-fixed border-collapse text-left text-sm">
+              <thead className="bg-slate-50 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="w-72 px-3 py-2">Paquete</th>
+                  <th className="w-40 px-3 py-2">Servicio</th>
+                  <th className="w-44 px-3 py-2">Precio</th>
+                  <th className="w-28 px-3 py-2">Estado</th>
+                  <th className="px-3 py-2 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {items.map((item) => (
+                  <FilaPaquete
+                    key={item.id}
+                    item={item}
+                    busy={busyId === item.id}
+                    editando={editandoId === item.id}
+                    fieldErrors={fieldErrors}
+                    onToggleEditar={() => setEditandoId((id) => (id === item.id ? null : item.id))}
+                    onActualizar={async (id, request) => {
+                      const ok = await actualizar(id, request);
+                      if (ok) setEditandoId(null);
+                      return ok;
+                    }}
+                    onPublicar={publicar}
+                    onDespublicar={despublicar}
+                  />
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -81,17 +103,48 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
   );
 }
 
-function PaqueteRow({
+// Tarjetas de resumen — agregados reales sobre los paquetes ya cargados. El
+// conteo de "Servicios cubiertos" es la cantidad de servicios distintos
+// (servicioRelacionado) que ya tienen al menos un paquete de tarifa.
+function ResumenTarifas({ items }: { items: PaqueteTarifa[] }) {
+  const publicados = items.filter((i) => i.publicado).length;
+  const sinPublicar = items.length - publicados;
+  const serviciosCubiertos = new Set(items.map((i) => i.servicioRelacionado)).size;
+
+  const tarjetas = [
+    { etiqueta: 'Total tarifas', valor: items.length },
+    { etiqueta: 'Publicadas', valor: publicados },
+    { etiqueta: 'Pendientes de publicar', valor: sinPublicar },
+    { etiqueta: 'Servicios cubiertos', valor: serviciosCubiertos },
+  ];
+
+  return (
+    <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {tarjetas.map((t) => (
+        <div key={t.etiqueta} className="rounded-xl border border-slate-200 bg-white p-4">
+          <p className="font-heading text-[11px] font-bold uppercase tracking-wide text-slate-500">{t.etiqueta}</p>
+          <p className="font-heading mt-1 text-2xl font-bold tracking-tight text-slate-900">{t.valor}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FilaPaquete({
   item,
   busy,
+  editando,
   fieldErrors,
+  onToggleEditar,
   onActualizar,
   onPublicar,
   onDespublicar,
 }: {
   item: PaqueteTarifa;
   busy: boolean;
+  editando: boolean;
   fieldErrors: Record<string, string[]>;
+  onToggleEditar: () => void;
   onActualizar: (
     id: string,
     request: { titulo: string; descripcion: string; precioDesde?: number; precioHasta?: number; unidadPrecio: string; servicioRelacionado: ServicioDeInteres },
@@ -99,60 +152,59 @@ function PaqueteRow({
   onPublicar: (id: string) => Promise<void>;
   onDespublicar: (id: string) => Promise<void>;
 }) {
-  const [editando, setEditando] = useState(false);
-
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                item.publicado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-              }`}
+    <>
+      <tr className="align-top hover:bg-slate-50">
+        <td className="px-3 py-2">
+          <p className="font-heading truncate font-semibold text-slate-900">{item.titulo}</p>
+          <p className="truncate text-xs text-slate-500">{item.descripcion}</p>
+        </td>
+        <td className="px-3 py-2 text-slate-600">{SERVICIO_LABEL[item.servicioRelacionado] ?? item.servicioRelacionado}</td>
+        <td className="font-heading px-3 py-2 text-slate-700">{formatearPrecio(item)}</td>
+        <td className="px-3 py-2">
+          <span
+            className={`font-heading rounded-full px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
+              item.publicado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+            }`}
+          >
+            {item.publicado ? 'Publicado' : 'Sin publicar'}
+          </span>
+        </td>
+        <td className="px-3 py-2">
+          <div className="flex flex-wrap items-center justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={onToggleEditar}
+              className="rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
             >
-              {item.publicado ? 'Publicado' : 'Sin publicar'}
-            </span>
+              {editando ? 'Cancelar' : 'Editar'}
+            </button>
+            {/* Publicar/Despublicar es un toggle reversible — se mantiene en
+                gris neutro (no emerald/amber) para distinguirlo de acciones
+                de un solo sentido como "Convertir" en Leads. */}
+            <button
+              type="button"
+              onClick={() => (item.publicado ? onDespublicar(item.id) : onPublicar(item.id))}
+              disabled={busy}
+              className="rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              {busy ? '…' : item.publicado ? 'Despublicar' : 'Publicar'}
+            </button>
           </div>
-          <p className="font-medium text-slate-900">{item.titulo}</p>
-          <p className="mt-1 text-sm text-slate-600">{item.descripcion}</p>
-          <p className="mt-1 text-xs font-medium text-slate-700">{formatearPrecio(item)}</p>
-          <p className="mt-1 text-xs text-slate-500">{SERVICIO_LABEL[item.servicioRelacionado] ?? item.servicioRelacionado}</p>
-        </div>
-
-        <div className="flex shrink-0 flex-col items-end gap-2">
-          <button
-            type="button"
-            onClick={() => setEditando((v) => !v)}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-          >
-            {editando ? 'Cancelar' : 'Editar'}
-          </button>
-          <button
-            type="button"
-            onClick={() => (item.publicado ? onDespublicar(item.id) : onPublicar(item.id))}
-            disabled={busy}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            {busy ? '…' : item.publicado ? 'Despublicar' : 'Publicar'}
-          </button>
-        </div>
-      </div>
-
+        </td>
+      </tr>
       {editando && (
-        <div className="mt-4 border-t border-slate-100 pt-4">
-          <EditarPaqueteForm
-            item={item}
-            fieldErrors={fieldErrors}
-            onGuardar={async (request) => {
-              const ok = await onActualizar(item.id, request);
-              if (ok) setEditando(false);
-              return ok;
-            }}
-          />
-        </div>
+        <tr className="bg-slate-50/60">
+          <td colSpan={5} className="border-t border-slate-100 px-3 py-4">
+            <EditarPaqueteForm
+              item={item}
+              fieldErrors={fieldErrors}
+              onGuardar={(request) => onActualizar(item.id, request)}
+            />
+          </td>
+        </tr>
       )}
-    </div>
+    </>
   );
 }
 
@@ -265,7 +317,7 @@ function EditarPaqueteForm({
       <button
         type="submit"
         disabled={guardando}
-        className="justify-self-start rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+        className="font-heading justify-self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
       >
         {guardando ? 'Guardando…' : 'Guardar cambios'}
       </button>
@@ -327,7 +379,7 @@ function CrearPaqueteForm({
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <h3 className="mb-3 font-semibold text-slate-900">Nuevo paquete de tarifa</h3>
+      <h3 className="font-heading mb-3 font-semibold text-slate-900">Nuevo paquete de tarifa</h3>
 
       {creado && (
         <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -406,7 +458,7 @@ function CrearPaqueteForm({
         <button
           type="submit"
           disabled={creando}
-          className="col-span-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="font-heading col-span-full rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
         >
           {creando ? 'Creando…' : 'Crear (sin publicar)'}
         </button>

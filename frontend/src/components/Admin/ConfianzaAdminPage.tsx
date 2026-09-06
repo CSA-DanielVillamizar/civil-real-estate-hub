@@ -36,11 +36,12 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
     auth.token,
     onUnauthorized,
   );
+  const [editandoId, setEditandoId] = useState<string | null>(null);
 
   return (
     <div>
       <AdminNav auth={auth} onLogout={onUnauthorized} />
-      <div className="mx-auto max-w-3xl px-6 py-10">
+      <div className="mx-auto max-w-5xl px-6 py-10">
         <h1 className="font-heading mb-1 text-2xl font-bold tracking-tight text-slate-900">Testimonios y portafolio</h1>
         <p className="mb-6 text-sm text-slate-500">
           Contenido de confianza para el sitio público — sobre todo para consultoría estructural e interventoría, que
@@ -53,23 +54,43 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
           <CrearContenidoForm fieldErrors={fieldErrors} onCrear={crear} />
         </div>
 
+        {!isLoading && items.length > 0 && <ResumenContenido items={items} />}
+
         {isLoading ? (
           <p className="text-sm text-slate-500">Cargando…</p>
         ) : items.length === 0 ? (
           <p className="text-sm text-slate-500">Todavía no hay testimonios ni casos de portafolio.</p>
         ) : (
-          <div className="flex flex-col gap-3">
-            {items.map((item) => (
-              <ContenidoRow
-                key={item.id}
-                item={item}
-                busy={busyId === item.id}
-                fieldErrors={fieldErrors}
-                onActualizar={actualizar}
-                onPublicar={publicar}
-                onDespublicar={despublicar}
-              />
-            ))}
+          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table className="w-full min-w-[820px] table-fixed border-collapse text-left text-sm">
+              <thead className="bg-slate-50 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="w-72 px-3 py-2">Contenido</th>
+                  <th className="w-40 px-3 py-2">Servicio</th>
+                  <th className="w-32 px-3 py-2">Estado</th>
+                  <th className="px-3 py-2 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {items.map((item) => (
+                  <FilaContenido
+                    key={item.id}
+                    item={item}
+                    busy={busyId === item.id}
+                    editando={editandoId === item.id}
+                    fieldErrors={fieldErrors}
+                    onToggleEditar={() => setEditandoId((id) => (id === item.id ? null : item.id))}
+                    onActualizar={async (id, request) => {
+                      const ok = await actualizar(id, request);
+                      if (ok) setEditandoId(null);
+                      return ok;
+                    }}
+                    onPublicar={publicar}
+                    onDespublicar={despublicar}
+                  />
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -77,80 +98,107 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
   );
 }
 
-function ContenidoRow({
+// Tarjetas de resumen — agregados reales sobre el contenido ya cargado.
+function ResumenContenido({ items }: { items: ContenidoConfianza[] }) {
+  const publicados = items.filter((i) => i.publicado).length;
+  const sinPublicar = items.length - publicados;
+  const testimonios = items.filter((i) => i.tipo === TipoContenidoConfianza.Testimonio).length;
+
+  const tarjetas = [
+    { etiqueta: 'Total contenidos', valor: items.length },
+    { etiqueta: 'Publicados', valor: publicados },
+    { etiqueta: 'Pendientes de publicar', valor: sinPublicar },
+    { etiqueta: 'Testimonios', valor: testimonios },
+  ];
+
+  return (
+    <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {tarjetas.map((t) => (
+        <div key={t.etiqueta} className="rounded-xl border border-slate-200 bg-white p-4">
+          <p className="font-heading text-[11px] font-bold uppercase tracking-wide text-slate-500">{t.etiqueta}</p>
+          <p className="font-heading mt-1 text-2xl font-bold tracking-tight text-slate-900">{t.valor}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FilaContenido({
   item,
   busy,
+  editando,
   fieldErrors,
+  onToggleEditar,
   onActualizar,
   onPublicar,
   onDespublicar,
 }: {
   item: ContenidoConfianza;
   busy: boolean;
+  editando: boolean;
   fieldErrors: Record<string, string[]>;
+  onToggleEditar: () => void;
   onActualizar: (id: string, request: { titulo: string; descripcion: string; municipio?: string; servicioRelacionado: ServicioDeInteres }) => Promise<boolean>;
   onPublicar: (id: string) => Promise<void>;
   onDespublicar: (id: string) => Promise<void>;
 }) {
-  const [editando, setEditando] = useState(false);
-
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+    <>
+      <tr className="align-top hover:bg-slate-50">
+        <td className="px-3 py-2">
+          <div className="mb-1 flex items-center gap-1.5">
+            <span className="font-heading rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-600">
               {TIPO_LABEL[item.tipo] ?? item.tipo}
             </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                item.publicado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-              }`}
-            >
-              {item.publicado ? 'Publicado' : 'Sin publicar'}
-            </span>
           </div>
-          <p className="font-medium text-slate-900">{item.titulo}</p>
-          <p className="mt-1 text-sm text-slate-600">{item.descripcion}</p>
-          <p className="mt-1 text-xs text-slate-500">
-            {SERVICIO_LABEL[item.servicioRelacionado] ?? item.servicioRelacionado}
-            {item.municipio ? ` · ${item.municipio}` : ''}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 flex-col items-end gap-2">
-          <button
-            type="button"
-            onClick={() => setEditando((v) => !v)}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+          <p className="font-heading truncate font-semibold text-slate-900">{item.titulo}</p>
+          <p className="truncate text-xs text-slate-500">{item.descripcion}</p>
+        </td>
+        <td className="px-3 py-2 text-slate-600">
+          {SERVICIO_LABEL[item.servicioRelacionado] ?? item.servicioRelacionado}
+          {item.municipio && <span className="block text-xs text-slate-400">{item.municipio}</span>}
+        </td>
+        <td className="px-3 py-2">
+          <span
+            className={`font-heading rounded-full px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
+              item.publicado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+            }`}
           >
-            {editando ? 'Cancelar' : 'Editar'}
-          </button>
-          <button
-            type="button"
-            onClick={() => (item.publicado ? onDespublicar(item.id) : onPublicar(item.id))}
-            disabled={busy}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            {busy ? '…' : item.publicado ? 'Despublicar' : 'Publicar'}
-          </button>
-        </div>
-      </div>
-
+            {item.publicado ? 'Publicado' : 'Sin publicar'}
+          </span>
+        </td>
+        <td className="px-3 py-2">
+          <div className="flex flex-wrap items-center justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={onToggleEditar}
+              className="rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+            >
+              {editando ? 'Cancelar' : 'Editar'}
+            </button>
+            <button
+              type="button"
+              onClick={() => (item.publicado ? onDespublicar(item.id) : onPublicar(item.id))}
+              disabled={busy}
+              className="rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              {busy ? '…' : item.publicado ? 'Despublicar' : 'Publicar'}
+            </button>
+          </div>
+        </td>
+      </tr>
       {editando && (
-        <div className="mt-4 border-t border-slate-100 pt-4">
-          <EditarContenidoForm
-            item={item}
-            fieldErrors={fieldErrors}
-            onGuardar={async (request) => {
-              const ok = await onActualizar(item.id, request);
-              if (ok) setEditando(false);
-              return ok;
-            }}
-          />
-        </div>
+        <tr className="bg-slate-50/60">
+          <td colSpan={4} className="border-t border-slate-100 px-3 py-4">
+            <EditarContenidoForm
+              item={item}
+              fieldErrors={fieldErrors}
+              onGuardar={(request) => onActualizar(item.id, request)}
+            />
+          </td>
+        </tr>
       )}
-    </div>
+    </>
   );
 }
 
@@ -225,7 +273,7 @@ function EditarContenidoForm({
       <button
         type="submit"
         disabled={guardando}
-        className="justify-self-start rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+        className="font-heading justify-self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
       >
         {guardando ? 'Guardando…' : 'Guardar cambios'}
       </button>
@@ -274,7 +322,7 @@ function CrearContenidoForm({
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <h3 className="mb-3 font-semibold text-slate-900">Nuevo testimonio o caso de portafolio</h3>
+      <h3 className="font-heading mb-3 font-semibold text-slate-900">Nuevo testimonio o caso de portafolio</h3>
 
       {creado && (
         <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -342,7 +390,7 @@ function CrearContenidoForm({
         <button
           type="submit"
           disabled={creando}
-          className="col-span-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="font-heading col-span-full rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
         >
           {creando ? 'Creando…' : 'Crear (sin publicar)'}
         </button>
