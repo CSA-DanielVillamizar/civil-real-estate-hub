@@ -12,6 +12,16 @@
 @theme {
   --font-sans: 'Open Sans', 'Segoe UI', system-ui, Roboto, sans-serif;
   --font-heading: 'Inter', 'Segoe UI', system-ui, Roboto, sans-serif;
+
+  /* Escala de espaciado "spacious" del showcase público (DESIGN.md §Layout
+     & Spacing) — respiro generoso entre secciones del sitio público, en
+     contraste con la escala "compact" que ya usa el Panel de Admin.
+     Habilita clases como py-public-xl, gap-public-lg, mt-public-2xl. */
+  --spacing-public-sm: 1rem;
+  --spacing-public-md: 1.5rem;
+  --spacing-public-lg: 2.5rem;
+  --spacing-public-xl: 4rem;
+  --spacing-public-2xl: 6rem;
 }
 
 body {
