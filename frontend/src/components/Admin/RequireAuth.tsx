@@ -27,7 +27,7 @@ export function RequireAuth({ rolesPermitidos, children }: RequireAuthProps) {
       <div>
         <AdminNav auth={auth} onLogout={logout} />
         <div className="mx-auto max-w-lg px-6 py-16 text-center">
-          <h1 className="mb-2 text-lg font-bold text-slate-900">No tienes acceso a esta sección</h1>
+          <h1 className="font-heading mb-2 text-lg font-bold tracking-tight text-slate-900">No tienes acceso a esta sección</h1>
           <p className="text-sm text-slate-500">Tu rol ({auth.rol}) no incluye este panel.</p>
         </div>
       </div>

@@ -19,7 +19,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <h1 className="mb-2 text-xl font-bold text-slate-900">Panel administrativo</h1>
+      <h1 className="font-heading mb-2 text-xl font-bold tracking-tight text-slate-900">Panel administrativo</h1>
       <p className="mb-6 text-sm text-slate-500">Ingresa con tu cuenta de administrador o asesor comercial.</p>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
@@ -45,7 +45,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
         <button
           type="submit"
           disabled={!email.trim() || !password || isLoading}
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="font-heading rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
         >
           {isLoading ? 'Entrando…' : 'Entrar'}
         </button>

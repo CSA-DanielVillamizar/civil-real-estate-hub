@@ -8,7 +8,7 @@ import { RequireAuth } from './RequireAuth';
 
 const ESTADO_BADGE: Record<string, string> = {
   Nuevo: 'bg-slate-100 text-slate-700',
-  Contactado: 'bg-blue-100 text-blue-800',
+  Contactado: 'bg-sky-100 text-sky-800',
   Calificado: 'bg-amber-100 text-amber-800',
   Convertido: 'bg-emerald-100 text-emerald-800',
   Descartado: 'bg-red-100 text-red-800',
@@ -50,7 +50,7 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
     <div>
       <AdminNav auth={auth} onLogout={onUnauthorized} />
       <div className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Leads</h1>
+      <h1 className="font-heading mb-1 text-2xl font-bold tracking-tight text-slate-900">Leads</h1>
       <p className="mb-6 text-sm text-slate-500">
         Da seguimiento a cada lead: márcalo contactado, califícalo, conviértelo en cliente o descártalo.
       </p>

@@ -24,7 +24,7 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
     <div>
       <AdminNav auth={auth} onLogout={onUnauthorized} />
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="mb-1 text-2xl font-bold text-slate-900">Usuarios del equipo</h1>
+        <h1 className="font-heading mb-1 text-2xl font-bold tracking-tight text-slate-900">Usuarios del equipo</h1>
         <p className="mb-6 text-sm text-slate-500">
           Crea cuentas para tus asesores comerciales o para otros administradores. Los Asesores Comerciales solo ven
           el panel de Leads.
@@ -127,7 +127,7 @@ function CrearUsuarioForm({
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <h3 className="mb-3 font-semibold text-slate-900">Nuevo usuario</h3>
+      <h3 className="font-heading mb-3 font-semibold text-slate-900">Nuevo usuario</h3>
 
       {creado && (
         <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -185,7 +185,7 @@ function CrearUsuarioForm({
         <button
           type="submit"
           disabled={creando}
-          className="col-span-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="font-heading col-span-full rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
         >
           {creando ? 'Creando…' : 'Crear usuario'}
         </button>

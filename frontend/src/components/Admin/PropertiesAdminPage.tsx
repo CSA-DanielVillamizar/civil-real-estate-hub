@@ -16,8 +16,8 @@ const ESTADO_BADGE: Record<string, string> = {
   Borrador: 'bg-slate-100 text-slate-700',
   Publicada: 'bg-emerald-100 text-emerald-800',
   Reservada: 'bg-amber-100 text-amber-800',
-  Vendida: 'bg-blue-100 text-blue-800',
-  Arrendada: 'bg-blue-100 text-blue-800',
+  Vendida: 'bg-sky-100 text-sky-800',
+  Arrendada: 'bg-sky-100 text-sky-800',
   Retirada: 'bg-red-100 text-red-800',
 };
 
@@ -50,7 +50,7 @@ function Panel({ auth, onUnauthorized }: { auth: AuthState; onUnauthorized: () =
     <div>
     <AdminNav auth={auth} onLogout={onUnauthorized} />
     <div className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Propiedades</h1>
+      <h1 className="font-heading mb-1 text-2xl font-bold tracking-tight text-slate-900">Propiedades</h1>
       <p className="mb-6 text-sm text-slate-500">Crea, edita, sube fotos y gestiona el estado de cada propiedad.</p>
 
       {error && <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
@@ -189,7 +189,7 @@ function PropertyRow({
                 type="button"
                 onClick={() => onMarcarVendida(property.id)}
                 disabled={busy}
-                className="rounded-md border border-blue-300 px-3 py-1.5 text-xs font-medium text-blue-800 hover:bg-blue-50 disabled:opacity-50"
+                className="rounded-md border border-sky-300 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-50 disabled:opacity-50"
               >
                 Marcar vendida
               </button>
@@ -197,7 +197,7 @@ function PropertyRow({
                 type="button"
                 onClick={() => onMarcarArrendada(property.id)}
                 disabled={busy}
-                className="rounded-md border border-blue-300 px-3 py-1.5 text-xs font-medium text-blue-800 hover:bg-blue-50 disabled:opacity-50"
+                className="rounded-md border border-sky-300 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-50 disabled:opacity-50"
               >
                 Marcar arrendada
               </button>
@@ -326,7 +326,7 @@ function EditarPropiedadForm({
         <button
           type="submit"
           disabled={guardando}
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="font-heading rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
         >
           {guardando ? 'Guardando…' : 'Guardar cambios'}
         </button>
