@@ -16,34 +16,42 @@ export function ComparadorPage() {
   const { propiedades, isLoading, error } = useComparador(ids.length >= 2 ? ids : []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-4">
-          <a href="/" className="font-heading text-lg font-bold text-slate-900">
+    <div className="min-h-screen bg-white">
+      {/* Mismo header del Home y del detalle de propiedad (fases 7 y 8/N) —
+          sticky con blur, ancho máx. 1440px de la grilla del showcase. */}
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
+        <div className="mx-auto max-w-[1440px] px-6 py-4 sm:px-8">
+          <a href="/" className="font-heading text-lg font-bold tracking-tight text-slate-900">
             Plataforma <span className="text-sky-600">Civil &amp; Inmobiliaria</span>
           </a>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <a href="/#propiedades" className="mb-4 inline-block text-sm text-slate-500 hover:text-slate-900">
+      <main className="mx-auto max-w-[1440px] px-6 py-public-lg sm:px-8 sm:py-public-xl">
+        <a
+          href="/#propiedades"
+          className="mb-5 inline-flex items-center gap-1.5 font-heading text-sm font-medium text-slate-500 transition hover:text-slate-900"
+        >
           ← Volver al catálogo
         </a>
 
         <span className="font-heading text-xs font-bold uppercase tracking-widest text-sky-600">
           Herramienta de decisión inmobiliaria
         </span>
-        <h1 className="mb-1 flex items-center gap-2 font-heading text-2xl font-bold tracking-tight text-slate-900">
-          <CompareArrowsIcon className="h-6 w-6 text-sky-600" /> Cuadro comparativo técnico
+        <h1 className="mb-1 flex items-center gap-2 font-heading text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          <CompareArrowsIcon className="h-7 w-7 text-sky-600" /> Cuadro comparativo técnico
         </h1>
 
         {ids.length < 2 ? (
-          <div className="mt-6 rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <p className="text-slate-600">
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
+            <p className="mx-auto max-w-md text-slate-600">
               Selecciona al menos 2 propiedades desde el catálogo (con el check "Comparar" en cada ficha) para verlas
               lado a lado aquí.
             </p>
-            <a href="/#propiedades" className="mt-4 inline-block text-sky-700 hover:underline">
+            <a
+              href="/#propiedades"
+              className="font-heading mt-5 inline-block rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-800"
+            >
               Ir al catálogo
             </a>
           </div>
@@ -61,7 +69,7 @@ export function ComparadorPage() {
 
 function TablaComparativa({ propiedades }: { propiedades: PropertyDetailResponse[] }) {
   return (
-    <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-[0_10px_25px_-5px_rgba(15,23,42,0.06),0_8px_10px_-6px_rgba(15,23,42,0.04)]">
       <table className="w-full min-w-[720px] table-fixed border-collapse text-left">
         <thead className="sticky top-0 z-10 bg-white shadow-[0_1px_0_rgba(15,23,42,0.08)]">
           <tr>
@@ -74,7 +82,7 @@ function TablaComparativa({ propiedades }: { propiedades: PropertyDetailResponse
             {propiedades.map((p) => (
               <th key={p.id} className="w-64 bg-white p-4 align-top">
                 <a href={`/propiedades/${p.id}`} className="group flex flex-col gap-2 hover:opacity-90">
-                  <div className="h-28 w-full overflow-hidden rounded-lg bg-slate-100">
+                  <div className="h-28 w-full overflow-hidden rounded-xl bg-slate-100">
                     {p.multimedia.find((m) => m.tipo === 'Foto') ? (
                       <img
                         src={p.multimedia.find((m) => m.tipo === 'Foto')!.url}
