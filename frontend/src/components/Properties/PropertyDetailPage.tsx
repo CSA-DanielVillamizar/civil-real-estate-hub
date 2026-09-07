@@ -47,17 +47,22 @@ export function PropertyDetailPage({ id }: { id: string }) {
   const fotos = property.multimedia.filter((m) => m.tipo === 'Foto');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-4">
-          <a href="/" className="font-heading text-lg font-bold text-slate-900">
+    <div className="min-h-screen bg-white">
+      {/* Mismo header del Home (fase 7/N) — sticky con blur, ancho máx.
+          1440px de la grilla fluida del showcase público. */}
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
+        <div className="mx-auto max-w-[1440px] px-6 py-4 sm:px-8">
+          <a href="/" className="font-heading text-lg font-bold tracking-tight text-slate-900">
             Plataforma <span className="text-sky-600">Civil &amp; Inmobiliaria</span>
           </a>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <a href="/#propiedades" className="mb-4 inline-block text-sm text-slate-500 hover:text-slate-900">
+      <main className="mx-auto max-w-[1440px] px-6 py-public-lg sm:px-8 sm:py-public-xl">
+        <a
+          href="/#propiedades"
+          className="mb-5 inline-flex items-center gap-1.5 font-heading text-sm font-medium text-slate-500 transition hover:text-slate-900"
+        >
           ← Volver al catálogo
         </a>
 
@@ -80,13 +85,13 @@ export function PropertyDetailPage({ id }: { id: string }) {
               )}
             </div>
 
-            <h1 className="font-heading text-2xl font-bold tracking-tight text-slate-900">{property.titulo}</h1>
-            <p className="mt-1 flex items-center gap-1 text-slate-500">
+            <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{property.titulo}</h1>
+            <p className="mt-2 flex items-center gap-1.5 text-slate-500">
               <LocationPinIcon className="h-4 w-4 text-sky-600" />
               {property.direccion}, {property.municipio}, {property.departamento}
             </p>
 
-            <p className="mt-4 font-heading text-3xl font-bold tracking-tight text-slate-900">
+            <p className="mt-5 font-heading text-4xl font-bold tracking-tight text-slate-900">
               {property.precio.toLocaleString('es-CO')}{' '}
               <span className="text-lg font-semibold text-slate-500">{property.moneda}</span>
             </p>
@@ -94,7 +99,7 @@ export function PropertyDetailPage({ id }: { id: string }) {
             {/* Ficha técnica — solo campos reales del dominio (área, pendiente,
                 tipo de suelo, topografía), en el mismo formato de tarjeta
                 escaneable de datos técnicos del nuevo sistema de diseño. */}
-            <div className="my-6 grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-4">
+            <div className="my-8 grid grid-cols-2 gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:grid-cols-4">
               <div className="flex flex-col">
                 <span className="font-heading text-[11px] font-medium uppercase tracking-wide text-slate-500">Área terreno</span>
                 <span className="font-heading text-sm font-semibold text-slate-900">
@@ -123,19 +128,19 @@ export function PropertyDetailPage({ id }: { id: string }) {
               </div>
             </div>
 
-            <h2 className="mb-2 font-heading font-semibold text-slate-900">Descripción</h2>
-            <p className="mb-6 whitespace-pre-line text-slate-600">{property.descripcion}</p>
+            <h2 className="font-heading mb-2 text-lg font-semibold text-slate-900">Descripción</h2>
+            <p className="mb-8 whitespace-pre-line text-slate-600">{property.descripcion}</p>
 
-            <h2 className="mb-2 font-heading font-semibold text-slate-900">Viabilidad constructiva</h2>
+            <h2 className="font-heading mb-2 text-lg font-semibold text-slate-900">Viabilidad constructiva</h2>
             {property.restriccionesViabilidad.length === 0 ? (
-              <p className="mb-6 flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
+              <p className="mb-8 flex items-center gap-2 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
                 <CheckCircleIcon className="h-4 w-4 shrink-0" />
                 Sin restricciones detectadas frente a las reglas de referencia (pendiente y retiros ambientales).
               </p>
             ) : (
-              <ul className="mb-6 flex flex-col gap-2">
+              <ul className="mb-8 flex flex-col gap-2">
                 {property.restriccionesViabilidad.map((r, i) => (
-                  <li key={i} className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+                  <li key={i} className="flex items-start gap-2 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
                     <AlertTriangleIcon className="mt-0.5 h-4 w-4 shrink-0" />
                     <span>{r}</span>
                   </li>
@@ -145,8 +150,8 @@ export function PropertyDetailPage({ id }: { id: string }) {
 
             {property.retirosAmbientales.length > 0 && (
               <>
-                <h2 className="mb-2 font-heading font-semibold text-slate-900">Retiros ambientales</h2>
-                <ul className="mb-6 flex flex-wrap gap-2">
+                <h2 className="font-heading mb-2 text-lg font-semibold text-slate-900">Retiros ambientales</h2>
+                <ul className="mb-8 flex flex-wrap gap-2">
                   {property.retirosAmbientales.map((r, i) => (
                     <li
                       key={i}
@@ -162,8 +167,24 @@ export function PropertyDetailPage({ id }: { id: string }) {
             <PropertyLocationMap latitud={property.latitud} longitud={property.longitud} titulo={property.titulo} />
           </div>
 
-          <aside className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:h-fit">
+          {/* Panel de conversión — dos caminos claros: respuesta inmediata por
+              WhatsApp (canal de máxima visibilidad, fase 7/N) o dejar los
+              datos para que un asesor llame. lg:top-24 deja espacio bajo el
+              header sticky al hacer scroll. */}
+          <aside className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_10px_25px_-5px_rgba(15,23,42,0.06),0_8px_10px_-6px_rgba(15,23,42,0.04)] lg:sticky lg:top-24 lg:h-fit">
+            <div>
+              <p className="font-heading text-xs font-bold uppercase tracking-wide text-slate-400">Contacta a un asesor</p>
+              <p className="mt-1 text-sm text-slate-500">Respuesta directa por WhatsApp o cotización personalizada.</p>
+            </div>
+
             <WhatsAppButton mensaje={`Hola, me interesa la propiedad "${property.titulo}" (${property.municipio}, ${property.departamento}).`} />
+
+            <div className="flex items-center gap-3 font-heading text-[11px] font-medium uppercase tracking-wide text-slate-400">
+              <span className="h-px flex-1 bg-slate-200" />
+              o déjanos tus datos
+              <span className="h-px flex-1 bg-slate-200" />
+            </div>
+
             <PropertyInterestForm propiedadId={property.id} />
           </aside>
         </div>

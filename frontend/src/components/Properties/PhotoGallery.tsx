@@ -28,7 +28,7 @@ export function PhotoGallery({ fotos, titulo }: PhotoGalleryProps) {
 
   if (fotos.length === 0) {
     return (
-      <div className="mb-6 flex h-64 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+      <div className="mb-8 flex h-64 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
         Sin fotos disponibles
       </div>
     );
@@ -36,18 +36,21 @@ export function PhotoGallery({ fotos, titulo }: PhotoGalleryProps) {
 
   return (
     <>
-      <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {/* Property Visuals — rounded-2xl para la sensación editorial/de alta
+          gama del showcase (DESIGN.md §Shapes), en vez del rounded-lg
+          genérico que usa el resto de superficies del sitio. */}
+      <div className="mb-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {fotos.map((foto, i) => (
           <button
             key={foto.id}
             type="button"
             onClick={() => setAbiertaEn(i)}
-            className={`group relative overflow-hidden rounded-lg ${i === 0 ? 'col-span-2 row-span-2 h-full sm:col-span-2' : ''}`}
+            className={`group relative overflow-hidden rounded-2xl ${i === 0 ? 'col-span-2 row-span-2 h-full sm:col-span-2' : ''}`}
           >
             <img
               src={foto.url}
               alt={`${titulo} — foto ${i + 1}`}
-              className="h-48 w-full object-cover transition group-hover:brightness-90 sm:h-full"
+              className="h-48 w-full object-cover transition duration-500 group-hover:scale-105 group-hover:brightness-95 sm:h-full"
             />
           </button>
         ))}

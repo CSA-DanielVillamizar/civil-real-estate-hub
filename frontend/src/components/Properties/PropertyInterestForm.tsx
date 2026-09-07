@@ -50,7 +50,7 @@ export function PropertyInterestForm({ propiedadId }: { propiedadId: string }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
-      <h3 className="font-semibold text-slate-900">¿Te interesa esta propiedad?</h3>
+      <h3 className="font-heading font-semibold text-slate-900">¿Te interesa esta propiedad?</h3>
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <FormField label="Nombre" htmlFor="interes-nombre" error={showError('nombre')}>
@@ -89,10 +89,14 @@ export function PropertyInterestForm({ propiedadId }: { propiedadId: string }) {
         error={showError('aceptaPrivacidad')}
       />
 
+      {/* slate-900 (CTA institucional primario) en vez de emerald — emerald
+          queda reservado para estados de confirmación/logro genuino (ver el
+          mensaje de éxito arriba), no para el botón de envío en sí; mismo
+          criterio de paleta ya aplicado en el resto del sitio. */}
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-1 rounded-lg bg-emerald-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+        className="font-heading mt-1 rounded-lg bg-slate-900 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
       >
         {isSubmitting ? 'Enviando…' : 'Quiero que me contacten'}
       </button>

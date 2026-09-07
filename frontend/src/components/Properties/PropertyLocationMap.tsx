@@ -17,12 +17,12 @@ export function PropertyLocationMap({ latitud, longitud, titulo }: PropertyLocat
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="font-semibold text-slate-900">Ubicación</h2>
+        <h2 className="font-heading text-lg font-semibold text-slate-900">Ubicación</h2>
         <a
           href={comoLlegarHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-emerald-700 hover:underline"
+          className="font-heading text-sm font-medium text-sky-700 hover:underline"
         >
           Cómo llegar ↗
         </a>
@@ -30,7 +30,7 @@ export function PropertyLocationMap({ latitud, longitud, titulo }: PropertyLocat
       <iframe
         title={`Ubicación de ${titulo}`}
         src={src}
-        className="h-72 w-full rounded-lg border border-slate-200"
+        className="h-72 w-full rounded-2xl border border-slate-200"
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
       />
